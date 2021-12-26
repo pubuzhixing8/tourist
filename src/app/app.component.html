@@ -1,8 +1,8 @@
 <div class="full-page">
     <div class="panel-container">
         <div class="toolbar">
-            <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="togglePointer($event)">pen</button>
-            <button class="item" [ngClass]="{'active': pointer === 'cursor'}" (mousedown)="togglePointer($event)">cursor</button>
+            <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">画笔</button>
+            <button class="item" [ngClass]="{'active': pointer === 'select'}" (mousedown)="useSelect($event)">选择</button>
             <!-- <button class="item">eraser</button> -->
             <button class="item">export png</button>
         </div>

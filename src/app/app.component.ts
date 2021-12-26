@@ -4,7 +4,9 @@ import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import isHotkey from 'is-hotkey';
+import { isHotkey } from 'is-hotkey';
+import Hotkeys from './utils/hotkeys';
+
 
 @Component({
   selector: 'app-root',
@@ -13,20 +15,24 @@ import isHotkey from 'is-hotkey';
 })
 export class AppComponent implements OnInit {
   title = 'ipen';
-  svgElement: SVGSVGElement | undefined;
+  svgElement: SVGSVGElement = {} as any;
 
   @ViewChild('SVG', { static: true })
-  SVG: ElementRef | undefined;
+  SVG: ElementRef = {} as any;
 
-  pointer: 'pen' | 'cursor' = 'pen';
+  pointer: 'pen' | 'select' = 'pen';
 
   penElements: PenElement[] = [];
 
+  selection: Selection = { anchor: [-1, -1], focus: [-1, -1] };
+
+  rc: RoughSVG = {} as any;
+
   ngOnInit(): void {
-    console.log(rough);
     this.svgElement = this.SVG?.nativeElement;
     const rc = rough.svg(this.svgElement as SVGSVGElement, { options: { roughness: 0.1, strokeWidth: 2 } });
     this.initializePen(rc);
+    this.rc = rc;
   }
 
   initializePen(rc: RoughSVG) {
@@ -73,15 +79,70 @@ export class AppComponent implements OnInit {
       event.stopPropagation();
       event.preventDefault();
       if (isHotkey('mod+a', event)) {
-        this.penElements.forEach((penElement) => {
-          const rect = penElement.lineSvg.getBoundingClientRect();
-          const point = this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement as SVGSVGElement);
-          const rectSvg = rc.rectangle(point[0] - 3, point[1] - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
-          this.svgElement?.appendChild(rectSvg);
-          penElement.rectSvg = rectSvg;
-        });
+        const rect = this.svgElement.getBoundingClientRect();
+        const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
+        this.setSelection(selection);
+        this.pointer = 'select';
+      }
+      if (Hotkeys.isDeleteBackward(event) && this.pointer === 'select') {
+        const selectedElements = this.getElementsBySelection(this.selection);
+        selectedElements.forEach((element) => {
+          element.lineSvg.remove();
+          element.rectSvg?.remove();
+          this.penElements.splice(this.penElements.indexOf(element), 1);
+        })
       }
     });
+
+    fromEvent<MouseEvent>(this.svgElement as SVGElement, 'click').pipe().subscribe((event: MouseEvent) => {
+      if (this.pointer === 'select') {
+        const selection = this.getSelectionByPoint(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
+        this.setSelection(selection);
+      }
+    });
+  }
+
+  getElementsBySelection(selection: Selection): PenElement[] {
+    return this.penElements.filter((element) => {
+      if (!element.lineSvg) {
+        return false;
+      }
+      const rect = element.lineSvg.getBoundingClientRect();
+      const a: Rect = { start: this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement), width: rect.width, height: rect.height };
+      const b: Rect = { start: [...selection.anchor], width: selection.focus[0] - selection.anchor[0], height: selection.focus[1] - selection.anchor[1] };
+      return Rect.interaction(a, b)
+    });
+  }
+
+  getSelectionByPoint(point: Point): Selection {
+    return { anchor: [point[0] - 5, point[1] - 5], focus: [point[0] + 5, point[1] + 5] };
+  }
+
+  setSelection(selection: Selection) {
+    this.removeSelection();
+    const elements = this.getElementsBySelection(selection);
+    elements.forEach((element) => {
+      const rect = element.lineSvg.getBoundingClientRect();
+      const point = this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement as SVGSVGElement);
+      const rectSvg = this.rc.rectangle(point[0] - 3, point[1] - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
+      this.svgElement?.appendChild(rectSvg);
+      element.rectSvg = rectSvg;
+    });
+    this.selection = selection;
+  }
+
+  removeSelection() {
+    this.selection = { anchor: [-1, -1], focus: [-1, -1] };
+    this.penElements.filter((element) => element.rectSvg).forEach((element) => {
+      element.rectSvg?.remove();
+    });
+  }
+
+  isFocus() {
+  }
+
+  hasFocusElement() {
+
   }
 
   startDraw() {
@@ -101,11 +162,38 @@ export class AppComponent implements OnInit {
     return [x - rect.x, y - rect.y];
   }
 
-  togglePointer(event: MouseEvent) {
+  usePen(event: MouseEvent) {
     event.preventDefault();
-    this.pointer = this.pointer === 'pen' ? 'cursor' : 'pen';
+    this.pointer = 'pen';
+  }
+
+  useSelect(event: MouseEvent) {
+    event.preventDefault();
+    this.pointer = 'select';
   }
 }
+
+export interface Rect {
+  start: Point;
+  width: number;
+  height: number;
+}
+
+export const Rect = {
+  interaction: (a: Rect, b: Rect) => {
+    const minX = a.start[0] < b.start[0] ? a.start[0] : b.start[0];
+    const maxX = a.start[0] + a.width < b.start[0] + b.width ? b.start[0] + b.width : a.start[0] + a.width;
+    const minY = a.start[1] < b.start[1] ? a.start[1] : b.start[1];
+    const maxY = a.start[1] + a.height < b.start[1] + b.height ? b.start[1] + b.height : a.start[1] + a.height;
+    const xWidth = (a.width + b.width) - (maxX - minX);
+    const yHeight = (a.height + b.height) - (maxY - minY);
+    if (xWidth > 0 && yHeight > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
 
 
 export interface PenContext {
@@ -120,4 +208,25 @@ export interface PenElement {
   points: Point[];
   lineSvg: SVGGElement;
   rectSvg?: SVGGElement;
+}
+
+export interface Selection {
+  anchor: [number, number];
+  focus: [number, number];
+}
+
+export const Selection = {
+
+};
+
+export interface Page {
+  selection: Selection,
+  elements: PenElement[],
+}
+
+export const Page = {
+  setSelection(page: Page, selection: Selection) {
+    page.selection = selection;
+
+  }
 }
