@@ -76,13 +76,13 @@ export class AppComponent implements OnInit {
 
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
     ).subscribe((event: KeyboardEvent) => {
-      event.stopPropagation();
-      event.preventDefault();
       if (isHotkey('mod+a', event)) {
         const rect = this.svgElement.getBoundingClientRect();
         const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
         this.setSelection(selection);
         this.pointer = 'select';
+        event.stopPropagation();
+        event.preventDefault();
       }
       if (Hotkeys.isDeleteBackward(event) && this.pointer === 'select') {
         const selectedElements = this.getElementsBySelection(this.selection);
@@ -91,6 +91,8 @@ export class AppComponent implements OnInit {
           element.rectSvg?.remove();
           this.penElements.splice(this.penElements.indexOf(element), 1);
         })
+        event.stopPropagation();
+        event.preventDefault();
       }
     });
 
