@@ -12,43 +12,6 @@
 
 <body>
     <app-root></app-root>
-    <tou-button type="primary"><span slot="btn-content" id="btn_show">趣谈 button</span></tou-button>
-    <tou-button type="wraning"><span slot="btn-content">趣谈 button</span></tou-button>
-    <tou-button type="default"><span slot="btn-content">趣谈 button</span></tou-button>
-
-    <tou-button type="primary"><span slot="btn-content" id="btn_show_modal">显示弹框</span></tou-button>
-    <tou-button type="default"><span slot="btn-content" id="btn_hide_modal">关闭弹框</span></tou-button>
-    <tou-modal title="哈嘿" visible="false" id="modal">
-        <div slot="modal-content">web component 自定义modal?</div>
-    </tou-modal>
-    <!--template定义区-->
-    <template id="btn_tpl">
-        <slot name="btn-content">button content</slot>
-    </template>
-    <template id="modal_tpl">
-        <style>
-            .modal-content {
-                padding: 16px;
-                font-size: 14px;
-                max-height: 800px;
-                overflow: scroll;
-            }
-        </style>
-        <div class="modal-content">
-            <slot name="modal-content">modal content</slot>
-        </div>
-    </template>
-    <script src="/assets/web-component/button.js"></script>
-    <script src="/assets/web-component/modal.js"></script>
-    <script>
-        let modal = document.getElementById('modal');
-        document.querySelector('#btn_show_modal').addEventListener('click', () => {
-            modal.setAttribute('visible', 'true');
-        }, false)
-        document.querySelector('#btn_hide_modal').addEventListener('click', () => {
-            modal.setAttribute('visible', 'false');
-        }, false)
-    </script>
 </body>
 
 </html>
