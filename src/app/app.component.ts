@@ -14,7 +14,7 @@ import Hotkeys from './utils/hotkeys';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'ipen';
+  title = 'tourist';
   svgElement: SVGSVGElement = {} as any;
 
   @ViewChild('SVG', { static: true })
