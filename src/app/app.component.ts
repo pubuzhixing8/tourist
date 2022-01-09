@@ -6,7 +6,9 @@ import { fromEvent } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
-
+import { addLinearPath, createPaper, HistoryPaper } from './interfaces/paper';
+import { ElementType } from './interfaces/element';
+import { generateKey } from './utils/key';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +24,7 @@ export class AppComponent implements OnInit {
 
   pointer: 'pen' | 'select' = 'pen';
 
-  penElements: PenElement[] = [];
+  paper = HistoryPaper(createPaper());
 
   selection: Selection = { anchor: [-1, -1], focus: [-1, -1] };
 
@@ -33,6 +35,12 @@ export class AppComponent implements OnInit {
     const rc = rough.svg(this.svgElement as SVGSVGElement, { options: { roughness: 0.1, strokeWidth: 2 } });
     this.initializePen(rc);
     this.rc = rc;
+    const onChange = this.paper.onChange;
+    this.paper.onChange = () => {
+      onChange();
+      console.log(this.paper.operations, 'operations');
+      console.log(this.paper.elements, 'elements');
+    }
   }
 
   initializePen(rc: RoughSVG) {
@@ -70,7 +78,8 @@ export class AppComponent implements OnInit {
       if (context.isDrawing) {
         this.endDraw();
       }
-      this.penElements.push({ points: context.points, lineSvg: context.svg as SVGGElement });
+      context.svg?.remove();
+      addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey() });
       context = { isReadying: false, isDrawing: false, points: [], rc };
     });
 
@@ -85,14 +94,20 @@ export class AppComponent implements OnInit {
         event.preventDefault();
       }
       if (Hotkeys.isDeleteBackward(event) && this.pointer === 'select') {
-        const selectedElements = this.getElementsBySelection(this.selection);
-        selectedElements.forEach((element) => {
-          element.lineSvg.remove();
-          element.rectSvg?.remove();
-          this.penElements.splice(this.penElements.indexOf(element), 1);
-        })
+        // const selectedElements = this.getElementsBySelection(this.selection);
+        // selectedElements.forEach((element) => {
+        //   element.lineSvg.remove();
+        //   element.rectSvg?.remove();
+        //   // this.penElements.splice(this.penElements.indexOf(element), 1);
+        // })
         event.stopPropagation();
         event.preventDefault();
+      }
+      if (Hotkeys.isUndo(event)) {
+        this.paper.undo();
+      }
+      if (Hotkeys.isRedo(event)) {
+        this.paper.redo();
       }
     });
 
@@ -104,17 +119,17 @@ export class AppComponent implements OnInit {
     });
   }
 
-  getElementsBySelection(selection: Selection): PenElement[] {
-    return this.penElements.filter((element) => {
-      if (!element.lineSvg) {
-        return false;
-      }
-      const rect = element.lineSvg.getBoundingClientRect();
-      const a: Rect = { start: this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement), width: rect.width, height: rect.height };
-      const b: Rect = { start: [...selection.anchor], width: selection.focus[0] - selection.anchor[0], height: selection.focus[1] - selection.anchor[1] };
-      return Rect.interaction(a, b)
-    });
-  }
+  // getElementsBySelection(selection: Selection): PenElement[] {
+  //   // return this.penElements.filter((element) => {
+  //   //   if (!element.lineSvg) {
+  //   //     return false;
+  //   //   }
+  //   //   const rect = element.lineSvg.getBoundingClientRect();
+  //   //   const a: Rect = { start: this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement), width: rect.width, height: rect.height };
+  //   //   const b: Rect = { start: [...selection.anchor], width: selection.focus[0] - selection.anchor[0], height: selection.focus[1] - selection.anchor[1] };
+  //   //   return Rect.interaction(a, b)
+  //   // });
+  // }
 
   getSelectionByPoint(point: Point): Selection {
     return { anchor: [point[0] - 5, point[1] - 5], focus: [point[0] + 5, point[1] + 5] };
@@ -122,22 +137,22 @@ export class AppComponent implements OnInit {
 
   setSelection(selection: Selection) {
     this.removeSelection();
-    const elements = this.getElementsBySelection(selection);
-    elements.forEach((element) => {
-      const rect = element.lineSvg.getBoundingClientRect();
-      const point = this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement as SVGSVGElement);
-      const rectSvg = this.rc.rectangle(point[0] - 3, point[1] - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
-      this.svgElement?.appendChild(rectSvg);
-      element.rectSvg = rectSvg;
-    });
-    this.selection = selection;
+    // const elements = this.getElementsBySelection(selection);
+    // elements.forEach((element) => {
+    //   const rect = element.lineSvg.getBoundingClientRect();
+    //   const point = this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement as SVGSVGElement);
+    //   const rectSvg = this.rc.rectangle(point[0] - 3, point[1] - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
+    //   this.svgElement?.appendChild(rectSvg);
+    //   element.rectSvg = rectSvg;
+    // });
+    // this.selection = selection;
   }
 
   removeSelection() {
     this.selection = { anchor: [-1, -1], focus: [-1, -1] };
-    this.penElements.filter((element) => element.rectSvg).forEach((element) => {
-      element.rectSvg?.remove();
-    });
+    // this.penElements.filter((element) => element.rectSvg).forEach((element) => {
+    //   element.rectSvg?.remove();
+    // });
   }
 
   isFocus() {

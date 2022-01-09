@@ -1,7 +1,12 @@
 import { Point } from "roughjs/bin/geometry";
+import { Key } from "../utils/key";
 
 export interface Element {
-    type: string;
+    type: ElementType;
     points: Point[];
-    key: string;
+    key: Key;
+}
+
+export enum ElementType {
+    linearPath
 }

@@ -6,6 +6,11 @@
             <!-- <button class="item">eraser</button> -->
             <button class="item">export png</button>
         </div>
-        <svg #SVG width="800" height="600"></svg>
+        <svg #SVG width="800" height="600">
+            <ng-container *ngFor="let item of paper.elements">
+                <linear-path [rc]="rc" [points]="item.points" ></linear-path>
+            </ng-container>
+            
+        </svg>
     </div>
 </div>
