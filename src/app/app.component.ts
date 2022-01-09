@@ -77,9 +77,9 @@ export class AppComponent implements OnInit {
     ).subscribe(() => {
       if (context.isDrawing) {
         this.endDraw();
+        addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey() });
       }
       context.svg?.remove();
-      addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey() });
       context = { isReadying: false, isDrawing: false, points: [], rc };
     });
 
