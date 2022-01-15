@@ -8,9 +8,8 @@
         </div>
         <svg #SVG width="800" height="600">
             <ng-container *ngFor="let item of paper.elements">
-                <linear-path [rc]="rc" [points]="item.points" ></linear-path>
+                <linear-path [rc]="rc" [element]="item" [selection]="paper.selection" ></linear-path>
             </ng-container>
-            
         </svg>
     </div>
 </div>

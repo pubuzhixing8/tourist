@@ -1,9 +1,10 @@
 import { Point } from "roughjs/bin/geometry";
 import { Key } from "../utils/key";
 import { Element } from "./element";
+import { Selection } from "./selection";
 
 export interface Operation {
-    type: 'add' | 'remove';
+    type: 'add' | 'remove' | 'set_selection';
 }
 
 export interface AddOperation extends Operation {
@@ -17,6 +18,9 @@ export const Operation =  {
     },
     isRemoveOperation(value: Operation): value is RemoveOperation {
         return value.type === 'remove';
+    },
+    isSetSelectionOperation(value: Operation): value is SetSelectionOperation {
+        return value.type === 'set_selection';
     },
     reverse(value: Operation): Operation {
         if (Operation.isAddOperation(value)) {
@@ -32,4 +36,9 @@ export const Operation =  {
 export interface RemoveOperation extends Operation {
     type: 'remove';
     data: Element;
+}
+
+export interface SetSelectionOperation extends Operation {
+    type: 'set_selection';
+    data: Selection;
 }

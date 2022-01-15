@@ -6,9 +6,10 @@ import { fromEvent } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
-import { addLinearPath, createPaper, HistoryPaper } from './interfaces/paper';
-import { ElementType } from './interfaces/element';
+import { addLinearPath, createPaper, HistoryPaper, removeLinearPath, setSelection } from './interfaces/paper';
+import { ElementType, Element } from './interfaces/element';
 import { generateKey } from './utils/key';
+
 
 @Component({
   selector: 'app-root',
@@ -25,8 +26,6 @@ export class AppComponent implements OnInit {
   pointer: 'pen' | 'select' = 'pen';
 
   paper = HistoryPaper(createPaper());
-
-  selection: Selection = { anchor: [-1, -1], focus: [-1, -1] };
 
   rc: RoughSVG = {} as any;
 
@@ -88,18 +87,18 @@ export class AppComponent implements OnInit {
       if (isHotkey('mod+a', event)) {
         const rect = this.svgElement.getBoundingClientRect();
         const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
-        this.setSelection(selection);
+        setSelection(this.paper, selection);
         this.pointer = 'select';
         event.stopPropagation();
         event.preventDefault();
       }
       if (Hotkeys.isDeleteBackward(event) && this.pointer === 'select') {
-        // const selectedElements = this.getElementsBySelection(this.selection);
-        // selectedElements.forEach((element) => {
-        //   element.lineSvg.remove();
-        //   element.rectSvg?.remove();
-        //   // this.penElements.splice(this.penElements.indexOf(element), 1);
-        // })
+        this.paper.elements.forEach((value) => {
+          const isSelected = Element.isSelected(value, this.paper.selection);
+          if (isSelected) {
+            removeLinearPath(this.paper, value);
+          }
+        });
         event.stopPropagation();
         event.preventDefault();
       }
@@ -114,52 +113,13 @@ export class AppComponent implements OnInit {
     fromEvent<MouseEvent>(this.svgElement as SVGElement, 'click').pipe().subscribe((event: MouseEvent) => {
       if (this.pointer === 'select') {
         const selection = this.getSelectionByPoint(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
-        this.setSelection(selection);
+        setSelection(this.paper, selection);
       }
     });
   }
 
-  // getElementsBySelection(selection: Selection): PenElement[] {
-  //   // return this.penElements.filter((element) => {
-  //   //   if (!element.lineSvg) {
-  //   //     return false;
-  //   //   }
-  //   //   const rect = element.lineSvg.getBoundingClientRect();
-  //   //   const a: Rect = { start: this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement), width: rect.width, height: rect.height };
-  //   //   const b: Rect = { start: [...selection.anchor], width: selection.focus[0] - selection.anchor[0], height: selection.focus[1] - selection.anchor[1] };
-  //   //   return Rect.interaction(a, b)
-  //   // });
-  // }
-
   getSelectionByPoint(point: Point): Selection {
     return { anchor: [point[0] - 5, point[1] - 5], focus: [point[0] + 5, point[1] + 5] };
-  }
-
-  setSelection(selection: Selection) {
-    this.removeSelection();
-    // const elements = this.getElementsBySelection(selection);
-    // elements.forEach((element) => {
-    //   const rect = element.lineSvg.getBoundingClientRect();
-    //   const point = this.mousePointToRelativePoint(rect.x, rect.y, this.svgElement as SVGSVGElement);
-    //   const rectSvg = this.rc.rectangle(point[0] - 3, point[1] - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
-    //   this.svgElement?.appendChild(rectSvg);
-    //   element.rectSvg = rectSvg;
-    // });
-    // this.selection = selection;
-  }
-
-  removeSelection() {
-    this.selection = { anchor: [-1, -1], focus: [-1, -1] };
-    // this.penElements.filter((element) => element.rectSvg).forEach((element) => {
-    //   element.rectSvg?.remove();
-    // });
-  }
-
-  isFocus() {
-  }
-
-  hasFocusElement() {
-
   }
 
   startDraw() {
@@ -189,29 +149,6 @@ export class AppComponent implements OnInit {
     this.pointer = 'select';
   }
 }
-
-export interface Rect {
-  start: Point;
-  width: number;
-  height: number;
-}
-
-export const Rect = {
-  interaction: (a: Rect, b: Rect) => {
-    const minX = a.start[0] < b.start[0] ? a.start[0] : b.start[0];
-    const maxX = a.start[0] + a.width < b.start[0] + b.width ? b.start[0] + b.width : a.start[0] + a.width;
-    const minY = a.start[1] < b.start[1] ? a.start[1] : b.start[1];
-    const maxY = a.start[1] + a.height < b.start[1] + b.height ? b.start[1] + b.height : a.start[1] + a.height;
-    const xWidth = (a.width + b.width) - (maxX - minX);
-    const yHeight = (a.height + b.height) - (maxY - minY);
-    if (xWidth > 0 && yHeight > 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-};
-
 
 export interface PenContext {
   isReadying: boolean;

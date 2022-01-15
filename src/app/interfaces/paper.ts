@@ -1,17 +1,20 @@
 import { Element } from './element';
-import { Operation } from './operation';
+import { AddOperation, Operation, RemoveOperation, SetSelectionOperation } from './operation';
+import { Selection } from './selection';
 
 export interface Paper {
     elements: Element[];
     operations: Operation[];
     onChange: () => void;
     apply: (operation: Operation) => void;
+    selection: Selection;
 }
 
 export function createPaper(): Paper {
     const paper: Paper = {
         elements: [],
         operations: [],
+        selection: { anchor: [-1, -1], focus: [-1, -1] },
         onChange: () => {
 
         },
@@ -21,12 +24,14 @@ export function createPaper(): Paper {
             } else if (Operation.isRemoveOperation(operation)) {
                 const index = paper.elements.findIndex((element) => element.key === operation.data.key);
                 paper.elements.splice(index, 1);
+            } else if (Operation.isSetSelectionOperation(operation)) {
+                paper.selection = operation.data;
             }
             paper.operations.push(operation);
             Promise.resolve().then(() => {
                 if (paper.operations.length === 1) {
                     paper.onChange();
-                }  
+                }
                 paper.operations = [];
             });
         }
@@ -54,9 +59,12 @@ export const HistoryPaper = (paper: Paper) => {
         if (isUndoing || isRedoing) {
             return;
         }
+        if (Operation.isSetSelectionOperation(op)) {
+            return;
+        }
         historyPaper.undos.push([Operation.reverse(op)]);
     }
-    
+
     historyPaper.undo = () => {
         isUndoing = true;
         const operations = historyPaper.undos.pop();
@@ -88,5 +96,16 @@ export const HistoryPaper = (paper: Paper) => {
 }
 
 export function addLinearPath(paper: Paper, element: Element) {
-    paper.apply({ type: 'add', data: element } as Operation);
+    const operation: AddOperation = { type: 'add', data: element };
+    paper.apply(operation);
+}
+
+export function removeLinearPath(paper: Paper, element: Element) {
+    const operation: RemoveOperation = { type: 'remove', data: element };
+    paper.apply(operation);
+}
+
+export function setSelection(paper: Paper, selection: Selection) {
+    const operation: SetSelectionOperation = { type: 'set_selection', data: selection };
+    paper.apply(operation);
 }
