@@ -93,7 +93,8 @@ export class AppComponent implements OnInit {
         event.preventDefault();
       }
       if (Hotkeys.isDeleteBackward(event) && this.pointer === 'select') {
-        this.paper.elements.forEach((value) => {
+        const elements = [...this.paper.elements];
+        elements.forEach((value) => {
           const isSelected = Element.isSelected(value, this.paper.selection);
           if (isSelected) {
             removeLinearPath(this.paper, value);
