@@ -23,7 +23,7 @@ export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
     constructor(private elementRef: ElementRef) { }
 
     ngOnInit(): void {
-        this.svgElement = this.rc.linearPath(this.element.points, { stroke: this.element.color });
+        this.svgElement = this.rc.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
         this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         // this.element.nativeElement.remove();
     }

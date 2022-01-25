@@ -10,6 +10,7 @@ import { addLinearPath, createPaper, HistoryPaper, removeLinearPath, setElement,
 import { ElementType, Element } from './interfaces/element';
 import { generateKey } from './utils/key';
 import { Attributes } from './interfaces/attributes';
+import { Operation } from './interfaces/operation';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class AppComponent implements OnInit {
 
   rc: RoughSVG = {} as any;
 
-  attributes: Attributes = { color: '#000000' }
+  attributes: Attributes = { color: '#000000', strokeWidth: 2 };
 
   ngOnInit(): void {
     this.svgElement = this.SVG?.nativeElement;
@@ -41,6 +42,20 @@ export class AppComponent implements OnInit {
       onChange();
       console.log(this.paper.operations, 'operations');
       console.log(this.paper.elements, 'elements');
+      const op = this.paper.operations.filter((op) => Operation.isSetSelectionOperation(op));
+      if (op) {
+        const elements = [...this.paper.elements];
+        const ele = elements.find((value) => {
+          const isSelected = Element.isSelected(value, this.paper.selection);
+          return isSelected;
+        });
+        if (ele) {
+          const color = ele.color;
+          const strokeWidth = ele.strokeWidth;
+          this.attributes.color = color;
+          this.attributes.strokeWidth = strokeWidth;
+        }
+      }
     }
   }
 
@@ -64,7 +79,7 @@ export class AppComponent implements OnInit {
       if (context.isReadying) {
         context.isDrawing = true;
         context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
-        let svggElement = rc.linearPath(context.points, { stroke: this.attributes.color });
+        let svggElement = rc.linearPath(context.points, { stroke: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
         this.svgElement?.appendChild(svggElement);
         this.drawing(context);
         if (context.svg) {
@@ -78,7 +93,7 @@ export class AppComponent implements OnInit {
     ).subscribe(() => {
       if (context.isDrawing) {
         this.endDraw();
-        addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color });
+        addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
       }
       context.svg?.remove();
       context = { isReadying: false, isDrawing: false, points: [], rc };
@@ -184,10 +199,6 @@ export interface Selection {
   focus: [number, number];
 }
 
-export const Selection = {
-
-};
-
 export interface Page {
   selection: Selection,
   elements: PenElement[],
@@ -196,6 +207,5 @@ export interface Page {
 export const Page = {
   setSelection(page: Page, selection: Selection) {
     page.selection = selection;
-
   }
 }

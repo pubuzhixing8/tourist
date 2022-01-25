@@ -7,8 +7,15 @@
     </div>
     <div>
         <p>宽度</p>
-    </div>
-    <div>
-        <p>透明度</p>
+        <div>
+            <ng-container *ngFor="let item of strokeWidthList">
+                <span class="stroke-width-container"><label [attr.for]="item.name">{{ item.name }}</label>
+                    <input *ngIf="item.value === attributes?.strokeWidth" checked [attr.id]="item.name"
+                        name="strokeWidth" type="radio" (change)="onStrokeWidthChange($event, item)" />
+                    <input *ngIf="item.value !== attributes?.strokeWidth" [attr.id]="item.name" name="strokeWidth"
+                        type="radio" (change)="onStrokeWidthChange($event, item)" />
+                </span>
+            </ng-container>
+        </div>
     </div>
 </div>
