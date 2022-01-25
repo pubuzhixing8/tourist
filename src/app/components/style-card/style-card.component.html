@@ -1,8 +1,14 @@
 <div>
     <div>
         <p>颜色</p>
+        <div class="corlor-picker">
+            <button class="color-picker-swatch" [ngClass]="{'active': attributes?.color === item}" [ngStyle]="{'color': item}" *ngFor="let item of colorList" (mousedown)="colorSelect($event, item)"></button>
+        </div>
     </div>
     <div>
         <p>宽度</p>
+    </div>
+    <div>
+        <p>透明度</p>
     </div>
 </div>

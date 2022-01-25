@@ -6,6 +6,7 @@ export interface Element {
     type: ElementType;
     points: Point[];
     key: Key;
+    color: string;
 }
 
 export enum ElementType {

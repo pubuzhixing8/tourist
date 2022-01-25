@@ -4,7 +4,7 @@ import { Element } from "./element";
 import { Selection } from "./selection";
 
 export interface Operation {
-    type: 'add' | 'remove' | 'set_selection';
+    type: 'add' | 'remove' | 'set_selection' | 'set_element';
 }
 
 export interface AddOperation extends Operation {
@@ -22,12 +22,18 @@ export const Operation =  {
     isSetSelectionOperation(value: Operation): value is SetSelectionOperation {
         return value.type === 'set_selection';
     },
+    isSetElementOperation(value: Operation): value is SetElementOperation {
+        return value.type === 'set_element';
+    },
     reverse(value: Operation): Operation {
         if (Operation.isAddOperation(value)) {
             return { ...value, type: 'remove' };
         }
         if (Operation.isRemoveOperation(value)) {
             return { ...value, type: 'add' };
+        }
+        if (Operation.isSetElementOperation(value)) {
+            return { ...value, properties: value.newProperties, newProperties: value.properties } as SetElementOperation;
         }
         return value;
     }
@@ -41,4 +47,11 @@ export interface RemoveOperation extends Operation {
 export interface SetSelectionOperation extends Operation {
     type: 'set_selection';
     data: Selection;
+}
+
+export interface SetElementOperation extends Operation {
+    type: 'set_element';
+    properties: Partial<Element>;
+    newProperties: Partial<Element>;
+    data: Element;
 }

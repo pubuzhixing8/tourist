@@ -37,5 +37,21 @@
         top: calc((100vh - 600px) / 2);
         left: calc((100vw - 800px) / 2 - 260px);
         padding: 20px;
+        .color-picker-swatch {
+            position: relative;
+            height: 1.875rem;
+            width: 1.875rem;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 0;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            background-color: currentColor !important;
+            -webkit-filter: var(--theme-filter);
+            filter: var(--theme-filter);
+            &.active {
+                border: 1px solid blue;
+            }
+        }
     }
 }

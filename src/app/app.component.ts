@@ -6,15 +6,15 @@ import { fromEvent } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
-import { addLinearPath, createPaper, HistoryPaper, removeLinearPath, setSelection } from './interfaces/paper';
+import { addLinearPath, createPaper, HistoryPaper, removeLinearPath, setElement, setSelection } from './interfaces/paper';
 import { ElementType, Element } from './interfaces/element';
 import { generateKey } from './utils/key';
+import { Attributes } from './interfaces/attributes';
 
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   title = 'tourist';
@@ -28,6 +28,8 @@ export class AppComponent implements OnInit {
   paper = HistoryPaper(createPaper());
 
   rc: RoughSVG = {} as any;
+
+  attributes: Attributes = { color: '#000000' }
 
   ngOnInit(): void {
     this.svgElement = this.SVG?.nativeElement;
@@ -62,7 +64,7 @@ export class AppComponent implements OnInit {
       if (context.isReadying) {
         context.isDrawing = true;
         context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
-        let svggElement = rc.linearPath(context.points);
+        let svggElement = rc.linearPath(context.points, { stroke: this.attributes.color });
         this.svgElement?.appendChild(svggElement);
         this.drawing(context);
         if (context.svg) {
@@ -76,7 +78,7 @@ export class AppComponent implements OnInit {
     ).subscribe(() => {
       if (context.isDrawing) {
         this.endDraw();
-        addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey() });
+        addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color });
       }
       context.svg?.remove();
       context = { isReadying: false, isDrawing: false, points: [], rc };
@@ -121,6 +123,18 @@ export class AppComponent implements OnInit {
 
   getSelectionByPoint(point: Point): Selection {
     return { anchor: [point[0] - 5, point[1] - 5], focus: [point[0] + 5, point[1] + 5] };
+  }
+
+  attributesChange(attributes: Attributes) {
+    if (this.pointer === 'select') {
+      const elements = [...this.paper.elements];
+      elements.forEach((value) => {
+        const isSelected = Element.isSelected(value, this.paper.selection);
+        if (isSelected) {
+          setElement(this.paper, value, attributes);
+        }
+      });
+    }
   }
 
   startDraw() {
