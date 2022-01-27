@@ -24,8 +24,6 @@ export class AppComponent implements OnInit {
   @ViewChild('SVG', { static: true })
   SVG: ElementRef = {} as any;
 
-  pointer: 'pen' | 'select' = 'pen';
-
   paper = HistoryPaper(createPaper());
 
   rc: RoughSVG = {} as any;
@@ -63,7 +61,7 @@ export class AppComponent implements OnInit {
     // mousedown、mousemove、mouseup
     let context: PenContext = { points: [], isDrawing: false, isReadying: false, rc };
     fromEvent<MouseEvent>(this.svgElement as SVGElement, 'mousedown').pipe(
-      filter(() => this.pointer === 'pen')
+      filter(() => this.paper.pointer === 'pen')
     ).subscribe({
       next: (event: MouseEvent) => {
         context = { points: [], isReadying: true, isDrawing: false, rc };
@@ -71,7 +69,7 @@ export class AppComponent implements OnInit {
       }
     });
     fromEvent<MouseEvent>(this.svgElement as SVGElement, 'mousemove').pipe(
-      filter(() => this.pointer === 'pen')
+      filter(() => this.paper.pointer === 'pen')
     ).subscribe((event: MouseEvent) => {
       if (context.isReadying && !context.isDrawing) {
         this.startDraw();
@@ -89,7 +87,7 @@ export class AppComponent implements OnInit {
       }
     });
     fromEvent(document, 'mouseup').pipe(
-      filter(() => this.pointer === 'pen')
+      filter(() => this.paper.pointer === 'pen')
     ).subscribe(() => {
       if (context.isDrawing) {
         this.endDraw();
@@ -105,11 +103,11 @@ export class AppComponent implements OnInit {
         const rect = this.svgElement.getBoundingClientRect();
         const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
         setSelection(this.paper, selection);
-        this.pointer = 'select';
+        this.paper.pointer = 'select';
         event.stopPropagation();
         event.preventDefault();
       }
-      if (Hotkeys.isDeleteBackward(event) && this.pointer === 'select') {
+      if (Hotkeys.isDeleteBackward(event) && this.paper.pointer === 'select') {
         const elements = [...this.paper.elements];
         elements.forEach((value) => {
           const isSelected = Element.isSelected(value, this.paper.selection);
@@ -129,7 +127,7 @@ export class AppComponent implements OnInit {
     });
 
     fromEvent<MouseEvent>(this.svgElement as SVGElement, 'click').pipe().subscribe((event: MouseEvent) => {
-      if (this.pointer === 'select') {
+      if (this.paper.pointer === 'select') {
         const selection = this.getSelectionByPoint(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
         setSelection(this.paper, selection);
       }
@@ -141,7 +139,7 @@ export class AppComponent implements OnInit {
   }
 
   attributesChange(attributes: Attributes) {
-    if (this.pointer === 'select') {
+    if (this.paper.pointer === 'select') {
       const elements = [...this.paper.elements];
       elements.forEach((value) => {
         const isSelected = Element.isSelected(value, this.paper.selection);
@@ -171,12 +169,17 @@ export class AppComponent implements OnInit {
 
   usePen(event: MouseEvent) {
     event.preventDefault();
-    this.pointer = 'pen';
+    this.paper.pointer = 'pen';
   }
 
   useSelect(event: MouseEvent) {
     event.preventDefault();
-    this.pointer = 'select';
+    this.paper.pointer = 'select';
+  }
+
+  useRectangle(event: MouseEvent) {
+    event.preventDefault();
+    this.paper.pointer = 'rectangle';
   }
 }
 

@@ -8,10 +8,15 @@ export interface Paper {
     onChange: () => void;
     apply: (operation: Operation) => void;
     selection: Selection;
+    mousedown: (event: MouseEvent) => void;
+    mouseup: (event: MouseEvent) => void;
+    mousemove: (event: MouseEvent) => void;
+    pointer: 'pen' | 'select' | 'rectangle';
 }
 
 export function createPaper(): Paper {
     const paper: Paper = {
+        pointer: 'pen',
         elements: [],
         operations: [],
         selection: { anchor: [-1, -1], focus: [-1, -1] },
@@ -51,7 +56,10 @@ export function createPaper(): Paper {
                 }
                 paper.operations = [];
             });
-        }
+        },
+        mousedown: (event) => {},
+        mouseup: (event) => {},
+        mousemove: (event) => {}
     };
     return paper;
 }

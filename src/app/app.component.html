@@ -1,8 +1,14 @@
 <div class="full-page">
     <div class="panel-container">
         <div class="toolbar">
-            <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">画笔</button>
-            <button class="item" [ngClass]="{'active': pointer === 'select'}" (mousedown)="useSelect($event)">选择</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === 'select'}" (mousedown)="useSelect($event)">选择</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === 'pen'}" (mousedown)="usePen($event)">画笔</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === 'rectangle'}" (mousedown)="useRectangle($event)">矩形</button>
+            <!-- <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">菱形</button>
+            <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">圆</button>
+            <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">箭头</button>
+            <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">线条</button> -->
+
             <!-- <button class="item">eraser</button> -->
             <button class="item">export png</button>
         </div>
