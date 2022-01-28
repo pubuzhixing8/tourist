@@ -11,7 +11,8 @@ export interface Element {
 }
 
 export enum ElementType {
-    linearPath
+    linearPath,
+    rectangle
 }
 
 export const Element = {

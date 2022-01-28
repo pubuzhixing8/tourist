@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnDes
 import { Point } from "roughjs/bin/geometry";
 import { RoughSVG } from "roughjs/bin/svg";
 import { Selection } from "../interfaces/selection";
-import { Element } from "../interfaces/element";
+import { Element, ElementType } from "../interfaces/element";
 
 @Component({
     selector: 'linear-path',
@@ -23,9 +23,15 @@ export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
     constructor(private elementRef: ElementRef) { }
 
     ngOnInit(): void {
-        this.svgElement = this.rc.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
-        this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
-        // this.element.nativeElement.remove();
+        if (this.element.type === ElementType.linearPath) {
+            this.svgElement = this.rc.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
+        } else if(this.element.type === ElementType.rectangle) {
+            const start = this.element.points[0];
+            const end = this.element.points[1];
+            this.svgElement = this.rc.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
+        }
     }
 
     ngOnChanges(changes: SimpleChanges): void {

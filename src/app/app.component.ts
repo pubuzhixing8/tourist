@@ -3,14 +3,16 @@ import { Point } from 'roughjs/bin/geometry';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
-import { addLinearPath, createPaper, HistoryPaper, removeLinearPath, setElement, setSelection } from './interfaces/paper';
+import { addElement, createPaper, removeElement, setElement, setSelection } from './interfaces/paper';
 import { ElementType, Element } from './interfaces/element';
 import { generateKey } from './utils/key';
 import { Attributes } from './interfaces/attributes';
 import { Operation } from './interfaces/operation';
+import { historyPaper } from './plugins/history';
+import { rectanglePaper } from './plugins/rectangle';
 
 
 @Component({
@@ -24,23 +26,23 @@ export class AppComponent implements OnInit {
   @ViewChild('SVG', { static: true })
   SVG: ElementRef = {} as any;
 
-  paper = HistoryPaper(createPaper());
-
   rc: RoughSVG = {} as any;
+
+  paper: any = null;
 
   attributes: Attributes = { color: '#000000', strokeWidth: 2 };
 
   ngOnInit(): void {
     this.svgElement = this.SVG?.nativeElement;
-    const rc = rough.svg(this.svgElement as SVGSVGElement, { options: { roughness: 0.1, strokeWidth: 2 } });
-    this.initializePen(rc);
-    this.rc = rc;
+    this.rc = rough.svg(this.svgElement as SVGSVGElement, { options: { roughness: 0.1, strokeWidth: 2 } });
+    this.initializePen(this.rc);
+    this.paper = rectanglePaper(historyPaper(createPaper()), this.rc, this.attributes);
     const onChange = this.paper.onChange;
     this.paper.onChange = () => {
       onChange();
       console.log(this.paper.operations, 'operations');
       console.log(this.paper.elements, 'elements');
-      const op = this.paper.operations.filter((op) => Operation.isSetSelectionOperation(op));
+      const op = this.paper.operations.filter((op: any) => Operation.isSetSelectionOperation(op));
       if (op) {
         const elements = [...this.paper.elements];
         const ele = elements.find((value) => {
@@ -55,20 +57,28 @@ export class AppComponent implements OnInit {
         }
       }
     }
+    this.paper.container = this.svgElement;
   }
 
   initializePen(rc: RoughSVG) {
     // mousedown、mousemove、mouseup
     let context: PenContext = { points: [], isDrawing: false, isReadying: false, rc };
     fromEvent<MouseEvent>(this.svgElement as SVGElement, 'mousedown').pipe(
+      tap((event) => {
+        this.paper.mousedown(event);
+      }),
       filter(() => this.paper.pointer === 'pen')
     ).subscribe({
       next: (event: MouseEvent) => {
         context = { points: [], isReadying: true, isDrawing: false, rc };
         context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
+        this.paper.mousedown(event);
       }
     });
     fromEvent<MouseEvent>(this.svgElement as SVGElement, 'mousemove').pipe(
+      tap((event) => {
+        this.paper.mousemove(event);
+      }),
       filter(() => this.paper.pointer === 'pen')
     ).subscribe((event: MouseEvent) => {
       if (context.isReadying && !context.isDrawing) {
@@ -85,13 +95,17 @@ export class AppComponent implements OnInit {
         }
         context.svg = svggElement;
       }
+      this.paper.mousemove(event);
     });
-    fromEvent(document, 'mouseup').pipe(
+    fromEvent<MouseEvent>(document, 'mouseup').pipe(
+      tap((event) => {
+        this.paper.mouseup(event);
+      }),
       filter(() => this.paper.pointer === 'pen')
-    ).subscribe(() => {
+    ).subscribe((event: MouseEvent) => {
       if (context.isDrawing) {
         this.endDraw();
-        addLinearPath(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
+        addElement(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
       }
       context.svg?.remove();
       context = { isReadying: false, isDrawing: false, points: [], rc };
@@ -112,7 +126,7 @@ export class AppComponent implements OnInit {
         elements.forEach((value) => {
           const isSelected = Element.isSelected(value, this.paper.selection);
           if (isSelected) {
-            removeLinearPath(this.paper, value);
+            removeElement(this.paper, value);
           }
         });
         event.stopPropagation();
