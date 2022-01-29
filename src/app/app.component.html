@@ -1,20 +1,20 @@
 <div class="full-page">
     <div class="panel-container">
         <div class="toolbar">
-            <button class="item" [ngClass]="{'active': paper?.pointer === 'select'}" (mousedown)="useSelect($event)">选择</button>
-            <button class="item" [ngClass]="{'active': paper?.pointer === 'pen'}" (mousedown)="usePen($event)">画笔</button>
-            <button class="item" [ngClass]="{'active': paper?.pointer === 'rectangle'}" (mousedown)="useRectangle($event)">矩形</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.pointer}" (mousedown)="usePointer($event, pointerType.pointer)">选择</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.draw}" (mousedown)="usePointer($event, pointerType.draw)">画笔</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.rectangle}" (mousedown)="usePointer($event, pointerType.rectangle)">矩形</button>
             <!-- <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">菱形</button>
             <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">圆</button>
             <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">箭头</button>
             <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">线条</button> -->
 
             <!-- <button class="item">eraser</button> -->
-            <button class="item">export png</button>
+            <!-- <button class="item">export png</button> -->
         </div>
         <svg #SVG width="800" height="600">
-            <ng-container *ngFor="let item of paper.elements">
-                <linear-path [rc]="rc" [element]="item" [selection]="paper.selection" ></linear-path>
+            <ng-container *ngFor="let item of paper?.elements">
+                <linear-path [rc]="rc" [element]="item" [selection]="paper?.selection" ></linear-path>
             </ng-container>
         </svg>
     </div>

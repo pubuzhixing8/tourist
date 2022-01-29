@@ -6,14 +6,14 @@ import { fromEvent } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
-import { addElement, createPaper, removeElement, setElement, setSelection } from './interfaces/paper';
+import { addElement, createPaper, Paper, removeElement, setElement, setSelection } from './interfaces/paper';
 import { ElementType, Element } from './interfaces/element';
 import { generateKey } from './utils/key';
 import { Attributes } from './interfaces/attributes';
 import { Operation } from './interfaces/operation';
-import { historyPaper } from './plugins/history';
+import { HistoryPaper, historyPaper } from './plugins/history';
 import { rectanglePaper } from './plugins/rectangle';
-
+import { PointerType } from './interfaces/pointer';
 
 @Component({
   selector: 'app-root',
@@ -21,32 +21,35 @@ import { rectanglePaper } from './plugins/rectangle';
 })
 export class AppComponent implements OnInit {
   title = 'tourist';
-  svgElement: SVGSVGElement = {} as any;
+  container: SVGSVGElement = {} as any;
 
   @ViewChild('SVG', { static: true })
-  SVG: ElementRef = {} as any;
+  SVG: ElementRef | undefined;
 
-  rc: RoughSVG = {} as any;
+  rc: RoughSVG | undefined;
 
-  paper: any = null;
+  paper: HistoryPaper | undefined;
 
   attributes: Attributes = { color: '#000000', strokeWidth: 2 };
 
+  pointerType = PointerType;
+
   ngOnInit(): void {
-    this.svgElement = this.SVG?.nativeElement;
-    this.rc = rough.svg(this.svgElement as SVGSVGElement, { options: { roughness: 0.1, strokeWidth: 2 } });
-    this.initializePen(this.rc);
-    this.paper = rectanglePaper(historyPaper(createPaper()), this.rc, this.attributes);
-    const onChange = this.paper.onChange;
-    this.paper.onChange = () => {
+    this.container = this.SVG?.nativeElement;
+    this.rc = rough.svg(this.container, { options: { roughness: 0.1, strokeWidth: 2 } });
+    const paper = rectanglePaper(historyPaper(createPaper()), this.rc, this.attributes);
+    this.paper = paper;
+    this.initializePen(this.rc, paper);
+    const onChange = paper?.onChange;
+    paper.onChange = () => {
       onChange();
-      console.log(this.paper.operations, 'operations');
-      console.log(this.paper.elements, 'elements');
-      const op = this.paper.operations.filter((op: any) => Operation.isSetSelectionOperation(op));
-      if (op) {
+      console.log(paper.operations, 'operations');
+      console.log(paper.elements, 'elements');
+      const op = paper.operations.filter((op: any) => Operation.isSetSelectionOperation(op));
+      if (op && this.paper) {
         const elements = [...this.paper.elements];
         const ele = elements.find((value) => {
-          const isSelected = Element.isSelected(value, this.paper.selection);
+          const isSelected = Element.isSelected(value, paper.selection);
           return isSelected;
         });
         if (ele) {
@@ -57,55 +60,52 @@ export class AppComponent implements OnInit {
         }
       }
     }
-    this.paper.container = this.svgElement;
+    this.paper.container = this.container;
   }
 
-  initializePen(rc: RoughSVG) {
+  initializePen(rc: RoughSVG, paper: HistoryPaper) {
     // mousedown、mousemove、mouseup
     let context: PenContext = { points: [], isDrawing: false, isReadying: false, rc };
-    fromEvent<MouseEvent>(this.svgElement as SVGElement, 'mousedown').pipe(
+    fromEvent<MouseEvent>(this.container as SVGElement, 'mousedown').pipe(
       tap((event) => {
-        this.paper.mousedown(event);
-      }),
-      filter(() => this.paper.pointer === 'pen')
+        paper.mousedown(event);
+      })
     ).subscribe({
       next: (event: MouseEvent) => {
         context = { points: [], isReadying: true, isDrawing: false, rc };
-        context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
-        this.paper.mousedown(event);
+        context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement));
+        paper.mousedown(event);
       }
     });
-    fromEvent<MouseEvent>(this.svgElement as SVGElement, 'mousemove').pipe(
+    fromEvent<MouseEvent>(this.container as SVGElement, 'mousemove').pipe(
       tap((event) => {
-        this.paper.mousemove(event);
-      }),
-      filter(() => this.paper.pointer === 'pen')
+        paper.mousemove(event);
+      })
     ).subscribe((event: MouseEvent) => {
       if (context.isReadying && !context.isDrawing) {
         this.startDraw();
       }
       if (context.isReadying) {
         context.isDrawing = true;
-        context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
-        let svggElement = rc.linearPath(context.points, { stroke: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
-        this.svgElement?.appendChild(svggElement);
+        context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement));
+        let svggElement = rc.curve(context.points, { stroke: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
+        this.container?.appendChild(svggElement);
         this.drawing(context);
         if (context.svg) {
           context.svg.remove();
         }
         context.svg = svggElement;
       }
-      this.paper.mousemove(event);
+      paper.mousemove(event);
     });
     fromEvent<MouseEvent>(document, 'mouseup').pipe(
       tap((event) => {
-        this.paper.mouseup(event);
-      }),
-      filter(() => this.paper.pointer === 'pen')
+        paper.mouseup(event);
+      })
     ).subscribe((event: MouseEvent) => {
       if (context.isDrawing) {
         this.endDraw();
-        addElement(this.paper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
+        addElement(paper as HistoryPaper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
       }
       context.svg?.remove();
       context = { isReadying: false, isDrawing: false, points: [], rc };
@@ -114,36 +114,36 @@ export class AppComponent implements OnInit {
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
     ).subscribe((event: KeyboardEvent) => {
       if (isHotkey('mod+a', event)) {
-        const rect = this.svgElement.getBoundingClientRect();
+        const rect = this.container.getBoundingClientRect();
         const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
-        setSelection(this.paper, selection);
-        this.paper.pointer = 'select';
+        setSelection(paper, selection);
+        paper.pointer = PointerType.pointer;
         event.stopPropagation();
         event.preventDefault();
       }
-      if (Hotkeys.isDeleteBackward(event) && this.paper.pointer === 'select') {
-        const elements = [...this.paper.elements];
+      if (Hotkeys.isDeleteBackward(event) && paper.pointer === PointerType.pointer) {
+        const elements = [...paper.elements];
         elements.forEach((value) => {
-          const isSelected = Element.isSelected(value, this.paper.selection);
+          const isSelected = Element.isSelected(value, paper.selection);
           if (isSelected) {
-            removeElement(this.paper, value);
+            removeElement(paper, value);
           }
         });
         event.stopPropagation();
         event.preventDefault();
       }
       if (Hotkeys.isUndo(event)) {
-        this.paper.undo();
+        paper.undo();
       }
       if (Hotkeys.isRedo(event)) {
-        this.paper.redo();
+        paper.redo();
       }
     });
 
-    fromEvent<MouseEvent>(this.svgElement as SVGElement, 'click').pipe().subscribe((event: MouseEvent) => {
-      if (this.paper.pointer === 'select') {
-        const selection = this.getSelectionByPoint(this.mousePointToRelativePoint(event.x, event.y, this.svgElement as SVGSVGElement));
-        setSelection(this.paper, selection);
+    fromEvent<MouseEvent>(this.container as SVGElement, 'click').pipe().subscribe((event: MouseEvent) => {
+      if (paper.pointer === PointerType.pointer) {
+        const selection = this.getSelectionByPoint(this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement));
+        setSelection(paper, selection);
       }
     });
   }
@@ -153,12 +153,13 @@ export class AppComponent implements OnInit {
   }
 
   attributesChange(attributes: Attributes) {
-    if (this.paper.pointer === 'select') {
-      const elements = [...this.paper.elements];
+    const paper = this.paper as HistoryPaper;
+    if (paper.pointer === PointerType.pointer) {
+      const elements = [...paper.elements];
       elements.forEach((value) => {
-        const isSelected = Element.isSelected(value, this.paper.selection);
+        const isSelected = Element.isSelected(value, paper.selection);
         if (isSelected) {
-          setElement(this.paper, value, attributes);
+          setElement(paper, value, attributes);
         }
       });
     }
@@ -181,19 +182,11 @@ export class AppComponent implements OnInit {
     return [x - rect.x, y - rect.y];
   }
 
-  usePen(event: MouseEvent) {
+  usePointer(event: MouseEvent, pointer: PointerType) {
     event.preventDefault();
-    this.paper.pointer = 'pen';
-  }
-
-  useSelect(event: MouseEvent) {
-    event.preventDefault();
-    this.paper.pointer = 'select';
-  }
-
-  useRectangle(event: MouseEvent) {
-    event.preventDefault();
-    this.paper.pointer = 'rectangle';
+    if (this.paper) {
+      this.paper.pointer = pointer;
+    }
   }
 }
 

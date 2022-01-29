@@ -12,11 +12,11 @@ import { Element, ElementType } from "../interfaces/element";
 export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
     @Input() element!: Element;
 
-    @Input() rc!: RoughSVG;
+    @Input() rc: RoughSVG | undefined;
 
-    @Input() selection!: Selection;
+    @Input() selection: Selection | undefined;
 
-    svgElement!: SVGGElement;
+    svgElement: SVGGElement | undefined;
 
     rectSvgElement: SVGGElement | undefined;
 
@@ -24,32 +24,29 @@ export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnInit(): void {
         if (this.element.type === ElementType.linearPath) {
-            this.svgElement = this.rc.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            this.svgElement = this.rc?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         } else if(this.element.type === ElementType.rectangle) {
             const start = this.element.points[0];
             const end = this.element.points[1];
-            this.svgElement = this.rc.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            this.svgElement = this.rc?.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        const selectionChange = changes['selection'];
-        // if (!selectionChange.firstChange) {
-        if (Element.isSelected(this.element, this.selection)) {
+        if (this.selection && Element.isSelected(this.element, this.selection)) {
             if (!this.rectSvgElement) {
                 this.addSelectedRect();
             }
         } else {
             this.removeSelectedRect();
         }
-        // }
     }
 
     addSelectedRect() {
         const rect = Element.getRect(this.element);
-        this.rectSvgElement = this.rc.rectangle(rect.x - 3, rect.y - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
+        this.rectSvgElement = this.rc?.rectangle(rect.x - 3, rect.y - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
         this.elementRef.nativeElement.parentElement.appendChild(this.rectSvgElement);
     }
 
@@ -61,7 +58,7 @@ export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnDestroy(): void {
-        this.svgElement.remove();
+        this.svgElement?.remove();
         this.removeSelectedRect();
     }
 }

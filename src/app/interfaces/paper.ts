@@ -1,9 +1,10 @@
 import { Element } from './element';
 import { AddOperation, Operation, RemoveOperation, SetElementOperation, SetSelectionOperation } from './operation';
+import { PointerType } from './pointer';
 import { Selection } from './selection';
 
 export interface Paper {
-    container: HTMLElement | SVGSVGElement | null;
+    container: SVGElement | null;
     elements: Element[];
     operations: Operation[];
     onChange: () => void;
@@ -12,13 +13,15 @@ export interface Paper {
     mousedown: (event: MouseEvent) => void;
     mouseup: (event: MouseEvent) => void;
     mousemove: (event: MouseEvent) => void;
-    pointer: 'pen' | 'select' | 'rectangle';
+    pointer: PointerType;
 }
+
+
 
 export function createPaper(): Paper {
     const paper: Paper = {
         container: null,
-        pointer: 'pen',
+        pointer: PointerType.draw,
         elements: [],
         operations: [],
         selection: { anchor: [-1, -1], focus: [-1, -1] },
