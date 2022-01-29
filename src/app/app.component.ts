@@ -12,7 +12,7 @@ import { generateKey } from './utils/key';
 import { Attributes } from './interfaces/attributes';
 import { Operation } from './interfaces/operation';
 import { HistoryPaper, historyPaper } from './plugins/history';
-import { rectanglePaper } from './plugins/rectangle';
+import { shapePaper } from './plugins/shape';
 import { PointerType } from './interfaces/pointer';
 
 @Component({
@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0.1, strokeWidth: 2 } });
-    const paper = rectanglePaper(historyPaper(createPaper()), this.rc, this.attributes);
+    const paper = shapePaper(historyPaper(createPaper()), this.rc, this.attributes);
     this.paper = paper;
     this.initializePen(this.rc, paper);
     const onChange = paper?.onChange;
@@ -72,9 +72,6 @@ export class AppComponent implements OnInit {
       })
     ).subscribe({
       next: (event: MouseEvent) => {
-        context = { points: [], isReadying: true, isDrawing: false, rc };
-        context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement));
-        paper.mousedown(event);
       }
     });
     fromEvent<MouseEvent>(this.container as SVGElement, 'mousemove').pipe(
@@ -82,33 +79,12 @@ export class AppComponent implements OnInit {
         paper.mousemove(event);
       })
     ).subscribe((event: MouseEvent) => {
-      if (context.isReadying && !context.isDrawing) {
-        this.startDraw();
-      }
-      if (context.isReadying) {
-        context.isDrawing = true;
-        context.points.push(this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement));
-        let svggElement = rc.curve(context.points, { stroke: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
-        this.container?.appendChild(svggElement);
-        this.drawing(context);
-        if (context.svg) {
-          context.svg.remove();
-        }
-        context.svg = svggElement;
-      }
-      paper.mousemove(event);
     });
     fromEvent<MouseEvent>(document, 'mouseup').pipe(
       tap((event) => {
         paper.mouseup(event);
       })
     ).subscribe((event: MouseEvent) => {
-      if (context.isDrawing) {
-        this.endDraw();
-        addElement(paper as HistoryPaper, { type: ElementType.linearPath, points: context.points, key: generateKey(), color: this.attributes.color, strokeWidth: this.attributes.strokeWidth });
-      }
-      context.svg?.remove();
-      context = { isReadying: false, isDrawing: false, points: [], rc };
     });
 
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
