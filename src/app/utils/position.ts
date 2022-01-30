@@ -22,5 +22,6 @@ export function toRect(points: Point[]) {
 }
 
 export function toSelectionByPoint(point: Point): Selection {
-    return { anchor: [point[0] - 5, point[1] - 5], focus: [point[0] + 5, point[1] + 5] };
+    const distance = 8;
+    return { anchor: [point[0] - distance, point[1] - distance], focus: [point[0] + distance * 2, point[1] + distance * 2] };
 }

@@ -15,6 +15,7 @@ import { HistoryPaper, historyPaper } from './plugins/history';
 import { shapePaper } from './plugins/shape';
 import { PointerType } from './interfaces/pointer';
 import { Selection } from './interfaces/selection';
+import { toPoint } from './utils/position';
 
 @Component({
   selector: 'app-root',
@@ -80,6 +81,13 @@ export class AppComponent implements OnInit {
         paper.mousemove(event);
       })
     ).subscribe((event: MouseEvent) => {
+      const point = toPoint(event.x, event.y, this.container);
+      const moveCursor = this.paper?.elements.some((ele) => Element.isHoverdElement(ele, point));
+      if (moveCursor && this.paper?.pointer === PointerType.pointer) {
+        this.container.classList.add('move');
+      } else {
+        this.container.classList.remove('move');
+      }
     });
     fromEvent<MouseEvent>(document, 'mouseup').pipe(
       tap((event) => {

@@ -27,6 +27,9 @@
                 }
             }
         }
+        & .move {
+            cursor: move;
+        }
     }
     .style-card-container {
         position: absolute;
