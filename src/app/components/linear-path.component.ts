@@ -5,13 +5,15 @@ import { Selection } from "../interfaces/selection";
 import { Element, ElementType } from "../interfaces/element";
 import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
 import { toRect } from "../utils/position";
+import { ELEMENT_TO_COMPONENTS } from "../utils/weakmaps";
+import { ElementBase } from "../base/element-base";
 
 @Component({
     selector: 'linear-path',
     template: '',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class curveComponent implements OnInit, OnDestroy, OnChanges {
+export class curveComponent extends ElementBase implements OnInit, OnDestroy, OnChanges {
     @Input() element!: Element;
 
     @Input() rc: RoughSVG | undefined;
@@ -22,7 +24,9 @@ export class curveComponent implements OnInit, OnDestroy, OnChanges {
 
     activeRectangle: SVGGElement | undefined;
 
-    constructor(private elementRef: ElementRef) { }
+    constructor(private elementRef: ElementRef) { 
+        super();
+    }
 
     ngOnInit(): void {
         if (this.element.type === ElementType.curve) {
@@ -36,7 +40,30 @@ export class curveComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    hidden() {
+        if (this.svgElement) {
+            this.svgElement.classList.add('hidden');
+        }
+        if (this.activeRectangle) {
+            this.activeRectangle.classList.add('hidden');
+        }
+    }
+
+    show() {
+        if (this.svgElement) {
+            this.svgElement.classList.remove('hidden');
+        }
+        if (this.activeRectangle) {
+            this.activeRectangle.classList.remove('hidden');
+        }
+    }
+
     ngOnChanges(changes: SimpleChanges): void {
+        const elementChange = changes['element'];
+        if (elementChange) {
+            ELEMENT_TO_COMPONENTS.set(this.element, this);
+        }
+
         if (this.selection) {
             const isIntersected = (Selection.isCollapsed(this.selection) && Element.isHoverdElement(this.element, this.selection.anchor)) || (!Selection.isCollapsed(this.selection) && Element.isIntersected(this.element, this.selection));
             if (isIntersected && !this.activeRectangle) {

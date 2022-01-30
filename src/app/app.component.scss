@@ -30,6 +30,9 @@
         & .move {
             cursor: move;
         }
+        .hidden {
+            display: none;
+        }
     }
     .style-card-container {
         position: absolute;

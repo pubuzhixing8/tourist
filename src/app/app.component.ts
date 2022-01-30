@@ -16,6 +16,7 @@ import { shapePaper } from './plugins/shape';
 import { PointerType } from './interfaces/pointer';
 import { Selection } from './interfaces/selection';
 import { toPoint } from './utils/position';
+import { movePaper } from './plugins/move';
 
 @Component({
   selector: 'app-root',
@@ -39,7 +40,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0.1, strokeWidth: 2 } });
-    const paper = shapePaper(historyPaper(createPaper()), this.rc, this.attributes);
+    const paper =  movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes);
     this.paper = paper;
     this.initializePen(this.rc, paper);
     const onChange = paper?.onChange;
