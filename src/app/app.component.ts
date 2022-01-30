@@ -14,6 +14,7 @@ import { Operation } from './interfaces/operation';
 import { HistoryPaper, historyPaper } from './plugins/history';
 import { shapePaper } from './plugins/shape';
 import { PointerType } from './interfaces/pointer';
+import { Selection } from './interfaces/selection';
 
 @Component({
   selector: 'app-root',
@@ -49,7 +50,7 @@ export class AppComponent implements OnInit {
       if (op && this.paper) {
         const elements = [...this.paper.elements];
         const ele = elements.find((value) => {
-          const isSelected = Element.isSelected(value, paper.selection);
+          const isSelected = Element.isIntersected(value, paper.selection);
           return isSelected;
         });
         if (ele) {
@@ -100,7 +101,7 @@ export class AppComponent implements OnInit {
       if (Hotkeys.isDeleteBackward(event) && paper.pointer === PointerType.pointer) {
         const elements = [...paper.elements];
         elements.forEach((value) => {
-          const isSelected = Element.isSelected(value, paper.selection);
+          const isSelected = Element.isIntersected(value, paper.selection);
           if (isSelected) {
             removeElement(paper, value);
           }
@@ -118,14 +119,10 @@ export class AppComponent implements OnInit {
 
     fromEvent<MouseEvent>(this.container as SVGElement, 'click').pipe().subscribe((event: MouseEvent) => {
       if (paper.pointer === PointerType.pointer) {
-        const selection = this.getSelectionByPoint(this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement));
-        setSelection(paper, selection);
+        const point = this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement);
+        setSelection(paper, { anchor: point, focus: point });
       }
     });
-  }
-
-  getSelectionByPoint(point: Point): Selection {
-    return { anchor: [point[0] - 5, point[1] - 5], focus: [point[0] + 5, point[1] + 5] };
   }
 
   attributesChange(attributes: Attributes) {
@@ -133,7 +130,7 @@ export class AppComponent implements OnInit {
     if (paper.pointer === PointerType.pointer) {
       const elements = [...paper.elements];
       elements.forEach((value) => {
-        const isSelected = Element.isSelected(value, paper.selection);
+        const isSelected = Element.isIntersected(value, paper.selection);
         if (isSelected) {
           setElement(paper, value, attributes);
         }
@@ -178,11 +175,6 @@ export interface PenElement {
   points: Point[];
   lineSvg: SVGGElement;
   rectSvg?: SVGGElement;
-}
-
-export interface Selection {
-  anchor: [number, number];
-  focus: [number, number];
 }
 
 export interface Page {

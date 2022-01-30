@@ -52,7 +52,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
                 addElement(paper, element as any);
             }
             if (paper.pointer === PointerType.draw) {
-                addElement(paper, { type: ElementType.linearPath, points: [start, ...dragPoints], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth });
+                addElement(paper, { type: ElementType.curve, points: [start, ...dragPoints], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth });
             }
             domElement?.remove();
         }

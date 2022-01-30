@@ -1,10 +1,12 @@
+import { Point } from "roughjs/bin/geometry";
+
 export interface Selection {
     anchor: [number, number];
     focus: [number, number];
 }
 
 export const Selection = {
-    interaction: (first: Selection, second: Selection) => {
+    intersect: (first: Selection, second: Selection) => {
         const xArray = [first.anchor[0], first.focus[0], second.anchor[0], second.focus[0]];
         const yArray = [first.anchor[1], first.focus[1], second.anchor[1], second.focus[1]];
         const xMin = Math.min(...xArray);
@@ -23,9 +25,31 @@ export const Selection = {
             return false;
         }
     },
+    intersectPoint: (point: Point, selection: Selection) => {
+        const xArray = [selection.anchor[0], selection.focus[0]];
+        const yArray = [selection.anchor[1], selection.focus[1]];
+        const xMin = Math.min(...xArray);
+        const xMax = Math.max(...xArray);
+        const yMin = Math.min(...yArray);
+        const yMax = Math.max(...yArray);
+        console.log(point, 'point', selection, selection);
+        console.log(point[0] > xMin && point[0] < xMax && point[1] > yMin && point[1] < yMax, 'result');
+        if (point[0] > xMin && point[0] < xMax && point[1] > yMin && point[1] < yMax) {
+            return true;
+        } else {
+            return false;
+        }
+    },
     isBackward: (selection: Selection) => {
         if (selection.anchor[0] > selection.focus[0]) {
             return true;
+        } else {
+            return false;
+        }
+    },
+    isCollapsed: (selection: Selection) => {
+        if (selection.anchor[0] === selection.focus[0] && selection.anchor[1] === selection.focus[1]) {
+            return true
         } else {
             return false;
         }

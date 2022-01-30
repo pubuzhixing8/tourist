@@ -3,13 +3,15 @@ import { Point } from "roughjs/bin/geometry";
 import { RoughSVG } from "roughjs/bin/svg";
 import { Selection } from "../interfaces/selection";
 import { Element, ElementType } from "../interfaces/element";
+import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
+import { toRect } from "../utils/position";
 
 @Component({
     selector: 'linear-path',
     template: '',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
+export class curveComponent implements OnInit, OnDestroy, OnChanges {
     @Input() element!: Element;
 
     @Input() rc: RoughSVG | undefined;
@@ -18,12 +20,12 @@ export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
 
     svgElement: SVGGElement | undefined;
 
-    rectSvgElement: SVGGElement | undefined;
+    activeRectangle: SVGGElement | undefined;
 
     constructor(private elementRef: ElementRef) { }
 
     ngOnInit(): void {
-        if (this.element.type === ElementType.linearPath) {
+        if (this.element.type === ElementType.curve) {
             this.svgElement = this.rc?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         } else if(this.element.type === ElementType.rectangle) {
@@ -35,25 +37,28 @@ export class LinearPathComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (this.selection && Element.isSelected(this.element, this.selection)) {
-            if (!this.rectSvgElement) {
+        if (this.selection) {
+            const isIntersected = (Selection.isCollapsed(this.selection) && Element.isHoverdElement(this.element, this.selection.anchor)) || (!Selection.isCollapsed(this.selection) && Element.isIntersected(this.element, this.selection));
+            if (isIntersected && !this.activeRectangle) {
                 this.addSelectedRect();
+            } else {
+                this.removeSelectedRect();
             }
-        } else {
-            this.removeSelectedRect();
-        }
+            return;
+        } 
+        this.removeSelectedRect();
     }
 
     addSelectedRect() {
-        const rect = Element.getRect(this.element);
-        this.rectSvgElement = this.rc?.rectangle(rect.x - 3, rect.y - 3, rect.width + 6, rect.height + 6, { strokeLineDash: [6, 6], strokeWidth: 1, stroke: '#348fe4' });
-        this.elementRef.nativeElement.parentElement.appendChild(this.rectSvgElement);
+        const rect = toRect(this.element.points);
+        this.activeRectangle = this.rc?.rectangle(rect.x - ACTIVE_RECTANGLE_DISTANCE, rect.y - ACTIVE_RECTANGLE_DISTANCE, rect.width + ACTIVE_RECTANGLE_DISTANCE * 2, rect.height + ACTIVE_RECTANGLE_DISTANCE * 2, { strokeLineDash: [6, 6], strokeWidth: 1.5, stroke: '#348fe4', fill: 'fff' });
+        this.elementRef.nativeElement.parentElement.appendChild(this.activeRectangle);
     }
 
     removeSelectedRect() {
-        if (this.rectSvgElement) {
-            this.rectSvgElement.remove();
-            this.rectSvgElement = undefined;
+        if (this.activeRectangle) {
+            this.activeRectangle.remove();
+            this.activeRectangle = undefined;
         }
     }
 

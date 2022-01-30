@@ -1,5 +1,8 @@
 import { Point } from "roughjs/bin/geometry";
+import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
 import { Key } from "../utils/key";
+import { toRect, toSelection, toSelectionByPoint } from "../utils/position";
+import { Rect } from "./rect";
 import { Selection } from './selection';
 
 export interface Element {
@@ -11,22 +14,26 @@ export interface Element {
 }
 
 export enum ElementType {
-    linearPath,
+    curve,
     rectangle
 }
 
 export const Element = {
-    getRect(element: Element) {
-        const xArray = element.points.map(ele => ele[0]);
-        const yArray = element.points.map(ele => ele[1]);
-        const xMin = Math.min(...xArray);
-        const xMax = Math.max(...xArray);
-        const yMin = Math.min(...yArray);
-        const yMax = Math.max(...yArray);
-        return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
+    isIntersected(element: Element, selection: Selection) {
+        const rect = toRect(element.points);
+        return Selection.intersect({ anchor: [rect.x, rect.y], focus: [rect.x + rect.width, rect.y + rect.height] }, selection);
     },
-    isSelected(element: Element, selection: Selection) {
-        const rect = Element.getRect(element);
-        return Selection.interaction({ anchor: [rect.x, rect.y], focus: [rect.x + rect.width, rect.y + rect.height] }, selection);
+    isHoverdElement(element: Element, point: Point) {
+        const selection = toSelectionByPoint(point);
+        if (element.type === ElementType.curve) {
+            return element.points.some((point) => Selection.intersectPoint(point, selection));
+        }
+        if (element.type === ElementType.rectangle) {
+            const rect = toRect(element.points);
+            const innerRectangle = { x: rect.x + ACTIVE_RECTANGLE_DISTANCE, y: rect.y + ACTIVE_RECTANGLE_DISTANCE, width: rect.width - ACTIVE_RECTANGLE_DISTANCE * 2, height: rect.height - ACTIVE_RECTANGLE_DISTANCE * 2 };
+            return Selection.intersect(toSelection(rect), selection) && !Selection.intersect(toSelection(innerRectangle), selection);
+        }
+        return false;
     }
 }
+

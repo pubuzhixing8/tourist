@@ -1,0 +1,1 @@
+export const ACTIVE_RECTANGLE_DISTANCE = 4;
