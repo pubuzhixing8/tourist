@@ -18,7 +18,14 @@ export function toRect(points: Point[]) {
     const xMax = Math.max(...xArray);
     const yMin = Math.min(...yArray);
     const yMax = Math.max(...yArray);
-    return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
+    const rect = { x: xMin, y: yMin, width: xMax - xMin , height: yMax - yMin };
+    if (rect.width === 0) {
+        rect.width = 1;
+    }
+    if (rect.height === 0) {
+        rect.height = 1;
+    }
+    return rect;
 }
 
 export function toSelectionByPoint(point: Point): Selection {

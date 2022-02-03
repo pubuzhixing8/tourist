@@ -32,8 +32,6 @@ export const Selection = {
         const xMax = Math.max(...xArray);
         const yMin = Math.min(...yArray);
         const yMax = Math.max(...yArray);
-        console.log(point, 'point', selection, selection);
-        console.log(point[0] > xMin && point[0] < xMax && point[1] > yMin && point[1] < yMax, 'result');
         if (point[0] > xMin && point[0] < xMax && point[1] > yMin && point[1] < yMax) {
             return true;
         } else {

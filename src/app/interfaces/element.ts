@@ -20,6 +20,9 @@ export enum ElementType {
 
 export const Element = {
     isIntersected(element: Element, selection: Selection) {
+        if (Selection.isCollapsed(selection)) {
+            selection = toSelectionByPoint(selection.anchor);
+        }
         const rect = toRect(element.points);
         return Selection.intersect({ anchor: [rect.x, rect.y], focus: [rect.x + rect.width, rect.y + rect.height] }, selection);
     },
@@ -31,7 +34,7 @@ export const Element = {
         if (element.type === ElementType.rectangle) {
             const rect = toRect(element.points);
             const innerRectangle = { x: rect.x + ACTIVE_RECTANGLE_DISTANCE, y: rect.y + ACTIVE_RECTANGLE_DISTANCE, width: rect.width - ACTIVE_RECTANGLE_DISTANCE * 2, height: rect.height - ACTIVE_RECTANGLE_DISTANCE * 2 };
-            return Selection.intersect(toSelection(rect), selection) && !Selection.intersect(toSelection(innerRectangle), selection);
+            return Selection.intersect(toSelection(rect), selection) && !Selection.intersectPoint(point, toSelection(innerRectangle));
         }
         return false;
     }
