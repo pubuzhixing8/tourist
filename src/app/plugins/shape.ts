@@ -36,7 +36,15 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
                 paper.container?.appendChild(domElement);
             }
             if (paper.pointer === PointerType.draw) {
-                domElement = rc.curve([start, ...dragPoints], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
+                let points = [start, ...dragPoints];
+                points = points.filter((value, index) => {
+                    if (index % 2 === 0 || index + 2 > points.length) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                domElement = rc.curve(points, { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
                 paper.container?.appendChild(domElement);
             }
             return;
@@ -52,7 +60,15 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
                 addElement(paper, element as any);
             }
             if (paper.pointer === PointerType.draw) {
-                addElement(paper, { type: ElementType.curve, points: [start, ...dragPoints], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth });
+                let points = [start, ...dragPoints];
+                points = points.filter((value, index) => {
+                    if (index % 2 === 0 || index === points.length - 1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                addElement(paper, { type: ElementType.curve, points, key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth });
             }
             domElement?.remove();
         }
