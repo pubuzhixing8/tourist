@@ -7,6 +7,8 @@ import { PointerType } from "../interfaces/pointer";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 
+const DRAW_SKIP_SAWTOOTH = 3;
+
 export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {
     let start: Point | null = null;
     let end: Point | null = null;
@@ -38,7 +40,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
             if (paper.pointer === PointerType.draw) {
                 let points = [start, ...dragPoints];
                 points = points.filter((value, index) => {
-                    if (index % 2 === 0 || index + 2 > points.length) {
+                    if (index % DRAW_SKIP_SAWTOOTH === 0 || index === points.length - 1) {
                         return true;
                     } else {
                         return false;
@@ -62,7 +64,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
             if (paper.pointer === PointerType.draw) {
                 let points = [start, ...dragPoints];
                 points = points.filter((value, index) => {
-                    if (index % 2 === 0 || index === points.length - 1) {
+                    if (index % DRAW_SKIP_SAWTOOTH === 0 || index === points.length - 1) {
                         return true;
                     } else {
                         return false;
