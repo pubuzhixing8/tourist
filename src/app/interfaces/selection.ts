@@ -1,4 +1,5 @@
 import { Point } from "roughjs/bin/geometry";
+import { Element, ElementType } from '../interfaces/element';
 
 export interface Selection {
     anchor: [number, number];
@@ -57,5 +58,11 @@ export const Selection = {
     },
     height: (selection: Selection) => {
         return Math.abs(selection.anchor[1] - selection.focus[1]);
+    },
+    intersectRectangle: (selection: Selection, element: Element | null | undefined) => {
+        if (element) {
+            return element.type === ElementType.rectangle && (Selection.isCollapsed(selection) && Element.isHoveredElement(element, selection.anchor)) || (!Selection.isCollapsed(selection) && Element.isIntersected(element, selection));
+        }
+        return false;
     }
 }
