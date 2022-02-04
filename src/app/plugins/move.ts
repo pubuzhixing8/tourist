@@ -19,11 +19,11 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
     paper.mousedown = (event: MouseEvent) => {
         if (paper.pointer === PointerType.pointer) {
             const point = toPoint(event.x, event.y, paper.container as SVGElement);
-            const hoveredElement = paper.elements.find((ele) => Element.isHoverdElement(ele, point));
+            const hoveredElement = paper.elements.find((ele) => Element.isHoveredElement(ele, point));
             if (!hoveredElement) {
                 // active rectangle
                 const activeElement = paper.elements.find((ele) => Element.isIntersected(ele, { anchor: point , focus: point }));
-                const isIntersected = activeElement && (Selection.isCollapsed(paper.selection) && Element.isHoverdElement(activeElement as Element, paper.selection.anchor)) || (!Selection.isCollapsed(paper.selection) && Element.isIntersected(activeElement as Element, paper.selection));
+                const isIntersected = activeElement && (Selection.isCollapsed(paper.selection) && Element.isHoveredElement(activeElement as Element, paper.selection.anchor)) || (!Selection.isCollapsed(paper.selection) && Element.isIntersected(activeElement as Element, paper.selection));
                 if (isIntersected) {
                     dragElement = activeElement;
                 }

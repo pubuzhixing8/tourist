@@ -1,7 +1,7 @@
 import { RoughSVG } from "roughjs/bin/svg";
 import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
 import { Element } from '../interfaces/element';
-import { toRect } from "../utils/position";
+import { toRectangle } from "../utils/position";
 import { Selection } from '../interfaces/selection';
 
 export class ActiveElementService {
@@ -29,7 +29,7 @@ export class ActiveElementService {
     }
 
     render() {
-        const isIntersected = (Selection.isCollapsed(this.selection) && Element.isHoverdElement(this.element, this.selection.anchor)) || (!Selection.isCollapsed(this.selection) && Element.isIntersected(this.element, this.selection));
+        const isIntersected = (Selection.isCollapsed(this.selection) && Element.isHoveredElement(this.element, this.selection.anchor)) || (!Selection.isCollapsed(this.selection) && Element.isIntersected(this.element, this.selection));
         if (isIntersected) {
             if (!this.activeRectangle) {
                 this.addActiveRectangle();
@@ -47,7 +47,7 @@ export class ActiveElementService {
     }
 
     addActiveRectangle() {
-        const rect = toRect(this.element.points);
+        const rect = toRectangle(this.element.points);
         this.activeRectangle = this.rc?.rectangle(rect.x - ACTIVE_RECTANGLE_DISTANCE, rect.y - ACTIVE_RECTANGLE_DISTANCE, rect.width + ACTIVE_RECTANGLE_DISTANCE * 2, rect.height + ACTIVE_RECTANGLE_DISTANCE * 2, { strokeLineDash: [6, 6], strokeWidth: 1.5, stroke: '#348fe4', fill: 'fff' });
         this.container.appendChild(this.activeRectangle);
     }

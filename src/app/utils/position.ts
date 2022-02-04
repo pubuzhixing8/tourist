@@ -1,17 +1,40 @@
 import { Point } from "roughjs/bin/geometry";
-import { Rect } from "../interfaces/rect";
+import { Rectangle } from "../interfaces/rectangle";
 import { Selection } from '../interfaces/selection';
+
+export enum RectanglePosition {
+    left = 1,
+    top,
+    right,
+    bottom,
+    leftTop,
+    rightTop,
+    rightBottom,
+    leftBottom,
+    unkonwn
+}
+
+export const RectanglePositionToCursor = {
+    [`${RectanglePosition.right}`]: 'ew-resize',
+    [`${RectanglePosition.rightTop}`]: 'nesw-resize',
+    [`${RectanglePosition.leftTop}`]: 'nwse-resize',
+    [`${RectanglePosition.top}`]: 'ns-resize',
+    [`${RectanglePosition.rightBottom}`]: 'nwse-resize',
+    [`${RectanglePosition.leftBottom}`]: 'nesw-resize',
+    [`${RectanglePosition.bottom}`]: 'ns-resize',
+    [`${RectanglePosition.left}`]: 'ew-resize',
+}
 
 export function toPoint(x: number, y: number, container: SVGElement): Point {
     const rect = container.getBoundingClientRect();
     return [x - rect.x, y - rect.y];
 }
 
-export function toSelection(rect: Rect): Selection {
+export function toSelection(rect: Rectangle): Selection {
     return { anchor: [rect.x, rect.y], focus: [rect.x + rect.width, rect.y + rect.height] };
 }
 
-export function toRect(points: Point[]) {
+export function toRectangle(points: Point[]) {
     const xArray = points.map(ele => ele[0]);
     const yArray = points.map(ele => ele[1]);
     const xMin = Math.min(...xArray);
