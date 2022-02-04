@@ -20,12 +20,12 @@ export function cursorPaper<T extends Paper>(paper: T, container: SVGElement) {
             } else {
                 // active rectangle
                 const activeElement = paper.elements.find((ele) => Element.isIntersected(ele, { anchor: point, focus: point }));
-                if (Selection.intersectRectangle(paper.selection, activeElement)) {
+                if (Selection.intersectElement(paper.selection, activeElement)) {
                     moveStatus = true;
                 }
             }
             if (moveStatus) {
-                if (hoveredElementIndex >= 0 && paper.elements[hoveredElementIndex].type === ElementType.rectangle && Selection.intersectRectangle(paper.selection, paper.elements[hoveredElementIndex])) {
+                if (hoveredElementIndex >= 0 && paper.elements[hoveredElementIndex].type === ElementType.rectangle && Selection.intersectElement(paper.selection, paper.elements[hoveredElementIndex])) {
                     const position = Rectangle.getPosition(point, toRectangle(paper.elements[hoveredElementIndex].points));
                     if (position) {
                         container.style.cursor = `${RectanglePositionToCursor[position]}`;
