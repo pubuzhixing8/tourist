@@ -16,6 +16,7 @@ import { PointerType } from './interfaces/pointer';
 import { Selection } from './interfaces/selection';
 import { toPoint } from './utils/position';
 import { movePaper } from './plugins/move';
+import { cursorPaper } from './plugins/cursor';
 
 @Component({
   selector: 'app-root',
@@ -39,7 +40,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0.1, strokeWidth: 2 } });
-    const paper =  movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes);
+    const paper =  cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container);
     this.paper = paper;
     this.initializePen(this.rc, paper);
     const onChange = paper?.onChange;
@@ -81,13 +82,6 @@ export class AppComponent implements OnInit {
         paper.mousemove(event);
       })
     ).subscribe((event: MouseEvent) => {
-      const point = toPoint(event.x, event.y, this.container);
-      const moveCursor = this.paper?.elements.some((ele) => Element.isHoverdElement(ele, point));
-      if (moveCursor && this.paper?.pointer === PointerType.pointer) {
-        this.container.classList.add('move');
-      } else {
-        this.container.classList.remove('move');
-      }
     });
     fromEvent<MouseEvent>(document, 'mouseup').pipe(
       tap((event) => {
