@@ -14,7 +14,7 @@
         </div>
         <svg #SVG width="800" height="600">
             <ng-container *ngFor="let item of paper?.elements">
-                <linear-path [rc]="rc" [element]="item" [selection]="paper?.selection" ></linear-path>
+                <curve [rc]="rc" [element]="item" [selection]="paper?.selection" ></curve>
             </ng-container>
         </svg>
     </div>

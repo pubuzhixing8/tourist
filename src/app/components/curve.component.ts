@@ -9,11 +9,11 @@ import { ELEMENT_TO_COMPONENTS } from "../utils/weakmaps";
 import { ElementBase } from "../base/element-base";
 
 @Component({
-    selector: 'linear-path',
+    selector: 'curve',
     template: '',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class curveComponent extends ElementBase implements OnInit, OnDestroy, OnChanges {
+export class CurveComponent extends ElementBase implements OnInit, OnDestroy, OnChanges {
     @Input() element!: Element;
 
     @Input() rc: RoughSVG | undefined;
