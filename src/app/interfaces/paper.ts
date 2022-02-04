@@ -14,6 +14,7 @@ export interface Paper {
     mouseup: (event: MouseEvent) => void;
     mousemove: (event: MouseEvent) => void;
     pointer: PointerType;
+    dragging: boolean;
 }
 
 
@@ -25,6 +26,7 @@ export function createPaper(): Paper {
         elements: [],
         operations: [],
         selection: { anchor: [-1, -1], focus: [-1, -1] },
+        dragging: false,
         onChange: () => {
 
         },

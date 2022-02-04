@@ -28,6 +28,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
     paper.mousemove = (event: MouseEvent) => {
         if (start) {
             isDragging = true;
+            paper.dragging = true;
             end = toPoint(event.x, event.y, paper.container as SVGElement);
             if (domElement) {
                 domElement.remove();
@@ -78,6 +79,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
         start = null;
         end = null;
         dragPoints = [];
+        paper.dragging = false;
     }
 
     return paper;

@@ -6,6 +6,7 @@ import { Paper, setElement } from "../interfaces/paper"
 import { PointerType } from "../interfaces/pointer";
 import { toPoint } from "../utils/position";
 import { ELEMENT_TO_COMPONENTS } from "../utils/weakmaps";
+import { Selection } from '../interfaces/selection';
 
 export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {
     let start: Point | null = null;
@@ -18,8 +19,19 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
 
     paper.mousedown = (event: MouseEvent) => {
         if (paper.pointer === PointerType.pointer) {
-            start = toPoint(event.x, event.y, paper.container as SVGElement);
-            dragElement = paper.elements.find((ele) => Element.isHoverdElement(ele, start as Point));
+            const point = toPoint(event.x, event.y, paper.container as SVGElement);
+            const hoveredElement = paper.elements.find((ele) => Element.isHoverdElement(ele, point));
+            if (!hoveredElement) {
+                // active rectangle
+                const activeElement = paper.elements.find((ele) => Element.isIntersected(ele, { anchor: point , focus: point }));
+                const isIntersected = activeElement && (Selection.isCollapsed(paper.selection) && Element.isHoverdElement(activeElement as Element, paper.selection.anchor)) || (!Selection.isCollapsed(paper.selection) && Element.isIntersected(activeElement as Element, paper.selection));
+                if (isIntersected) {
+                    dragElement = activeElement;
+                }
+            } else {
+                dragElement = hoveredElement;
+            }
+            start = point;
             return;
         }
         mousedown(event);
@@ -27,6 +39,7 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
 
     paper.mousemove = (event: MouseEvent) => {
         if (start && dragElement) {
+            paper.dragging = true;
             isDragging = true;
             end = toPoint(event.x, event.y, paper.container as SVGElement);
             if (domElement) {
@@ -76,6 +89,7 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
         start = null;
         end = null;
         dragPoints = [];
+        paper.dragging = false;
     }
 
     return paper;
