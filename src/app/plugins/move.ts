@@ -13,7 +13,6 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
     let end: Point | null = null;
     let isDragging = false;
     let dragElement: Element | undefined;
-    let dragPoints: Point[] = [];
     let domElement: SVGElement | null = null;
     const { mousedown, mousemove, mouseup } = paper;
 
@@ -88,8 +87,8 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
         isDragging = false;
         start = null;
         end = null;
-        dragPoints = [];
         paper.dragging = false;
+        dragElement = undefined;
     }
 
     return paper;
