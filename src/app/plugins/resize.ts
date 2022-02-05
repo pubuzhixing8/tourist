@@ -25,9 +25,11 @@ export function resizePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
             const isActive = activeElement && Selection.intersectElement(paper.selection, activeElement);
             const isHoveredLine = activeElement && Element.isHoveredElement(activeElement, point);
             if (activeElement && isActive && isHoveredLine && activeElement.type === ElementType.rectangle) { // resize
-                dragElement = activeElement;
-                start = point;
                 position = Rectangle.getPosition(point, toRectangle(activeElement.points));
+                if (position) {
+                    dragElement = activeElement;
+                    start = point;
+                }
                 return;
             }
         }

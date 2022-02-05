@@ -41,6 +41,7 @@ export function cursorPaper<T extends Paper>(paper: T, container: SVGElement) {
                 if (container.classList.contains(MOVE_CLASS_NAME)) {
                     container.classList.remove(MOVE_CLASS_NAME);
                 }
+                container.style.removeProperty('cursor');
             }
         }
         mousemove(event);
