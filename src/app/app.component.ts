@@ -8,7 +8,7 @@ import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
 import { createPaper, removeElement, setElement, setSelection } from './interfaces/paper';
 import { Element } from './interfaces/element';
-import { Attributes } from './interfaces/attributes';
+import { Attributes, EdgeMode } from './interfaces/attributes';
 import { Operation } from './interfaces/operation';
 import { HistoryPaper, historyPaper } from './plugins/history';
 import { shapePaper } from './plugins/shape';
@@ -35,7 +35,7 @@ export class AppComponent implements OnInit {
 
   paper: HistoryPaper | undefined;
 
-  attributes: Attributes = { color: '#000000', strokeWidth: 2 };
+  attributes: Attributes = { color: '#000000', strokeWidth: 2, edgeMode: EdgeMode.sharp };
 
   pointerType = PointerType;
 
@@ -95,6 +95,7 @@ export class AppComponent implements OnInit {
 
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
     ).subscribe((event: KeyboardEvent) => {
+      this.paper?.keydown(event);
       if (isHotkey('mod+a', event)) {
         const rect = this.container.getBoundingClientRect();
         const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
@@ -127,6 +128,10 @@ export class AppComponent implements OnInit {
         const point = this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement);
         setSelection(paper, { anchor: point, focus: point });
       }
+    });
+  
+    fromEvent<MouseEvent>(this.container as SVGElement, 'dblclick').pipe().subscribe((event: MouseEvent) => {
+      this.paper?.dblclick(event);
     });
   }
 

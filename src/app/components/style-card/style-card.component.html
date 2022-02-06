@@ -11,9 +11,22 @@
             <ng-container *ngFor="let item of strokeWidthList">
                 <span class="stroke-width-container"><label [attr.for]="item.name">{{ item.name }}</label>
                     <input *ngIf="item.value === attributes?.strokeWidth" checked [attr.id]="item.name"
-                        name="strokeWidth" type="radio" (change)="onStrokeWidthChange($event, item)" />
+                        name="strokeWidth" type="radio" (change)="valueChange($event, item)" />
                     <input *ngIf="item.value !== attributes?.strokeWidth" [attr.id]="item.name" name="strokeWidth"
-                        type="radio" (change)="onStrokeWidthChange($event, item)" />
+                        type="radio" (change)="valueChange($event, item)" />
+                </span>
+            </ng-container>
+        </div>
+    </div>
+    <div *ngIf="paper?.pointer !== this.pointerType.draw">
+        <p>边角</p>
+        <div>
+            <ng-container *ngFor="let item of edgeModeList">
+                <span class="stroke-width-container"><label [attr.for]="item.name">{{ item.name }}</label>
+                    <input *ngIf="item.value === attributes?.edgeMode" checked [attr.id]="item.name"
+                        name="edgeMode" type="radio" (change)="valueChange($event, item)" />
+                    <input *ngIf="item.value !== attributes?.edgeMode" [attr.id]="item.name" name="edgeMode"
+                        type="radio" (change)="valueChange($event, item)" />
                 </span>
             </ng-container>
         </div>

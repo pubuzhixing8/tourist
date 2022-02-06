@@ -5,6 +5,7 @@ import { Element, ElementType } from "../interfaces/element";
 import { ELEMENT_TO_COMPONENTS } from "../utils/weakmaps";
 import { ElementBase } from "../base/element-base";
 import { ActiveElementService } from "./active-element.service";
+import { EdgeMode } from "../interfaces/attributes";
 
 @Component({
     selector: 'pla-element',
@@ -36,7 +37,12 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
             this.svgElement = this.rc?.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         } else if (this.element.type === ElementType.line) {
-            this.svgElement = this.rc?.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            if (this.element.edgeMode === EdgeMode.sharp || !this.element.edgeMode) {
+                this.svgElement = this.rc?.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            }
+            if (this.element.edgeMode === EdgeMode.round) {
+                this.svgElement = this.rc?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            }
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         }
         this.activeElementService = new ActiveElementService(this.rc as RoughSVG, this.elementRef.nativeElement.parentElement, this.element, this.selection as Selection);

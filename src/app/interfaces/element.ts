@@ -2,6 +2,7 @@ import { Point } from "roughjs/bin/geometry";
 import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
 import { Key } from "../utils/key";
 import { toRectangle, toSelection, toSelectionByPoint } from "../utils/position";
+import { EdgeMode } from "./attributes";
 import { Rectangle } from "./rectangle";
 import { Selection } from './selection';
 
@@ -11,6 +12,7 @@ export interface Element {
     key: Key;
     color: string;
     strokeWidth: number;
+    edgeMode?: EdgeMode;
 }
 
 export enum ElementType {
