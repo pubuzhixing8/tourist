@@ -4,6 +4,8 @@
             <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.pointer}" (mousedown)="usePointer($event, pointerType.pointer)">选择</button>
             <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.draw}" (mousedown)="usePointer($event, pointerType.draw)">画笔</button>
             <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.rectangle}" (mousedown)="usePointer($event, pointerType.rectangle)">矩形</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.arrow}" (mousedown)="usePointer($event, pointerType.arrow)">箭头</button>
+            <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.line}" (mousedown)="usePointer($event, pointerType.line)">线条</button>
             <!-- <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">菱形</button>
             <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">圆</button>
             <button class="item" [ngClass]="{'active': pointer === 'pen'}" (mousedown)="usePen($event)">箭头</button>

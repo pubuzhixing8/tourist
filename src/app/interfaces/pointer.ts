@@ -1,5 +1,7 @@
 export enum PointerType {
     pointer,
     draw,
-    rectangle
+    rectangle,
+    line,
+    arrow
 }

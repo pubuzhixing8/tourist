@@ -27,12 +27,16 @@
                 }
             }
         }
+        & .pointer {
+            cursor: default;
+        }
         & .move {
             cursor: move;
         }
         .hidden {
             display: none;
         }
+        cursor: crosshair;
     }
     .style-card-container {
         position: absolute;

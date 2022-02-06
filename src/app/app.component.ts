@@ -41,9 +41,10 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0.1, strokeWidth: 2 } });
-    const paper =  resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes);
+    const paper = resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes);
     this.paper = paper;
     this.initializePen(this.rc, paper);
+    this.useCursor();
     const onChange = paper?.onChange;
     paper.onChange = () => {
       onChange();
@@ -162,6 +163,15 @@ export class AppComponent implements OnInit {
     event.preventDefault();
     if (this.paper) {
       this.paper.pointer = pointer;
+      this.useCursor();
+    }
+  }
+
+  useCursor() {
+    if (this.paper && this.paper.pointer === PointerType.pointer) {
+      this.container.classList.add('pointer');
+    } else {
+      this.container.classList.remove('pointer');
     }
   }
 }
