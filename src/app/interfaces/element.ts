@@ -18,7 +18,8 @@ export interface Element {
 export enum ElementType {
     curve = 'curve',
     rectangle = 'rectangle',
-    line = 'line'
+    line = 'line',
+    arrow = 'arrow'
 }
 
 export const Element = {
