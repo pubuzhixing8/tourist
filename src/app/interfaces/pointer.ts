@@ -3,5 +3,6 @@ export enum PointerType {
     draw,
     rectangle,
     line,
-    arrow
+    arrow,
+    circle
 }

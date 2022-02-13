@@ -19,7 +19,8 @@ export enum ElementType {
     curve = 'curve',
     rectangle = 'rectangle',
     line = 'line',
-    arrow = 'arrow'
+    arrow = 'arrow',
+    circle = 'circle'
 }
 
 export const Element = {

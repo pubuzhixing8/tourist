@@ -14,6 +14,7 @@ export interface Paper {
     mouseup: (event: MouseEvent) => void;
     mousemove: (event: MouseEvent) => void;
     keydown: (event: KeyboardEvent) => void;
+    keyup: (event: KeyboardEvent) => void;
     dblclick: (event: MouseEvent) => void;
     pointer: PointerType;
     dragging: boolean;
@@ -70,6 +71,7 @@ export function createPaper(): Paper {
         mouseup: (event) => {},
         mousemove: (event) => {},
         keydown: (event) => {},
+        keyup: (event) => {},
         dblclick: (event) => {}
 
     };

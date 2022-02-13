@@ -14,11 +14,11 @@ import { HistoryPaper, historyPaper } from './plugins/history';
 import { shapePaper } from './plugins/shape';
 import { PointerType } from './interfaces/pointer';
 import { Selection } from './interfaces/selection';
-import { toPoint } from './utils/position';
 import { movePaper } from './plugins/move';
 import { cursorPaper } from './plugins/cursor';
 import { resizePaper } from './plugins/resize';
 import { likeLinePaper } from './plugins/like-line';
+import { circlePaper } from './plugins/circle';
 
 @Component({
   selector: 'app-root',
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0.1, strokeWidth: 2 } });
-    const paper = likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes);
+    const paper = circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes);
     this.paper = paper;
     this.initializePen(this.rc, paper);
     this.useCursor();
@@ -92,7 +92,6 @@ export class AppComponent implements OnInit {
       })
     ).subscribe((event: MouseEvent) => {
     });
-
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
     ).subscribe((event: KeyboardEvent) => {
       this.paper?.keydown(event);
@@ -122,14 +121,17 @@ export class AppComponent implements OnInit {
         paper.redo();
       }
     });
-
+    fromEvent<KeyboardEvent>(document, 'keyup').pipe(
+    ).subscribe((event: KeyboardEvent) => {
+      this.paper?.keyup(event);
+    });
     fromEvent<MouseEvent>(this.container as SVGElement, 'click').pipe().subscribe((event: MouseEvent) => {
       if (paper.pointer === PointerType.pointer) {
         const point = this.mousePointToRelativePoint(event.x, event.y, this.container as SVGSVGElement);
         setSelection(paper, { anchor: point, focus: point });
       }
     });
-  
+
     fromEvent<MouseEvent>(this.container as SVGElement, 'dblclick').pipe().subscribe((event: MouseEvent) => {
       this.paper?.dblclick(event);
     });
