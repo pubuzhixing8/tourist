@@ -52,7 +52,7 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
                     height = width;
                 }
                 const centerPoint = [realEnd[0] > start[0] ? realEnd[0] - width / 2 : realEnd[0] + width / 2, realEnd[1] > start[1] ? realEnd[1] - height / 2 : realEnd[1] + height / 2];
-                domElement = rc.ellipse(centerPoint[0], centerPoint[1], width, height);
+                domElement = rc.ellipse(centerPoint[0], centerPoint[1], width, height, { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
                 paper.container?.appendChild(domElement);
             }
             return;

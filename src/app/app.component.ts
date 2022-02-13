@@ -35,13 +35,13 @@ export class AppComponent implements OnInit {
 
   paper: HistoryPaper | undefined;
 
-  attributes: Attributes = { color: '#000000', strokeWidth: 2, edgeMode: EdgeMode.sharp };
+  attributes: Attributes = { color: '#000000', strokeWidth: 1, edgeMode: EdgeMode.sharp };
 
   pointerType = PointerType;
 
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
-    this.rc = rough.svg(this.container, { options: { roughness: 0.1, strokeWidth: 2 } });
+    this.rc = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
     const paper = circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes);
     this.paper = paper;
     this.initializePen(this.rc, paper);

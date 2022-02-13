@@ -23,13 +23,13 @@ export class StyleCardComponent implements OnInit {
 
     strokeWidthList = [{
         name: '细',
-        value: 2
+        value: 1
     }, {
         name: '粗',
-        value: 4
+        value: 2
     }, {
         name: '特粗',
-        value: 6
+        value: 3
     }];
 
     edgeModeList = [{

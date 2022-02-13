@@ -69,7 +69,7 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
             const width = Math.abs(realEnd[0] - start[0]);
             let height = Math.abs(realEnd[1] - start[1]);
             const centerPoint = [realEnd[0] > start[0] ? realEnd[0] - width / 2 : realEnd[0] + width / 2, realEnd[1] > start[1] ? realEnd[1] - height / 2 : realEnd[1] + height / 2];
-            this.svgElement = this.rc?.ellipse(centerPoint[0], centerPoint[1], width, height);
+            this.svgElement = this.rc?.ellipse(centerPoint[0], centerPoint[1], width, height, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         }
         this.activeElementService = new ActiveElementService(this.rc as RoughSVG, this.elementRef.nativeElement.parentElement, this.element, this.selection as Selection);
