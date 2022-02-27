@@ -1,11 +1,12 @@
 import { Point } from "roughjs/bin/geometry";
 import { RoughSVG } from "roughjs/bin/svg";
-import { Attributes } from "../interfaces/attributes";
+import { Attributes, EdgeMode } from "../interfaces/attributes";
 import { ElementType } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
+import { drawRoundRectangle } from "../utils/rectangle";
 
 const DRAW_SKIP_SAWTOOTH = 3;
 
@@ -35,7 +36,11 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
             }
             dragPoints.push(end);
             if (paper.pointer === PointerType.rectangle) {
-                domElement = rc.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
+                if (attributes.edgeMode === EdgeMode.round) {
+                    domElement = drawRoundRectangle(start, end, rc, { stroke: attributes.color, strokeWidth: attributes.strokeWidth } as any);
+                } else {
+                    domElement = rc.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
+                }
                 paper.container?.appendChild(domElement);
             }
             if (paper.pointer === PointerType.draw) {
@@ -59,7 +64,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
         mouseup(event);
         if (isDragging && start) {
             if (paper.pointer === PointerType.rectangle) {
-                const element = { type: ElementType.rectangle, points: [start, end], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth };
+                const element = { type: ElementType.rectangle, points: [start, end], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth, edgeMode: attributes.edgeMode };
                 addElement(paper, element as any);
             }
             if (paper.pointer === PointerType.draw) {

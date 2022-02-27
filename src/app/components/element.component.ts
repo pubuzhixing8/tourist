@@ -7,6 +7,7 @@ import { ElementBase } from "../base/element-base";
 import { ActiveElementService } from "./active-element.service";
 import { EdgeMode } from "../interfaces/attributes";
 import { arrowPoints } from "../utils/arrow";
+import { drawRoundRectangle } from "../utils/rectangle";
 
 @Component({
     selector: 'pla-element',
@@ -16,7 +17,7 @@ import { arrowPoints } from "../utils/arrow";
 export class ElementComponent extends ElementBase implements OnInit, OnDestroy, OnChanges {
     @Input() element!: Element;
 
-    @Input() rc: RoughSVG | undefined;
+    @Input() rs: RoughSVG | undefined;
 
     @Input() selection: Selection | undefined;
 
@@ -32,33 +33,37 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
 
     ngOnInit(): void {
         if (this.element.type === ElementType.curve) {
-            this.svgElement = this.rc?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            this.svgElement = this.rs?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         } else if (this.element.type === ElementType.rectangle) {
             const start = this.element.points[0];
             const end = this.element.points[1];
-            this.svgElement = this.rc?.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            if (this.element.edgeMode === EdgeMode.round) {
+                this.svgElement = drawRoundRectangle(start, end, this.rs as any, { stroke: this.element.color, strokeWidth: this.element.strokeWidth } as any);
+            } else {
+                this.svgElement = this.rs?.rectangle(start[0], start[1], end[0]- start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            }
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         } else if (this.element.type === ElementType.line) {
             if (this.element.edgeMode === EdgeMode.sharp || !this.element.edgeMode) {
-                this.svgElement = this.rc?.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+                this.svgElement = this.rs?.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             }
             if (this.element.edgeMode === EdgeMode.round) {
-                this.svgElement = this.rc?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+                this.svgElement = this.rs?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             }
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         } else if (this.element.type === ElementType.arrow) {
             const { pointLeft, pointRight } = arrowPoints(this.element.points[this.element.points.length - 2], this.element.points[this.element.points.length - 1]);
             if (this.element.edgeMode === EdgeMode.sharp || !this.element.edgeMode) {
-                const line = this.rc?.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGAElement;
+                const line = this.rs?.linearPath(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGAElement;
                 this.arrowDOMElements.push(line);
             } else {
-                const curve = this.rc?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGAElement;
+                const curve = this.rs?.curve(this.element.points, { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGAElement;
                 this.arrowDOMElements.push(curve);
             }
-            const arrowLineLeft = this.rc?.linearPath([pointLeft, this.element.points[this.element.points.length - 1]], { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGElement;
+            const arrowLineLeft = this.rs?.linearPath([pointLeft, this.element.points[this.element.points.length - 1]], { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGElement;
             this.arrowDOMElements.push(arrowLineLeft);
-            const arrowLineRight = this.rc?.linearPath([pointRight, this.element.points[this.element.points.length - 1]], { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGElement;
+            const arrowLineRight = this.rs?.linearPath([pointRight, this.element.points[this.element.points.length - 1]], { stroke: this.element.color, strokeWidth: this.element.strokeWidth }) as SVGElement;
             this.arrowDOMElements.push(arrowLineRight);
             this.arrowDOMElements.forEach((dom) => {
                 this.elementRef.nativeElement.parentElement.appendChild(dom);
@@ -69,10 +74,10 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
             const width = Math.abs(realEnd[0] - start[0]);
             let height = Math.abs(realEnd[1] - start[1]);
             const centerPoint = [realEnd[0] > start[0] ? realEnd[0] - width / 2 : realEnd[0] + width / 2, realEnd[1] > start[1] ? realEnd[1] - height / 2 : realEnd[1] + height / 2];
-            this.svgElement = this.rc?.ellipse(centerPoint[0], centerPoint[1], width, height, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+            this.svgElement = this.rs?.ellipse(centerPoint[0], centerPoint[1], width, height, { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         }
-        this.activeElementService = new ActiveElementService(this.rc as RoughSVG, this.elementRef.nativeElement.parentElement, this.element, this.selection as Selection);
+        this.activeElementService = new ActiveElementService(this.rs as RoughSVG, this.elementRef.nativeElement.parentElement, this.element, this.selection as Selection);
     }
 
     hidden() {

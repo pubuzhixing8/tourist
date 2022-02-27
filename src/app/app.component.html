@@ -13,7 +13,7 @@
         </div>
         <svg #SVG width="800" height="600">
             <ng-container *ngFor="let item of paper?.elements">
-                <pla-element [rc]="rc" [element]="item" [selection]="paper?.selection" ></pla-element>
+                <pla-element [rs]="rc" [element]="item" [selection]="paper?.selection" ></pla-element>
             </ng-container>
         </svg>
     </div>
