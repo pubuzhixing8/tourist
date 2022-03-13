@@ -13,6 +13,7 @@ export interface Element {
     color: string;
     strokeWidth: number;
     edgeMode?: EdgeMode;
+    value?: any;
 }
 
 export enum ElementType {
@@ -20,7 +21,8 @@ export enum ElementType {
     rectangle = 'rectangle',
     line = 'line',
     arrow = 'arrow',
-    circle = 'circle'
+    circle = 'circle',
+    text = 'text'
 }
 
 export const Element = {

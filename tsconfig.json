@@ -7,6 +7,10 @@
       "data-structures": [
         "dist/data-structures/data-structures",
         "dist/data-structures"
+      ],
+      "richtext": [
+        "dist/richtext/richtext",
+        "dist/richtext"
       ]
     },
     "outDir": "./dist/out-tsc",
