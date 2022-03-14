@@ -1,16 +1,19 @@
 import { NgModule } from '@angular/core';
 import { PlaitRichtextComponent } from './richtext/richtext.component';
+import { PlaitTextComponent } from './text/text.component';
 
 
 
 @NgModule({
   declarations: [
-    PlaitRichtextComponent
+    PlaitRichtextComponent,
+    PlaitTextComponent
   ],
   imports: [
   ],
   exports: [
-    PlaitRichtextComponent
+    PlaitRichtextComponent,
+    PlaitTextComponent
   ]
 })
 export class RichtextModule { }
