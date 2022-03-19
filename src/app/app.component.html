@@ -1,3 +1,5 @@
+<plait-richtext [value]="value" (valueChange)="valueChange($event)"></plait-richtext>
+
 <div class="full-page">
     <div class="panel-container">
         <div class="toolbar">
@@ -18,5 +20,5 @@
             </ng-container>
         </svg>
     </div>
-    <style-card class="style-card-container" [attributes]="attributes" [paper]="paper" (attributesChange)="attributesChange($event)"></style-card>
+    <style-card cdkScrollable class="style-card-container" [attributes]="attributes" [paper]="paper" (attributesChange)="attributesChange($event)"></style-card>
 </div>

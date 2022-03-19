@@ -39,6 +39,12 @@ export class AppComponent implements OnInit {
 
   pointerType = PointerType;
 
+  value = {
+    type: 'p', children: [{
+      text: 'richtext'
+    }]
+  };
+
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
@@ -67,6 +73,10 @@ export class AppComponent implements OnInit {
       }
     }
     this.paper.container = this.container;
+  }
+
+  valueChange(value: any) {
+    console.log(value, 'change');
   }
 
   initializePen(rc: RoughSVG, paper: HistoryPaper) {

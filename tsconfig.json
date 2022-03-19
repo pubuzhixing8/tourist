@@ -9,8 +9,10 @@
         "dist/data-structures"
       ],
       "richtext": [
-        "dist/richtext/richtext",
-        "dist/richtext"
+        "projects/richtext/src/public-api"
+      ],
+      "richtext/*": [
+        "projects/richtext/src/*"
       ]
     },
     "outDir": "./dist/out-tsc",

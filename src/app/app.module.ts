@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { RichtextModule } from 'richtext/richtext.module';
 import { AppComponent } from './app.component';
 import { ElementComponent } from './components/element.component';
 import { StyleCardComponent } from './components/style-card/style-card.component';
@@ -12,7 +12,8 @@ import { StyleCardComponent } from './components/style-card/style-card.component
     StyleCardComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    RichtextModule
   ],
   providers: [],
   bootstrap: [AppComponent]

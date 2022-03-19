@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { PlaitRichtextComponent } from './richtext/richtext.component';
 import { PlaitTextComponent } from './text/text.component';
 
@@ -10,6 +11,7 @@ import { PlaitTextComponent } from './text/text.component';
     PlaitTextComponent
   ],
   imports: [
+    BrowserModule
   ],
   exports: [
     PlaitRichtextComponent,

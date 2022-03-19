@@ -17,4 +17,6 @@ export const withRichtext = <T extends Editor>(editor: T) => {
     editor.insertBreak = () => {
         editor.insertText('\n');
     }
+
+    return editor;
 }
