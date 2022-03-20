@@ -246,9 +246,14 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   private toSlateSelection() {
     const domSelection = window.getSelection();
     if (domSelection) {
+      if (!this.editable.contains(domSelection.anchorNode)) {
+        return;
+      }
       const slateRange = RichtextEditor.toSlateRange(this.editor, domSelection);
       Transforms.select(this.editor, slateRange);
-    } else {
+      return;
+    }
+    if (this.editor.selection) {
       Transforms.deselect(this.editor);
     }
   }

@@ -19,6 +19,7 @@ import { cursorPaper } from './plugins/cursor';
 import { resizePaper } from './plugins/resize';
 import { likeLinePaper } from './plugins/like-line';
 import { circlePaper } from './plugins/circle';
+import { textPaper } from './plugins/text';
 
 @Component({
   selector: 'app-root',
@@ -48,7 +49,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
-    const paper = circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes);
+    const paper = textPaper(circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes));
     this.paper = paper;
     this.initializePen(this.rc, paper);
     this.useCursor();

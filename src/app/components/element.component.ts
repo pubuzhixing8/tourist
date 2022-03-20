@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { RoughSVG } from "roughjs/bin/svg";
 import { Selection } from "../interfaces/selection";
 import { Element, ElementType } from "../interfaces/element";
@@ -8,6 +8,7 @@ import { ActiveElementService } from "./active-element.service";
 import { EdgeMode } from "../interfaces/attributes";
 import { arrowPoints } from "../utils/arrow";
 import { drawRoundRectangle } from "../utils/rectangle";
+import { renderRichtext } from "../utils/foreign-object";
 
 @Component({
     selector: 'pla-element',
@@ -27,7 +28,9 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
 
     activeElementService: ActiveElementService | undefined;
 
-    constructor(private elementRef: ElementRef) {
+    constructor(private elementRef: ElementRef,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private viewContainerRef: ViewContainerRef) {
         super();
     }
 
@@ -41,7 +44,7 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
             if (this.element.edgeMode === EdgeMode.round) {
                 this.svgElement = drawRoundRectangle(start, end, this.rs as any, { stroke: this.element.color, strokeWidth: this.element.strokeWidth } as any);
             } else {
-                this.svgElement = this.rs?.rectangle(start[0], start[1], end[0]- start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
+                this.svgElement = this.rs?.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: this.element.color, strokeWidth: this.element.strokeWidth });
             }
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         } else if (this.element.type === ElementType.line) {
@@ -68,6 +71,10 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
             this.arrowDOMElements.forEach((dom) => {
                 this.elementRef.nativeElement.parentElement.appendChild(dom);
             });
+        } else if (this.element.type === ElementType.text) {
+            const { richtextComponentRef, g } = renderRichtext(this.element, this.componentFactoryResolver, this.viewContainerRef);
+            this.svgElement = g;
+            this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         }
         else if (this.element.type === ElementType.circle) {
             const [start, realEnd] = this.element.points;

@@ -3,13 +3,9 @@
     position: relative;
     outline: none;
     min-height: 22px;
-    padding: 8px;
     white-space: pre-wrap;
-    border: 1px dashed #000;
-    border-radius: 5px;
 
     &[readonly="true"] {
-        border: none;
     }
 
     .plait-end-break {
