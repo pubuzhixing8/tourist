@@ -4,7 +4,7 @@ import { ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from "../utils/weak-m
 
 @Component({
     selector: 'plait-text, span[plaitTextNode]',
-    template: '',
+    template: '{{ text?.text }}',
     host: {
         class: 'plait-text-node',
         'data-plait-node': 'text'
@@ -52,7 +52,7 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
 
     render() {
         if (this.text) {
-            this.elementRef.nativeElement.innerText = this.text?.text;
+            // this.elementRef.nativeElement.innerText = this.text?.text;
         }
     }
 }

@@ -9,7 +9,12 @@ import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW } from '../uti
 @Component({
   selector: 'plait-richtext',
   templateUrl: './richtext.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    'class': 'plait-richtext-container',
+    '[attr.contenteditable]': 'readonly ? undefined : true',
+    '[attr.readonly]': 'readonly'
+  }
 })
 export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy {
   initialized = false;
@@ -21,6 +26,9 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   @Input()
   value: Element | undefined;
 
+  @Input()
+  readonly = false;
+
   @Output()
   valueChange: EventEmitter<Element> = new EventEmitter();
 
@@ -30,17 +38,18 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     return this.editor.children[0] as Element;
   }
 
-  @ViewChild('richtextContainer', { static: true })
-  richtextContainer: ElementRef<HTMLElement> | undefined;
+  @ViewChild('plaitBreakFiller', { static: true })
+  plaitBreakFiller: ElementRef<HTMLElement> | undefined;
 
   get editable() {
-    return this.richtextContainer?.nativeElement as HTMLElement;
+    return this.elementRef.nativeElement;
   }
 
   constructor(
     public renderer2: Renderer2,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private elementRef: ElementRef<HTMLElement>
   ) { }
 
   ngOnInit(): void {
@@ -96,6 +105,15 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     const { inputType: type } = event;
     const data = event.dataTransfer || event.data || undefined;
     event.preventDefault();
+
+    // COMPAT: If the selection is expanded, even if the command seems like
+    // a delete forward/backward command it should delete the selection.
+    if (selection && Range.isExpanded(selection) && type.startsWith('delete')) {
+      const direction = type.endsWith('Backward') ? 'backward' : 'forward';
+      Editor.deleteFragment(editor, { direction });
+      return;
+    }
+
     switch (type) {
       case 'deleteByComposition':
       case 'deleteByCut':
@@ -157,21 +175,15 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
         break;
       }
 
-      case 'insertFromComposition':
+      case 'insertFromComposition': {
+        // just be fired in safari, so insert text from compositionend
+        break;
+      }
       case 'insertFromDrop':
       case 'insertFromPaste':
       case 'insertFromYank':
       case 'insertReplacementText':
       case 'insertText': {
-        if (type === 'insertFromComposition') {
-          // COMPAT: in safari, `compositionend` event is dispatched after
-          // the beforeinput event with the inputType "insertFromComposition" has been dispatched.
-          // https://www.w3.org/TR/input-events-2/
-          // so the following code is the right logic
-          // because DOM selection in sync will be exec before `compositionend` event
-          // isComposing is true will prevent DOM selection being update correctly.
-          this.isComposing = false;
-        }
         // use a weak comparison instead of 'instanceof' to allow
         // programmatic access of paste events coming from external windows
         // like cypress where cy.window does not work realibly
@@ -187,11 +199,18 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   private compositionStart(event: CompositionEvent) {
     this.isComposing = true;
   }
+
   private compositionUpdate(event: CompositionEvent) {
     this.isComposing = true;
   }
+
   private compositionEnd(event: CompositionEvent) {
     this.isComposing = false;
+    Editor.insertText(this.editor, event.data);
+    // normalize paragraph break filler
+    if (this.plaitBreakFiller && this.plaitBreakFiller.nativeElement.innerHTML !== '<br />') {
+      this.plaitBreakFiller.nativeElement.innerHTML = '<br />';
+    }
   }
 
   private toNativeSelection() {

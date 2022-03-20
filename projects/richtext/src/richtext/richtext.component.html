@@ -1,3 +1,2 @@
-<div #richtextContainer class="plait-richtext-container" contenteditable="true">
-    <span plaitTextNode *ngFor="let item of bindValue?.children;let index = index;trackBy: trackBy" [text]="item"></span>
-</div>
+<plait-text *ngFor="let item of bindValue?.children;let index = index;trackBy: trackBy" [text]="item"></plait-text>
+<span #plaitBreakFiller class="plait-break-filler"><br /></span>

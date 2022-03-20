@@ -1,0 +1,23 @@
+.plait-richtext-container {
+    display: block;
+    position: relative;
+    outline: none;
+    min-height: 22px;
+    padding: 8px;
+    white-space: pre-wrap;
+    border: 1px dashed #000;
+    border-radius: 5px;
+
+    &[readonly="true"] {
+        border: none;
+    }
+
+    .plait-end-break {
+        display: inline;
+        text-indent: 0;
+        min-width: 1px;
+        vertical-align: baseline;
+        font-size: 1em;
+        height: 1em;
+    }
+}
