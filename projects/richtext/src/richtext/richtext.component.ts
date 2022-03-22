@@ -4,7 +4,7 @@ import { createEditor, Editor, Element, Node, Operation, Range, Transforms } fro
 import { BeforeInputEvent } from '../interface/event';
 import { RichtextEditor } from '../plugins/richtext-editor';
 import { getDefaultView } from '../utils/dom';
-import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW } from '../utils/weak-maps';
+import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, IS_FOCUSED } from '../utils/weak-maps';
 
 @Component({
   selector: 'plait-richtext',
@@ -31,6 +31,12 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
 
   @Output()
   valueChange: EventEmitter<Element> = new EventEmitter();
+
+  @Output()
+  blur: EventEmitter<FocusEvent> = new EventEmitter();
+
+  @Output()
+  focus: EventEmitter<FocusEvent> = new EventEmitter();
 
   editor = withRichtext(createEditor());
 
@@ -67,6 +73,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     let window = getDefaultView(this.editable);
     EDITOR_TO_WINDOW.set(this.editor, window);
     EDITOR_TO_ELEMENT.set(this.editor, this.editable);
+    ELEMENT_TO_NODE.set(this.editable, this.editor);
 
     this.ngZone.runOutsideAngular(() => {
       // 拦截输入行为
@@ -74,6 +81,8 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
       this.addEventListener('compositionstart', (evt: Event) => this.compositionStart(evt as CompositionEvent));
       this.addEventListener('compositionupdate', (evt: Event) => this.compositionUpdate(evt as CompositionEvent));
       this.addEventListener('compositionend', (evt: Event) => this.compositionEnd(evt as CompositionEvent));
+      this.addEventListener('focus', (evt: Event) => this.onFocus(evt as FocusEvent));
+      this.addEventListener('blur', (evt: Event) => this.onBlur(evt as FocusEvent));
       // 监控选区改变
       this.addEventListener('selectionchange', () => {
         if (this.isComposing) {
@@ -213,6 +222,16 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
+  private onFocus(event: FocusEvent) {
+    IS_FOCUSED.set(this.editor, true);
+    this.focus.emit(event);
+  }
+
+  private onBlur(event: FocusEvent) {
+    IS_FOCUSED.delete(this.editor);
+    this.blur.emit(event);
+  }
+
   private toNativeSelection() {
     const window = RichtextEditor.getWindow(this.editor);
     const domSelection = window.getSelection();
@@ -246,7 +265,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   private toSlateSelection() {
     const domSelection = window.getSelection();
     if (domSelection) {
-      if (!this.editable.contains(domSelection.anchorNode)) {
+      if (!this.editable.contains(domSelection.anchorNode) || this.readonly) {
         return;
       }
       const slateRange = RichtextEditor.toSlateRange(this.editor, domSelection);
@@ -276,5 +295,6 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     });
     EDITOR_TO_WINDOW.delete(this.editor);
     EDITOR_TO_ELEMENT.delete(this.editor);
+    ELEMENT_TO_NODE.delete(this.editable);
   }
 }

@@ -1,6 +1,8 @@
-import { Editor, Node, Path, Point, Range, Text } from "slate";
+import { BaseEditor, Editor, Node, Path, Point, Range, Text } from "slate";
 import { DOMRange, DOMPoint, DOMStaticRange, DOMSelection, isDOMSelection } from "../utils/dom";
 import { EDITOR_TO_ELEMENT, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from "../utils/weak-maps";
+
+export interface RichtextEditor extends BaseEditor {}
 
 export const RichtextEditor = {
     getWindow(editor: Editor): Window {
