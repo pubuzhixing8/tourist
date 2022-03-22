@@ -15,8 +15,8 @@
             <!-- <button class="item">export png</button> -->
         </div>
         <svg #SVG width="800" height="600">
-            <ng-container *ngFor="let item of paper?.elements">
-                <pla-element [rs]="rc" [element]="item" [selection]="paper?.selection" ></pla-element>
+            <ng-container *ngFor="let item of paper?.elements;trackBy: trackBy">
+                <pla-element [rs]="rc" [element]="item" [selection]="paper?.selection" [paper]="paper"></pla-element>
             </ng-container>
         </svg>
     </div>

@@ -210,6 +210,10 @@ export class AppComponent implements OnInit {
       this.container.classList.remove('pointer');
     }
   }
+
+  trackBy = (index: number, node: Element) => {
+    return node.key;
+  }
 }
 
 export interface PenContext {

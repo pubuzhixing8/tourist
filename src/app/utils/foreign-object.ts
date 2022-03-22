@@ -14,6 +14,14 @@ export function createForeignObject(x: number, y: number, width: number, height:
     return newForeignObject;
 }
 
+export function updateForeignObject(g: SVGGElement, width: number, height: number) {
+    const foreignObject = g.querySelector('foreignObject');
+    if (foreignObject) {
+        foreignObject.setAttribute("width", `${width}`);
+        foreignObject.setAttribute("height", `${height}`);
+    }
+}
+
 export function createG() {
     const newG = document.createElementNS(NS, "g") as unknown as SVGGElement;
     return newG;

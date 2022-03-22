@@ -49,6 +49,7 @@
         .plait-richtext-container {
             &[readonly="false"] {
                 cursor: text;
+                display: inline-block;
             }
         }
     }

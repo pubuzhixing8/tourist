@@ -1,6 +1,7 @@
 import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
+import { updateForeignObject } from "../utils/foreign-object";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { setFullSelectionAndFocus } from "../utils/richtext";
@@ -11,7 +12,7 @@ export function textPaper<T extends Paper>(paper: T) {
     paper.mousedown = (event: MouseEvent) => {
         if (paper.pointer === PointerType.text) {
             const start = toPoint(event.x, event.y, paper.container as SVGElement);
-            const end = [start[0] + 50, start[1] + 40];
+            const end = [start[0] + 32, start[1] + 22];
             const element = { type: ElementType.text, points: [start, end], key: generateKey() };
             addElement(paper, element as any);
             paper.pointer = PointerType.pointer;
@@ -30,6 +31,10 @@ export function textPaper<T extends Paper>(paper: T) {
                 if (elementComponent && elementComponent.richtextComponentRef) {
                     elementComponent.richtextComponentRef.instance.readonly = false;
                     elementComponent.richtextComponentRef.changeDetectorRef.markForCheck();
+                    // 更新宽度
+                    const foreignObject = (elementComponent as any).svgElement?.querySelector('plait-richtext');
+                    const { width, height } = foreignObject.getBoundingClientRect();
+                    updateForeignObject((elementComponent as any).svgElement, width + 1000, height + 1000);
                 }
                 setTimeout(() => {
                     if (editor) {

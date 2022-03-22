@@ -8,10 +8,11 @@ import { ActiveElementService } from "./active-element.service";
 import { EdgeMode } from "../interfaces/attributes";
 import { arrowPoints } from "../utils/arrow";
 import { drawRoundRectangle } from "../utils/rectangle";
-import { renderRichtext } from "../utils/foreign-object";
+import { renderRichtext, updateForeignObject } from "../utils/foreign-object";
 import { PlaitRichtextComponent } from "richtext";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { Paper, setElement } from "../interfaces/paper";
 
 @Component({
     selector: 'pla-element',
@@ -24,6 +25,8 @@ export class ElementComponent extends ElementBase implements OnInit, AfterViewIn
     @Input() rs: RoughSVG | undefined;
 
     @Input() selection: Selection | undefined;
+
+    @Input() paper: Paper | undefined;
 
     svgElement: SVGGElement | undefined;
 
@@ -99,6 +102,33 @@ export class ElementComponent extends ElementBase implements OnInit, AfterViewIn
                 if (this.richtextComponentRef && this.richtextComponentRef?.instance) {
                     this.richtextComponentRef.instance.readonly = true;
                     this.richtextComponentRef.changeDetectorRef.markForCheck();
+                }
+            });
+            this.richtextComponentRef.instance.valueChange.asObservable().pipe(takeUntil(this.destroy$)).subscribe((event: any) => {
+                if (this.richtextComponentRef && this.richtextComponentRef?.instance) {
+                    // 更新宽度
+                    const foreignObject = this.svgElement?.querySelector('plait-richtext');
+                    if (foreignObject) {
+                        const { width, height } = foreignObject.getBoundingClientRect();
+                        // updateForeignObject(this.svgElement as SVGGElement, width + 100, height);
+                        const points = this.element.points;
+                        points[1] = [points[0][0] + width, points[0][1] + height];
+                        console.log(height, 'height');
+                        setElement(this.paper as Paper, this.element, { points: [...points] })
+                    }
+                }
+            });
+            this.richtextComponentRef.instance.compositionStartHandle.asObservable().pipe(takeUntil(this.destroy$)).subscribe((event: any) => {
+                if (this.richtextComponentRef && this.richtextComponentRef?.instance) {
+                    // 更新宽度
+                    const foreignObject = this.svgElement?.querySelector('plait-richtext');
+                    if (foreignObject) {
+                        const { width, height } = foreignObject.getBoundingClientRect();
+                        const points = this.element.points;
+                        points[1] = [points[0][0] + width + 15, points[0][1] + height];
+                        console.log(width, 'width');
+                        setElement(this.paper as Paper, this.element, { points: [...points] })
+                    }
                 }
             });
         }

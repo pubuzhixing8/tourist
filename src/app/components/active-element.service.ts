@@ -31,9 +31,8 @@ export class ActiveElementService {
     render() {
         const isIntersected = (Selection.isCollapsed(this.selection) && Element.isHoveredElement(this.element, this.selection.anchor)) || (!Selection.isCollapsed(this.selection) && Element.isIntersected(this.element, this.selection));
         if (isIntersected) {
-            if (!this.activeRectangle) {
-                this.addActiveRectangle();
-            }
+            this.removeActiveRectangle();
+            this.addActiveRectangle();
         } else {
             this.removeActiveRectangle();
         }

@@ -38,6 +38,9 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   @Output()
   focus: EventEmitter<FocusEvent> = new EventEmitter();
 
+  @Output()
+  compositionStartHandle: EventEmitter<FocusEvent> = new EventEmitter();
+
   editor = withRichtext(createEditor());
 
   get bindValue(): Element {
@@ -102,8 +105,8 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   onChange() {
     const isValueChange = this.editor.operations.some(op => !Operation.isSelectionOperation(op));
     if (isValueChange) {
-      this.valueChange.emit(this.editor.children[0] as any);
       this.cdr.detectChanges();
+      this.valueChange.emit(this.editor.children[0] as any);
     }
     this.toNativeSelection();
   }
@@ -207,10 +210,12 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private compositionStart(event: CompositionEvent) {
     this.isComposing = true;
+    this.compositionStartHandle.emit();
   }
 
   private compositionUpdate(event: CompositionEvent) {
     this.isComposing = true;
+    this.compositionStartHandle.emit();
   }
 
   private compositionEnd(event: CompositionEvent) {
