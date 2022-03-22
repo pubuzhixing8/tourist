@@ -3,7 +3,7 @@ import { Point } from 'roughjs/bin/geometry';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
 import { createPaper, removeElement, setElement, setSelection } from './interfaces/paper';
@@ -20,6 +20,8 @@ import { resizePaper } from './plugins/resize';
 import { likeLinePaper } from './plugins/like-line';
 import { circlePaper } from './plugins/circle';
 import { textPaper } from './plugins/text';
+import { ELEMENT_TO_NODE, IS_FOCUSED } from 'richtext';
+import { Editor } from 'slate';
 
 @Component({
   selector: 'app-root',
@@ -65,7 +67,7 @@ export class AppComponent implements OnInit {
           const isSelected = Element.isIntersected(value, paper.selection);
           return isSelected;
         });
-        if (ele) {
+        if (ele && ele.color && ele.strokeWidth) {
           const color = ele.color;
           const strokeWidth = ele.strokeWidth;
           this.attributes.color = color;
@@ -104,6 +106,21 @@ export class AppComponent implements OnInit {
     ).subscribe((event: MouseEvent) => {
     });
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
+      filter((event: KeyboardEvent) => {
+        if (event.target instanceof HTMLElement) {
+          const richtext = event.target.closest<HTMLElement>(`.plait-richtext-container`);
+          if (richtext) {
+            const editor = ELEMENT_TO_NODE.get(richtext);
+            if (editor && Editor.isEditor(editor)) {
+              const isFocused = IS_FOCUSED.get(editor);
+              if (isFocused) {
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      })
     ).subscribe((event: KeyboardEvent) => {
       this.paper?.keydown(event);
       if (isHotkey('mod+a', event)) {

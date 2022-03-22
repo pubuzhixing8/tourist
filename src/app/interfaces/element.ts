@@ -43,6 +43,10 @@ export const Element = {
             const innerRectangle = { x: rect.x + ACTIVE_RECTANGLE_DISTANCE, y: rect.y + ACTIVE_RECTANGLE_DISTANCE, width: rect.width - ACTIVE_RECTANGLE_DISTANCE * 2, height: rect.height - ACTIVE_RECTANGLE_DISTANCE * 2 };
             return Selection.intersect(toSelection(rect), selection) && !Selection.intersectPoint(point, toSelection(innerRectangle));
         }
+        if (element.type === ElementType.text) {
+            const rect = toRectangle(element.points);
+            return Selection.intersect(toSelection(rect), selection);
+        }
         return false;
     }
 }

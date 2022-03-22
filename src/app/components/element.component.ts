@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ComponentFactoryResolver, ComponentRef, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { RoughSVG } from "roughjs/bin/svg";
 import { Selection } from "../interfaces/selection";
 import { Element, ElementType } from "../interfaces/element";
@@ -9,13 +9,16 @@ import { EdgeMode } from "../interfaces/attributes";
 import { arrowPoints } from "../utils/arrow";
 import { drawRoundRectangle } from "../utils/rectangle";
 import { renderRichtext } from "../utils/foreign-object";
+import { PlaitRichtextComponent } from "richtext";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
     selector: 'pla-element',
     template: '',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ElementComponent extends ElementBase implements OnInit, OnDestroy, OnChanges {
+export class ElementComponent extends ElementBase implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     @Input() element!: Element;
 
     @Input() rs: RoughSVG | undefined;
@@ -27,6 +30,8 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
     arrowDOMElements: SVGElement[] = [];
 
     activeElementService: ActiveElementService | undefined;
+
+    destroy$: Subject<any> = new Subject();
 
     constructor(private elementRef: ElementRef,
         private componentFactoryResolver: ComponentFactoryResolver,
@@ -72,7 +77,8 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
                 this.elementRef.nativeElement.parentElement.appendChild(dom);
             });
         } else if (this.element.type === ElementType.text) {
-            const { richtextComponentRef, g } = renderRichtext(this.element, this.componentFactoryResolver, this.viewContainerRef);
+            const { richtextComponentRef, g } = renderRichtext(this.element, this.componentFactoryResolver, this.viewContainerRef, false);
+            this.richtextComponentRef = richtextComponentRef;
             this.svgElement = g;
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         }
@@ -85,6 +91,17 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
             this.elementRef.nativeElement.parentElement.appendChild(this.svgElement);
         }
         this.activeElementService = new ActiveElementService(this.rs as RoughSVG, this.elementRef.nativeElement.parentElement, this.element, this.selection as Selection);
+    }
+
+    ngAfterViewInit(): void {
+        if (this.richtextComponentRef && this.richtextComponentRef.instance) {
+            this.richtextComponentRef.instance.blur.asObservable().pipe(takeUntil(this.destroy$)).subscribe((event: FocusEvent) => {
+                if (this.richtextComponentRef && this.richtextComponentRef?.instance) {
+                    this.richtextComponentRef.instance.readonly = true;
+                    this.richtextComponentRef.changeDetectorRef.markForCheck();
+                }
+            });
+        }
     }
 
     hidden() {
@@ -112,6 +129,8 @@ export class ElementComponent extends ElementBase implements OnInit, OnDestroy, 
     }
 
     ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
         this.svgElement?.remove();
         this.activeElementService?.removeActiveRectangle();
         this.arrowDOMElements.forEach((dom) => {

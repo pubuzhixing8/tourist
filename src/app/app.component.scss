@@ -47,7 +47,9 @@
         cursor: crosshair;
 
         .plait-richtext-container {
-            cursor: text;
+            &[readonly="false"] {
+                cursor: text;
+            }
         }
     }
 
