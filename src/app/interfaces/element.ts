@@ -13,7 +13,7 @@ export interface Element {
     color: string;
     strokeWidth: number;
     edgeMode?: EdgeMode;
-    value?: any;
+    richtext?: any;
 }
 
 export enum ElementType {

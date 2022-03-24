@@ -1,11 +1,11 @@
 import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
-import { updateForeignObject } from "../utils/foreign-object";
+import { editText, updateForeignObject } from "../utils/foreign-object";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { setFullSelectionAndFocus } from "../utils/richtext";
-import { ELEMENT_TO_COMPONENTS } from "../utils/weakmaps";
+import { ELEMENT_TO_COMPONENTS, IS_TEXT_EDITABLE } from "../utils/weak-maps";
 
 export function textPaper<T extends Paper>(paper: T) {
     const { mousedown, dblclick } = paper;
@@ -32,9 +32,8 @@ export function textPaper<T extends Paper>(paper: T) {
                     elementComponent.richtextComponentRef.instance.readonly = false;
                     elementComponent.richtextComponentRef.changeDetectorRef.markForCheck();
                     // 更新宽度
-                    const foreignObject = (elementComponent as any).svgElement?.querySelector('plait-richtext');
-                    const { width, height } = foreignObject.getBoundingClientRect();
-                    updateForeignObject((elementComponent as any).svgElement, width + 1000, height + 1000);
+                    IS_TEXT_EDITABLE.set(paper, true);
+                    editText(elementComponent.g);
                 }
                 setTimeout(() => {
                     if (editor) {

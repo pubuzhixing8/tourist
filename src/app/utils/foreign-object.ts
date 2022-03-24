@@ -22,6 +22,17 @@ export function updateForeignObject(g: SVGGElement, width: number, height: numbe
     }
 }
 
+export function editText(g: SVGGElement) {
+    const maxSize = 2000;
+    updateForeignObject(g, maxSize, maxSize);
+}
+
+export function cancelEditText(g: SVGGElement) {
+    const foreignObject = g.querySelector('plait-richtext') as HTMLElement;
+    const { width, height } = foreignObject.getBoundingClientRect();
+    updateForeignObject(g, width, height);
+}
+
 export function createG() {
     const newG = document.createElementNS(NS, "g") as unknown as SVGGElement;
     return newG;

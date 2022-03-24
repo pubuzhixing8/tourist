@@ -5,7 +5,7 @@ import { Element, ElementType } from "../interfaces/element";
 import { Paper, setElement } from "../interfaces/paper"
 import { PointerType } from "../interfaces/pointer";
 import { toPoint } from "../utils/position";
-import { ELEMENT_TO_COMPONENTS } from "../utils/weakmaps";
+import { ELEMENT_TO_COMPONENTS } from "../utils/weak-maps";
 import { Selection } from '../interfaces/selection';
 
 export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {

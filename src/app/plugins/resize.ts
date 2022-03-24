@@ -5,7 +5,7 @@ import { Element, ElementType } from "../interfaces/element";
 import { Paper, setElement } from "../interfaces/paper"
 import { PointerType } from "../interfaces/pointer";
 import { RectanglePosition, toPoint, toRectangle } from "../utils/position";
-import { ELEMENT_TO_COMPONENTS } from "../utils/weakmaps";
+import { ELEMENT_TO_COMPONENTS } from "../utils/weak-maps";
 import { Selection } from '../interfaces/selection';
 import { Rectangle } from "../interfaces/rectangle";
 
