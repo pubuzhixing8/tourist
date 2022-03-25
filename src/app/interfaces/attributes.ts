@@ -1,5 +1,5 @@
 export class Attributes {
-    color: string = '#0000';
+    stroke: string = '#0000';
     strokeWidth: number = 1;
     edgeMode: EdgeMode | undefined = EdgeMode.sharp;
 }

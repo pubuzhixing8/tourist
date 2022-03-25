@@ -1,7 +1,7 @@
 import { Point } from "roughjs/bin/geometry";
 import { RoughSVG } from "roughjs/bin/svg";
-import { Attributes } from "../interfaces/attributes";
-import { ElementType } from "../interfaces/element";
+import { Attributes, EdgeMode } from "../interfaces/attributes";
+import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
 import { generateKey } from "../utils/key";
@@ -23,7 +23,6 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
 
     paper.keyup = (event: KeyboardEvent) => {
         shiftKey = event.shiftKey;
-        console.log(`shfit：` + shiftKey);
         keyup(event);
     }
 
@@ -52,7 +51,7 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
                     height = width;
                 }
                 const centerPoint = [realEnd[0] > start[0] ? realEnd[0] - width / 2 : realEnd[0] + width / 2, realEnd[1] > start[1] ? realEnd[1] - height / 2 : realEnd[1] + height / 2];
-                domElement = rc.ellipse(centerPoint[0], centerPoint[1], width, height, { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
+                domElement = rc.ellipse(centerPoint[0], centerPoint[1], width, height, { stroke: attributes.stroke, strokeWidth: attributes.strokeWidth });
                 paper.container?.appendChild(domElement);
             }
             return;
@@ -69,8 +68,8 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
                 if (shiftKey) {
                     realEnd = [end[0], end[1] > start[1] ? start[1] + width : start[1] - width];
                 }
-                const element = { type: ElementType.circle, points: [start, realEnd], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth };
-                addElement(paper, element as any);
+                const circleElement = createCircle(start, realEnd, attributes.stroke, attributes.strokeWidth);
+                addElement(paper, circleElement);
             }
             domElement?.remove();
         }
@@ -81,4 +80,8 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
     }
 
     return paper;
+}
+
+export function createCircle(start: Point, end: Point, stroke: string, strokeWidth: number): Element {
+    return { type: ElementType.circle, points: [start, end], key: generateKey(), stroke, strokeWidth };
 }

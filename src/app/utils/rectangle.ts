@@ -2,7 +2,7 @@ import { Point } from "roughjs/bin/geometry";
 import { RoughSVG } from "roughjs/bin/svg";
 import { Attributes } from "../interfaces/attributes";
 
-export function drawRoundRectangle(start: Point, end: Point, rs: RoughSVG, attributes: Attributes) {
+export function drawRoundRectangle(start: Point, end: Point, rs: RoughSVG, attributes: Partial<Attributes>) {
     const width = Math.abs(end[0] - start[0]);
     const height = Math.abs(end[1] - start[1]);
     const radius = Math.min(width, height) / 4;

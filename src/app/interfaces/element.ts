@@ -10,7 +10,7 @@ export interface Element {
     type: ElementType;
     points: Point[];
     key: Key;
-    color: string;
+    stroke: string;
     strokeWidth: number;
     edgeMode?: EdgeMode;
     richtext?: any;

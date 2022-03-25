@@ -2,7 +2,7 @@
     <div>
         <p>颜色</p>
         <div class="corlor-picker">
-            <button class="color-picker-swatch" [ngClass]="{'active': attributes?.color === item}" [ngStyle]="{'color': item}" *ngFor="let item of colorList" (mousedown)="colorSelect($event, item)"></button>
+            <button class="color-picker-swatch" [ngClass]="{'active': attributes?.stroke === item}" [ngStyle]="{'color': item}" *ngFor="let item of colorList" (mousedown)="colorSelect($event, item)"></button>
         </div>
     </div>
     <div>

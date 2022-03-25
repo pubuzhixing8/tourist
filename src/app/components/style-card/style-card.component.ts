@@ -1,4 +1,4 @@
-import { Attribute, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Paper } from "../../interfaces/paper";
 import { Attributes } from "../../interfaces/attributes";
 import { PointerType } from "../../interfaces/pointer";
@@ -45,10 +45,10 @@ export class StyleCardComponent implements OnInit {
     ngOnInit(): void {
     }
 
-    colorSelect(event: MouseEvent, color: string) {
+    colorSelect(event: MouseEvent, stroke: string) {
         event.preventDefault();
         if (this.attributes) {
-            this.attributes.color = color;
+            this.attributes.stroke = stroke;
         }
         this.attributesChange.emit(this.attributes);
     }

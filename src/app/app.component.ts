@@ -14,12 +14,12 @@ import { HistoryPaper, historyPaper } from './plugins/history';
 import { shapePaper } from './plugins/shape';
 import { PointerType } from './interfaces/pointer';
 import { Selection } from './interfaces/selection';
-import { movePaper } from './plugins/move';
-import { cursorPaper } from './plugins/cursor';
-import { resizePaper } from './plugins/resize';
-import { likeLinePaper } from './plugins/like-line';
-import { circlePaper } from './plugins/circle';
-import { textPaper } from './plugins/text';
+// import { movePaper } from './plugins/move';
+// import { cursorPaper } from './plugins/cursor';
+// import { resizePaper } from './plugins/resize';
+// import { likeLinePaper } from './plugins/like-line';
+// import { circlePaper } from './plugins/circle';
+// import { textPaper } from './plugins/text';
 import { ELEMENT_TO_NODE, IS_FOCUSED } from 'richtext';
 import { Editor } from 'slate';
 
@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
 
   paper: HistoryPaper | undefined;
 
-  attributes: Attributes = { color: '#000000', strokeWidth: 1, edgeMode: EdgeMode.sharp };
+  attributes: Attributes = { stroke: '#000000', strokeWidth: 1, edgeMode: EdgeMode.sharp };
 
   pointerType = PointerType;
 
@@ -51,7 +51,9 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
     this.rc = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
-    const paper = textPaper(circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes));
+    // const paper = textPaper(circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes));
+    const paper = shapePaper(historyPaper(createPaper()), this.rc, this.attributes);
+
     this.paper = paper;
     this.initializePen(this.rc, paper);
     this.useCursor();
@@ -67,10 +69,9 @@ export class AppComponent implements OnInit {
           const isSelected = Element.isIntersected(value, paper.selection);
           return isSelected;
         });
-        if (ele && ele.color && ele.strokeWidth) {
-          const color = ele.color;
+        if (ele && ele.stroke && ele.strokeWidth) {
           const strokeWidth = ele.strokeWidth;
-          this.attributes.color = color;
+          this.attributes.stroke = ele.stroke;
           this.attributes.strokeWidth = strokeWidth;
         }
       }
