@@ -1,10 +1,10 @@
 import { Point } from "roughjs/bin/geometry";
 import { roughDrawer } from "../drawer";
-import { Attributes, EdgeMode } from "../interfaces/attributes";
+import { EdgeMode } from "../interfaces/attributes";
 import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
-import { getAttributes } from "../utils/common";
+import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from "../utils/common";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { getRoughSVG } from "../utils/rough";
@@ -33,7 +33,7 @@ export function commonPaper<T extends Paper>(paper: T) {
             isDragging = true;
             paper.dragging = true;
             end = toPoint(event.x, event.y, paper.container as SVGElement);
-            hostSVGG.forEach((g) => g.remove());
+            hostSVGG = destroyHostSVGG(hostSVGG);
             dragPoints.push(end);
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.rectangle) {
@@ -52,15 +52,8 @@ export function commonPaper<T extends Paper>(paper: T) {
                 const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
                 g = roughDrawer.draw(getRoughSVG(paper), curveElement);
             }
-            if (Array.isArray(g)) {
-                g.forEach((dom) => {
-                    paper.container?.appendChild(dom);
-                });
-                hostSVGG = g;
-            } else {
-                hostSVGG = [g];
-                paper.container?.appendChild(g);
-            }
+            appendHostSVGG(paper, g);
+            hostSVGG = arrayHostSVGG(g);
             return;
         }
         mousemove(event);
@@ -85,7 +78,7 @@ export function commonPaper<T extends Paper>(paper: T) {
                 const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
                 addElement(paper, curveElement);
             }
-            hostSVGG.forEach((g) => g.remove());
+            hostSVGG = destroyHostSVGG(hostSVGG);
         }
         isDragging = false;
         start = null;

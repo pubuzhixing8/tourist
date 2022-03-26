@@ -1,23 +1,23 @@
 import { Point } from "roughjs/bin/geometry";
-import { RoughSVG } from "roughjs/bin/svg";
-import { Attributes, EdgeMode } from "../interfaces/attributes";
+import { roughDrawer } from "../drawer";
 import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
+import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from "../utils/common";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
+import { getRoughSVG } from "../utils/rough";
 
-export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {
+export function circlePaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
     let end: Point | null = null;
     let isDragging = false;
-    let domElement: SVGElement | null = null;
+    let hostSVGG: SVGGElement[] = [];
     let shiftKey = false;
     const { mousedown, mousemove, mouseup, keydown, keyup } = paper;
 
     paper.keydown = (event: KeyboardEvent) => {
         shiftKey = event.shiftKey;
-        console.log(`shfit：` + shiftKey);
         keydown(event);
     }
 
@@ -35,24 +35,22 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
     }
 
     paper.mousemove = (event: MouseEvent) => {
+        const attributes = getAttributes(paper);
         if (start) {
             isDragging = true;
             paper.dragging = true;
             end = toPoint(event.x, event.y, paper.container as SVGElement);
-            if (domElement) {
-                domElement.remove();
-            }
+            hostSVGG = destroyHostSVGG(hostSVGG);
             if (paper.pointer === PointerType.circle) {
                 const width = Math.abs(end[0] - start[0]);
-                let height = Math.abs(end[1] - start[1]);
                 let realEnd = end;
                 if (shiftKey) {
                     realEnd = [end[0], end[1] > start[1] ? start[1] + width : start[1] - width];
-                    height = width;
                 }
-                const centerPoint = [realEnd[0] > start[0] ? realEnd[0] - width / 2 : realEnd[0] + width / 2, realEnd[1] > start[1] ? realEnd[1] - height / 2 : realEnd[1] + height / 2];
-                domElement = rc.ellipse(centerPoint[0], centerPoint[1], width, height, { stroke: attributes.stroke, strokeWidth: attributes.strokeWidth });
-                paper.container?.appendChild(domElement);
+                const curveElement = createCircle(start, realEnd, attributes.stroke, attributes.strokeWidth);
+                const g = roughDrawer.draw(getRoughSVG(paper), curveElement);
+                appendHostSVGG(paper, g);
+                hostSVGG = arrayHostSVGG(g);
             }
             return;
         }
@@ -60,6 +58,7 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
     }
 
     paper.mouseup = (event: MouseEvent) => {
+        const attributes = getAttributes(paper);
         mouseup(event);
         if (isDragging && start) {
             if (paper.pointer === PointerType.circle && end) {
@@ -71,7 +70,7 @@ export function circlePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes:
                 const circleElement = createCircle(start, realEnd, attributes.stroke, attributes.strokeWidth);
                 addElement(paper, circleElement);
             }
-            domElement?.remove();
+            hostSVGG = destroyHostSVGG(hostSVGG);
         }
         isDragging = false;
         start = null;

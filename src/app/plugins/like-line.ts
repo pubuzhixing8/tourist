@@ -1,14 +1,15 @@
 import { Point } from "roughjs/bin/geometry";
-import { RoughSVG } from "roughjs/bin/svg";
-import { Attributes } from "../interfaces/attributes";
-import { ElementType } from "../interfaces/element";
+import { roughDrawer } from "../drawer";
+import { EdgeMode } from "../interfaces/attributes";
+import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
-import { arrowPoints } from "../utils/arrow";
+import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from "../utils/common";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
+import { getRoughSVG } from "../utils/rough";
 
-export function likeLinePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {
+export function likeLinePaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
     let end: Point | null = null;
     let dragMode = false;
@@ -16,8 +17,8 @@ export function likeLinePaper<T extends Paper>(paper: T, rc: RoughSVG, attribute
 
     let clickMode = false;
     let clickPoints: Point[] = [];
-    let domElement: SVGElement | null = null;
-    let arrowDOMElements: SVGElement[] = [];
+
+    let hostSVGG: SVGGElement[] = [];
 
     const { mousedown, mousemove, mouseup, dblclick } = paper;
 
@@ -31,89 +32,58 @@ export function likeLinePaper<T extends Paper>(paper: T, rc: RoughSVG, attribute
     }
 
     paper.mousemove = (event: MouseEvent) => {
+        const attributes = getAttributes(paper);
+        const roughSVG = getRoughSVG(paper);
         if (start && isPressing && !clickMode) {
             dragMode = true;
             paper.dragging = true;
             end = toPoint(event.x, event.y, paper.container as SVGElement);
-            if (domElement) {
-                domElement.remove();
-            }
-            arrowDOMElements.forEach((dom) => {
-                dom.remove();
-            });
-            arrowDOMElements = [];
+            hostSVGG = destroyHostSVGG(hostSVGG);
+            let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.line) {
-                domElement = rc.linearPath([start, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                paper.container?.appendChild(domElement);
+                const lineElement = createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                g = roughDrawer.draw(roughSVG, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const { pointLeft, pointRight } = arrowPoints(start, end);
-                const line = rc.linearPath([start, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                arrowDOMElements.push(line);
-                const arrowLineLeft = rc.linearPath([pointLeft, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                arrowDOMElements.push(arrowLineLeft);
-                const arrowLineRight = rc.linearPath([pointRight, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                arrowDOMElements.push(arrowLineRight);
-                arrowDOMElements.forEach((dom) => {
-                    paper.container?.appendChild(dom);
-                })
+                const arrowElement = createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                g = roughDrawer.draw(roughSVG, arrowElement);
             }
+            appendHostSVGG(paper, g);
+            hostSVGG = arrayHostSVGG(g);
             return;
         }
         if (!isPressing && clickMode) {
             end = toPoint(event.x, event.y, paper.container as SVGElement);
-            if (domElement) {
-                domElement.remove();
-            }
-            arrowDOMElements.forEach((dom) => {
-                dom.remove();
-            });
-            arrowDOMElements = [];
+            hostSVGG = destroyHostSVGG(hostSVGG);
+            let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.line) {
-                if (attributes.edgeMode === 'sharp') {
-                    domElement = rc.linearPath([...clickPoints, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                } else {
-                    domElement = rc.curve([...clickPoints, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                }
-                paper.container?.appendChild(domElement);
+                const lineElement = createLikeLine(ElementType.line, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                g = roughDrawer.draw(roughSVG, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const { pointLeft, pointRight } = arrowPoints(clickPoints[clickPoints.length - 1], end);
-                const arrowLineLeft = rc.linearPath([pointLeft, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                arrowDOMElements.push(arrowLineLeft);
-                const arrowLineRight = rc.linearPath([pointRight, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                arrowDOMElements.push(arrowLineRight);
-                if (attributes.edgeMode === 'sharp') {
-                    const line = rc.linearPath([...clickPoints, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                    arrowDOMElements.push(line);
-                } else {
-                    const curve = rc.curve([...clickPoints, end], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                    arrowDOMElements.push(curve);
-                }
-                arrowDOMElements.forEach((dom) => {
-                    paper.container?.appendChild(dom);
-                })
+                const element = createLikeLine(ElementType.arrow, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                g = roughDrawer.draw(roughSVG, element);
             }
+            appendHostSVGG(paper, g);
+            hostSVGG = arrayHostSVGG(g);
+            return;
         }
         mousemove(event);
     }
 
     paper.mouseup = (event: MouseEvent) => {
         mouseup(event);
-        if (dragMode && start) {
+        const attributes = getAttributes(paper);
+        if (dragMode && start && end) {
             if (paper.pointer === PointerType.line) {
-                const element = { type: ElementType.line, points: [start, end], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth };
-                addElement(paper, element as any);
-                domElement?.remove();
+                const lineElement = createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                addElement(paper, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const element = { type: ElementType.arrow, points: [start, end], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth };
-                addElement(paper, element as any);
-                arrowDOMElements.forEach((dom) => {
-                    dom.remove();
-                });
-                arrowDOMElements = [];
+                const arrowElement = createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                addElement(paper, arrowElement);
             }
+            hostSVGG = destroyHostSVGG(hostSVGG);
         } else {
             if ((paper.pointer === PointerType.line || paper.pointer === PointerType.arrow) && start) {
                 clickMode = true;
@@ -128,30 +98,30 @@ export function likeLinePaper<T extends Paper>(paper: T, rc: RoughSVG, attribute
     }
 
     paper.dblclick = (event: MouseEvent) => {
-
+        const attributes = getAttributes(paper);
         if (clickMode && clickPoints.length > 3) {
-
-            if (domElement) {
-                domElement.remove();
-            }
             if (paper.pointer === PointerType.line) {
-                const element = { type: ElementType.line, points: [...clickPoints.slice(0, clickPoints.length - 1)], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth, edgeMode: attributes.edgeMode };
-                addElement(paper, element as any);
+                const lineElement = createLikeLine(ElementType.line, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                addElement(paper, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const element = { type: ElementType.arrow, points: [...clickPoints.slice(0, clickPoints.length - 1)], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth, edgeMode: attributes.edgeMode };
-                addElement(paper, element as any);
+                const element = createLikeLine(ElementType.arrow, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                addElement(paper, element);
             }
-            arrowDOMElements.forEach((dom) => {
-                dom.remove();
-            });
-            arrowDOMElements = [];
+            hostSVGG = destroyHostSVGG(hostSVGG);
             clickMode = false;
             clickPoints = [];
         }
-
         dblclick(event);
     }
 
     return paper;
+}
+
+export function createLikeLine(type: ElementType, points: Point[], stroke: string, strokeWidth: number, edgeMode?: EdgeMode): Element {
+    const line: Element = { type, points, key: generateKey(), stroke, strokeWidth };
+    if (edgeMode) {
+        line.edgeMode = edgeMode;
+    }
+    return line;
 }
