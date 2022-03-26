@@ -1,16 +1,17 @@
 import { Point } from "roughjs/bin/geometry";
-import { RoughSVG } from "roughjs/bin/svg";
 import { roughDrawer } from "../drawer";
 import { Attributes, EdgeMode } from "../interfaces/attributes";
 import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
+import { getAttributes } from "../utils/common";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
+import { getRoughSVG } from "../utils/rough";
 
 const DRAW_SKIP_SAWTOOTH = 3;
 
-export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {
+export function commonPaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
     let end: Point | null = null;
     let isDragging = false;
@@ -27,6 +28,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
     }
 
     paper.mousemove = (event: MouseEvent) => {
+        const attributes = getAttributes(paper);
         if (start) {
             isDragging = true;
             paper.dragging = true;
@@ -36,7 +38,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.rectangle) {
                 const tempElement = createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode);
-                g = roughDrawer.draw(rc, tempElement);
+                g = roughDrawer.draw(getRoughSVG(paper), tempElement);
             }
             if (paper.pointer === PointerType.draw) {
                 let points = [start, ...dragPoints];
@@ -48,7 +50,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
                     }
                 });
                 const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
-                g = roughDrawer.draw(rc, curveElement);
+                g = roughDrawer.draw(getRoughSVG(paper), curveElement);
             }
             if (Array.isArray(g)) {
                 g.forEach((dom) => {
@@ -65,6 +67,7 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
     }
 
     paper.mouseup = (event: MouseEvent) => {
+        const attributes = getAttributes(paper);
         mouseup(event);
         if (isDragging && start && end) {
             if (paper.pointer === PointerType.rectangle) {

@@ -3,7 +3,6 @@ import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
 import { Key } from "../utils/key";
 import { toRectangle, toSelection, toSelectionByPoint } from "../utils/position";
 import { EdgeMode } from "./attributes";
-import { Rectangle } from "./rectangle";
 import { Selection } from './selection';
 
 export interface Element {

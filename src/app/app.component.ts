@@ -6,12 +6,12 @@ import { fromEvent } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from './utils/hotkeys';
-import { createPaper, removeElement, setElement, setSelection } from './interfaces/paper';
+import { createPaper, Paper, removeElement, setElement, setSelection } from './interfaces/paper';
 import { Element } from './interfaces/element';
 import { Attributes, EdgeMode } from './interfaces/attributes';
 import { Operation } from './interfaces/operation';
 import { HistoryPaper, historyPaper } from './plugins/history';
-import { shapePaper } from './plugins/shape';
+import { commonPaper } from './plugins/common';
 import { PointerType } from './interfaces/pointer';
 import { Selection } from './interfaces/selection';
 // import { movePaper } from './plugins/move';
@@ -22,6 +22,8 @@ import { Selection } from './interfaces/selection';
 // import { textPaper } from './plugins/text';
 import { ELEMENT_TO_NODE, IS_FOCUSED } from 'richtext';
 import { Editor } from 'slate';
+import { PAPER_TO_ATTRIBUTES, PAPER_TO_ROUGHSVG } from './utils/weak-maps';
+import { getRoughSVG } from './utils/rough';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +36,9 @@ export class AppComponent implements OnInit {
   @ViewChild('SVG', { static: true })
   SVG: ElementRef | undefined;
 
-  rc: RoughSVG | undefined;
+  get roughSVG(): RoughSVG {
+    return getRoughSVG(this.paper as Paper);
+  }
 
   paper: HistoryPaper | undefined;
 
@@ -50,12 +54,16 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.container = this.SVG?.nativeElement;
-    this.rc = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
-    // const paper = textPaper(circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(shapePaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes));
-    const paper = shapePaper(historyPaper(createPaper()), this.rc, this.attributes);
+    const roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
+    // const paper = textPaper(circlePaper(likeLinePaper(resizePaper(cursorPaper(movePaper(commonPaper(historyPaper(createPaper()), this.rc, this.attributes), this.rc, this.attributes), this.container), this.rc, this.attributes), this.rc, this.attributes), this.rc, this.attributes));
+    const paper = commonPaper(historyPaper(createPaper()));
+    PAPER_TO_ROUGHSVG.set(paper, roughSVG);
+    PAPER_TO_ATTRIBUTES.set(paper, () => {
+      return this.attributes;
+    });
 
     this.paper = paper;
-    this.initializePen(this.rc, paper);
+    this.initializePen(this.roughSVG, paper);
     this.useCursor();
     const onChange = paper?.onChange;
     paper.onChange = () => {

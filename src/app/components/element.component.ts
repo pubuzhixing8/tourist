@@ -1,17 +1,8 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
-import { RoughSVG } from "roughjs/bin/svg";
-import { Selection } from "../interfaces/selection";
-import { Element, ElementType } from "../interfaces/element";
-import { ELEMENT_TO_COMPONENTS, IS_TEXT_EDITABLE } from "../utils/weak-maps";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
+import { Element } from "../interfaces/element";
+import { ELEMENT_TO_COMPONENTS } from "../utils/weak-maps";
 import { PlaitBaseElement } from "../base/element-base";
-import { ActiveElementService } from "./active-element.service";
-import { EdgeMode } from "../interfaces/attributes";
-import { arrowPoints } from "../utils/arrow";
-import { drawRoundRectangle } from "../utils/rectangle";
-import { cancelEditText, renderRichtext } from "../utils/foreign-object";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { Paper, setElement } from "../interfaces/paper";
 import { roughDrawer } from "../drawer";
 
 @Component({
