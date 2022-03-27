@@ -1,4 +1,4 @@
-import { Directive, Input } from "@angular/core";
+import { ComponentFactoryResolver, Directive, ElementRef, Input, ViewContainerRef } from "@angular/core";
 import { RoughSVG } from "roughjs/bin/svg";
 import { Element } from "../interfaces/element";
 import { Selection } from "../interfaces/selection";
@@ -16,9 +16,18 @@ export class PlaitBaseElement {
 
     @Input() paper?: Paper;
 
+    getPaper() {
+        if (this.paper) {
+            return this.paper;
+        }
+        throw new Error('undefined paper');
+    }
+
     hostSVGG: SVGGElement[];
 
-    constructor() {
+    constructor(public elementRef: ElementRef,
+        public componentFactoryResolver: ComponentFactoryResolver,
+        public viewContainerRef: ViewContainerRef) {
         this.hostSVGG = [];
     }
 }

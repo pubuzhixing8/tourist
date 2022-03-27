@@ -4,15 +4,16 @@ import { Key } from "../utils/key";
 import { toRectangle, toSelection, toSelectionByPoint } from "../utils/position";
 import { EdgeMode } from "./attributes";
 import { Selection } from './selection';
+import { Element as SlateElement } from 'slate';
 
 export interface Element {
     type: ElementType;
     points: Point[];
     key: Key;
-    stroke: string;
-    strokeWidth: number;
+    stroke?: string;
+    strokeWidth?: number;
     edgeMode?: EdgeMode;
-    richtext?: any;
+    richtext?: SlateElement;
 }
 
 export enum ElementType {

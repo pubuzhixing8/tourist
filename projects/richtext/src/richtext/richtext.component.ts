@@ -88,7 +88,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
       this.addEventListener('blur', (evt: Event) => this.onBlur(evt as FocusEvent));
       // 监控选区改变
       this.addEventListener('selectionchange', () => {
-        if (this.isComposing) {
+        if (this.isComposing && this.readonly) {
           return;
         }
         this.toSlateSelection();

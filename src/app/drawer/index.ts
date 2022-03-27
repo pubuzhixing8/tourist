@@ -2,6 +2,7 @@ import { RoughSVG } from "roughjs/bin/svg";
 import { Element, ElementType } from "../interfaces/element";
 import { BaseDrawer } from "./base-drawer";
 import { roughCommonDrawer } from "./common-drawer";
+import { richTextDrawer } from "./richtext";
 
 export const roughDrawer: BaseDrawer = {
     draw(roughSVG: RoughSVG, element: Element) {
@@ -20,6 +21,7 @@ const drawerMap: any = {
     [ElementType.curve]: roughCommonDrawer,
     [ElementType.line]: roughCommonDrawer,
     [ElementType.arrow]: roughCommonDrawer,
-    [ElementType.circle]: roughCommonDrawer
+    [ElementType.circle]: roughCommonDrawer,
+    [ElementType.text]: richTextDrawer
 };
 
