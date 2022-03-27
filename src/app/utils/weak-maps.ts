@@ -10,7 +10,7 @@ export const ELEMENT_TO_COMPONENTS = new WeakMap<Element, PlaitBaseElement>();
 
 export const HOSTSVGG_TO_ELEMENT = new WeakMap<SVGGElement, Element>();
 
-export const ELEMENT_TO_RICHTEXT_REF = new WeakMap<Element, ComponentRef<PlaitRichtextComponent>>();
+export const HOSTSVGG_TO_RICHTEXT_REF = new WeakMap<SVGGElement, ComponentRef<PlaitRichtextComponent>>();
 
 export const PAPER_TO_ROUGHSVG = new WeakMap<Paper, RoughSVG>();
 

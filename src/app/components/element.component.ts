@@ -36,38 +36,9 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
                 HOSTSVGG_TO_ELEMENT.set(g, this.element as Element);
             });
         }
-        // if (this.element.type === ElementType.text) {
-        //     const { richtextComponentRef, g } = renderRichtext(this.element, this.componentFactoryResolver, this.viewContainerRef, false);
-        //     this.richtextComponentRef = richtextComponentRef;
-        //     this.svgGElement = g;
-        //     this.elementRef.nativeElement.parentElement.appendChild(this.svgGElement);
-        // }
-        // this.activeElementService = new ActiveElementService(this.rs as RoughSVG, this.elementRef.nativeElement.parentElement, this.element, this.selection as Selection);
     }
 
     ngAfterViewInit(): void {
-        // if (this.richtextComponentRef && this.richtextComponentRef.instance) {
-        //     this.richtextComponentRef.instance.blur.asObservable().pipe(takeUntil(this.destroy$)).subscribe((event: FocusEvent) => {
-        //         if (this.richtextComponentRef && this.richtextComponentRef?.instance) {
-        //             this.richtextComponentRef.instance.readonly = true;
-        //             this.richtextComponentRef.changeDetectorRef.markForCheck();
-        //             IS_TEXT_EDITABLE.set(this.paper as Paper, false);
-        //             cancelEditText(this.g);
-        //         }
-        //     });
-        //     this.richtextComponentRef.instance.valueChange.asObservable().pipe(takeUntil(this.destroy$)).subscribe((event: any) => {
-        //         if (this.richtextComponentRef && this.richtextComponentRef?.instance) {
-        //             // 更新宽度
-        //             const foreignObject = this.svgGElement?.querySelector('plait-richtext');
-        //             if (foreignObject) {
-        //                 const { width, height } = foreignObject.getBoundingClientRect();
-        //                 const points = this.element.points;
-        //                 points[1] = [points[0][0] + width, points[0][1] + height];
-        //                 setElement(this.paper as Paper, this.element, { points: [...points], richtext: event })
-        //             }
-        //         }
-        //     });
-        // }
     }
 
     // hidden() {

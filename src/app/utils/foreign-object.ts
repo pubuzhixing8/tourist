@@ -3,7 +3,7 @@ import { PlaitRichtextComponent } from 'richtext';
 import { Element } from '../interfaces/element';
 import { Editor, Element as SlateElement } from 'slate';
 import { Paper, removeElement, setElement } from '../interfaces/paper';
-import { ELEMENT_TO_RICHTEXT_REF, IS_TEXT_EDITABLE } from './weak-maps';
+import { HOSTSVGG_TO_RICHTEXT_REF, IS_TEXT_EDITABLE } from './weak-maps';
 import { take } from 'rxjs/operators';
 import { setFullSelectionAndFocus } from './richtext';
 
@@ -31,7 +31,7 @@ export function startEditRichtext(paper: Paper, element: Element, g: SVGGElement
     const maxSize = 2000;
     IS_TEXT_EDITABLE.set(paper, true);
     updateForeignObject(g, maxSize, maxSize);
-    const richTextRef = ELEMENT_TO_RICHTEXT_REF.get(element);
+    const richTextRef = HOSTSVGG_TO_RICHTEXT_REF.get(g);
     if (richTextRef) {
         if (richTextRef.instance.readonly) {
             richTextRef.instance.readonly = false;
