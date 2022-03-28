@@ -8,12 +8,14 @@ import { toPoint } from "../utils/position";
 import { setFullSelectionAndFocus } from "../utils/richtext";
 import { HOSTSVGG_TO_RICHTEXT_REF, HOSTSVGG_TO_ELEMENT } from "../utils/weak-maps";
 
+export const DEFAULT_LINE_HEIGHT = 22;
+
 export function textPaper<T extends Paper>(paper: T) {
     const { mousedown, dblclick } = paper;
     paper.mousedown = (event: MouseEvent) => {
         if (paper.pointer === PointerType.text) {
-            const start = toPoint(event.x, event.y, paper.container as SVGElement);
-            const end = [start[0] + 32, start[1] + 22] as Point;
+            const start = toPoint(event.x, event.y - DEFAULT_LINE_HEIGHT / 2, paper.container as SVGElement);
+            const end = [start[0] + 32, start[1] + DEFAULT_LINE_HEIGHT] as Point;
             addElement(paper, createText(start, end));
             paper.pointer = PointerType.pointer;
             return;
