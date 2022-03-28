@@ -22,6 +22,8 @@ import { circlePaper } from './plugins/circle';
 import { likeLinePaper } from './plugins/like-line';
 import { textPaper } from './plugins/text';
 
+export const LOCALSTORAGE_PAPER_DATA_KEY = 'paper-data';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -67,6 +69,7 @@ export class AppComponent implements OnInit {
       onChange();
       console.log(paper.operations, 'operations');
       console.log(paper.elements, 'elements');
+      localStorage.setItem(LOCALSTORAGE_PAPER_DATA_KEY, JSON.stringify(paper.elements));
       const op = paper.operations.filter((op: any) => Operation.isSetSelectionOperation(op));
       if (op && this.paper) {
         const elements = [...this.paper.elements];
@@ -82,6 +85,12 @@ export class AppComponent implements OnInit {
       }
     }
     this.paper.container = this.container;
+
+    // 加载本地存储数据
+    const els = localStorage.getItem(LOCALSTORAGE_PAPER_DATA_KEY);
+    if (els) {
+      paper.elements = JSON.parse(els);
+    }
   }
 
   valueChange(value: any) {
