@@ -6,6 +6,7 @@ import { Paper, removeElement, setElement } from '../interfaces/paper';
 import { HOSTSVGG_TO_RICHTEXT_REF, IS_TEXT_EDITABLE } from './weak-maps';
 import { take } from 'rxjs/operators';
 import { setFullSelectionAndFocus } from './richtext';
+import { Point } from 'roughjs/bin/geometry';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -37,7 +38,7 @@ export function startEditRichtext(paper: Paper, element: Element, g: SVGGElement
             richTextRef.instance.readonly = false;
             richTextRef.changeDetectorRef.markForCheck();
             setTimeout(() => {
-                setFullSelectionAndFocus(richTextRef.instance.editor);                
+                setFullSelectionAndFocus(richTextRef.instance.editor);
             }, 0);
         }
         let richtext = element.richtext;
@@ -55,7 +56,10 @@ export function startEditRichtext(paper: Paper, element: Element, g: SVGGElement
             }
             // 更新富文本内容
             if (richtext !== element.richtext) {
-                setElement(paper, element, { richtext });
+                // 更新富文本、更新宽高
+                const { width, height } = richTextRef.instance.editable.getBoundingClientRect();
+                const newEnd: Point = [element.points[0][0] + width, element.points[0][1] + height];
+                setElement(paper, element, { richtext, points: [element.points[0], newEnd] });
             }
             // 取消订阅内容变化
             valueChange$.unsubscribe();

@@ -6,7 +6,7 @@ import { startEditRichtext } from "../utils/foreign-object";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { setFullSelectionAndFocus } from "../utils/richtext";
-import { HOSTSVGG_TO_RICHTEXT_REF, HOSTSVGG_TO_ELEMENT } from "../utils/weak-maps";
+import { HOSTSVGG_TO_RICHTEXT_REF, HOSTSVGG_TO_ELEMENT, ELEMENT_TO_COMPONENTS } from "../utils/weak-maps";
 
 export const DEFAULT_LINE_HEIGHT = 22;
 
@@ -16,8 +16,18 @@ export function textPaper<T extends Paper>(paper: T) {
         if (paper.pointer === PointerType.text) {
             const start = toPoint(event.x, event.y - DEFAULT_LINE_HEIGHT / 2, paper.container as SVGElement);
             const end = [start[0] + 32, start[1] + DEFAULT_LINE_HEIGHT] as Point;
-            addElement(paper, createText(start, end));
+            const text = createText(start, end);
+            addElement(paper, text);
             paper.pointer = PointerType.pointer;
+            // 直接聚焦
+            setTimeout(() => {
+                const component = ELEMENT_TO_COMPONENTS.get(text);
+                if (component && component.hostSVGG[0]) {
+                    const richTextRef = HOSTSVGG_TO_RICHTEXT_REF.get(component.hostSVGG[0]);
+                    richTextRef && setFullSelectionAndFocus(richTextRef.instance.editor);
+                    startEditRichtext(paper, text, component.hostSVGG[0]);
+                }
+            }, 200);
             return;
         }
         mousedown(event);
