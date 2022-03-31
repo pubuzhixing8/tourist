@@ -1,21 +1,22 @@
 import { Point } from "roughjs/bin/geometry";
-import { RoughSVG } from "roughjs/bin/svg";
-import { Attributes, EdgeMode } from "../interfaces/attributes";
-import { ElementType } from "../interfaces/element";
+import { roughDrawer } from "../engine";
+import { EdgeMode } from "../interfaces/attributes";
+import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";
 import { PointerType } from "../interfaces/pointer";
+import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from "../utils/common";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
-import { drawRoundRectangle } from "../utils/rectangle";
+import { getRoughSVG } from "../utils/rough";
 
 const DRAW_SKIP_SAWTOOTH = 3;
 
-export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {
+export function commonPaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
     let end: Point | null = null;
     let isDragging = false;
     let dragPoints: Point[] = [];
-    let domElement: SVGElement | null = null;
+    let hostSVGG: SVGGElement[] = [];
     const { mousedown, mousemove, mouseup } = paper;
 
     paper.mousedown = (event: MouseEvent) => {
@@ -27,21 +28,17 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
     }
 
     paper.mousemove = (event: MouseEvent) => {
+        const attributes = getAttributes(paper);
         if (start) {
             isDragging = true;
             paper.dragging = true;
             end = toPoint(event.x, event.y, paper.container as SVGElement);
-            if (domElement) {
-                domElement.remove();
-            }
+            hostSVGG = destroyHostSVGG(hostSVGG);
             dragPoints.push(end);
+            let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.rectangle) {
-                if (attributes.edgeMode === EdgeMode.round) {
-                    domElement = drawRoundRectangle(start, end, rc, { stroke: attributes.color, strokeWidth: attributes.strokeWidth } as any);
-                } else {
-                    domElement = rc.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                }
-                paper.container?.appendChild(domElement);
+                const tempElement = createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode);
+                g = roughDrawer.draw(getRoughSVG(paper), tempElement);
             }
             if (paper.pointer === PointerType.draw) {
                 let points = [start, ...dragPoints];
@@ -52,20 +49,22 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
                         return false;
                     }
                 });
-                domElement = rc.curve(points, { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
-                paper.container?.appendChild(domElement);
+                const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
+                g = roughDrawer.draw(getRoughSVG(paper), curveElement);
             }
+            appendHostSVGG(paper, g);
+            hostSVGG = arrayHostSVGG(g);
             return;
         }
         mousemove(event);
     }
 
     paper.mouseup = (event: MouseEvent) => {
+        const attributes = getAttributes(paper);
         mouseup(event);
-        if (isDragging && start) {
+        if (isDragging && start && end) {
             if (paper.pointer === PointerType.rectangle) {
-                const element = { type: ElementType.rectangle, points: [start, end], key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth, edgeMode: attributes.edgeMode };
-                addElement(paper, element as any);
+                addElement(paper, createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode));
             }
             if (paper.pointer === PointerType.draw) {
                 let points = [start, ...dragPoints];
@@ -76,9 +75,10 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
                         return false;
                     }
                 });
-                addElement(paper, { type: ElementType.curve, points, key: generateKey(), color: attributes.color, strokeWidth: attributes.strokeWidth });
+                const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
+                addElement(paper, curveElement);
             }
-            domElement?.remove();
+            hostSVGG = destroyHostSVGG(hostSVGG);
         }
         isDragging = false;
         start = null;
@@ -88,4 +88,12 @@ export function shapePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: 
     }
 
     return paper;
+}
+
+export function createRectangle(start: Point, end: Point, stroke: string, strokeWidth: number, edgeMode: EdgeMode): Element {
+    return { type: ElementType.rectangle, points: [start, end], key: generateKey(), stroke, strokeWidth, edgeMode };
+}
+
+export function createCurve(points: Point[], stroke: string, strokeWidth: number): Element {
+    return { type: ElementType.curve, points, key: generateKey(), stroke, strokeWidth };
 }

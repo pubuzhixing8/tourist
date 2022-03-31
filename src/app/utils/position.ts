@@ -1,5 +1,5 @@
 import { Point } from "roughjs/bin/geometry";
-import { Rectangle } from "../interfaces/rectangle";
+// import { Rectangle } from "../interfaces/rectangle";
 import { Selection } from '../interfaces/selection';
 
 export enum RectanglePosition {
@@ -30,9 +30,9 @@ export function toPoint(x: number, y: number, container: SVGElement): Point {
     return [x - rect.x, y - rect.y];
 }
 
-export function toSelection(rect: Rectangle): Selection {
-    return { anchor: [rect.x, rect.y], focus: [rect.x + rect.width, rect.y + rect.height] };
-}
+// export function toSelection(rect: Rectangle): Selection {
+//     return { anchor: [rect.x, rect.y], focus: [rect.x + rect.width, rect.y + rect.height] };
+// }
 
 export function toRectangle(points: Point[]) {
     const xArray = points.map(ele => ele[0]);

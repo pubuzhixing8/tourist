@@ -1,22 +1,33 @@
-import { ComponentRef } from "@angular/core";
-import { PlaitRichtextComponent } from "richtext";
-export class ElementBase {
-    richtextComponentRef: ComponentRef<PlaitRichtextComponent> | null = null;
+import { ComponentFactoryResolver, Directive, ElementRef, Input, ViewContainerRef } from "@angular/core";
+import { RoughSVG } from "roughjs/bin/svg";
+import { Element } from "../interfaces/element";
+import { Selection } from "../interfaces/selection";
+import { Paper } from "../interfaces/paper";
 
-    svgGElement: SVGGElement | undefined;
+@Directive()
+export class PlaitBaseElement {
+    @Input() rootSVG?: SVGElement | HTMLElement;
 
-    get g(): SVGGElement {
-        if (this.svgGElement) {
-            return this.svgGElement;
+    @Input() roughSVG?: RoughSVG;
+
+    @Input() element?: Element;
+
+    @Input() selection?: Selection;
+
+    @Input() paper?: Paper;
+
+    getPaper() {
+        if (this.paper) {
+            return this.paper;
         }
-        throw new Error('undefined g');
+        throw new Error('undefined paper');
     }
 
-    get editor() {
-        return this.richtextComponentRef?.instance.editor;
+    hostSVGG: SVGGElement[];
+
+    constructor(public elementRef: ElementRef,
+        public componentFactoryResolver: ComponentFactoryResolver,
+        public viewContainerRef: ViewContainerRef) {
+        this.hostSVGG = [];
     }
-
-    show() {}
-
-    hidden() {}
 }

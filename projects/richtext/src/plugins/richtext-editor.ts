@@ -85,6 +85,9 @@ export const RichtextEditor = {
                 return { path: [0, index], offset: offset }
             }
         }
+        if (node instanceof HTMLElement && node.closest<HTMLElement>('.plait-break-filler')) {
+            return { path: [0, 0], offset: 0 }
+        }
         throw new Error(`Cannot resolve a Slate point from DOM point: ${domPoint}`);
     }
 };
