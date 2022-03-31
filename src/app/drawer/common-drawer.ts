@@ -3,7 +3,7 @@ import { Element, ElementType } from "../interfaces/element";
 import { RoughSVG } from "roughjs/bin/svg";
 import { EdgeMode } from "../interfaces/attributes";
 import { drawRoundRectangle } from "../utils/rectangle";
-import { arrowPoints } from "../utils/arrow";
+import { arrowPoints } from "../utils/shape";
 
 export const roughCommonDrawer: BaseDrawer = {
     draw(roughSVG: RoughSVG, element: Element) {

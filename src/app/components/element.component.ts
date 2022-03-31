@@ -3,7 +3,7 @@ import { Element } from "../interfaces/element";
 import { ELEMENT_TO_COMPONENTS, HOSTSVGG_TO_ELEMENT } from "../utils/weak-maps";
 import { PlaitBaseElement } from "../base/element-base";
 import { Subject } from "rxjs";
-import { roughDrawer } from "../drawer";
+import { roughDrawer } from "../engine";
 
 @Component({
     selector: 'plait-element',

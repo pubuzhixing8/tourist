@@ -73,15 +73,15 @@ export class AppComponent implements OnInit {
       const op = paper.operations.filter((op: any) => Operation.isSetSelectionOperation(op));
       if (op && this.paper) {
         const elements = [...this.paper.elements];
-        const ele = elements.find((value) => {
-          const isSelected = Element.isIntersected(value, paper.selection);
-          return isSelected;
-        });
-        if (ele && ele.stroke && ele.strokeWidth) {
-          const strokeWidth = ele.strokeWidth;
-          this.attributes.stroke = ele.stroke;
-          this.attributes.strokeWidth = strokeWidth;
-        }
+        // const ele = elements.find((value) => {
+        //   const isSelected = Element.isIntersected(value, paper.selection);
+        //   return isSelected;
+        // });
+        // if (ele && ele.stroke && ele.strokeWidth) {
+        //   const strokeWidth = ele.strokeWidth;
+        //   this.attributes.stroke = ele.stroke;
+        //   this.attributes.strokeWidth = strokeWidth;
+        // }
       }
     }
     this.paper.container = this.container;
@@ -147,13 +147,13 @@ export class AppComponent implements OnInit {
         event.preventDefault();
       }
       if (Hotkeys.isDeleteBackward(event) && paper.pointer === PointerType.pointer) {
-        const elements = [...paper.elements];
-        elements.forEach((value) => {
-          const isSelected = Element.isIntersected(value, paper.selection);
-          if (isSelected) {
-            removeElement(paper, value);
-          }
-        });
+        // const elements = [...paper.elements];
+        // elements.forEach((value) => {
+        //   const isSelected = Element.isIntersected(value, paper.selection);
+        //   if (isSelected) {
+        //     removeElement(paper, value);
+        //   }
+        // });
         event.stopPropagation();
         event.preventDefault();
       }
@@ -184,12 +184,12 @@ export class AppComponent implements OnInit {
     const paper = this.paper as HistoryPaper;
     if (paper.pointer === PointerType.pointer) {
       const elements = [...paper.elements];
-      elements.forEach((value) => {
-        const isSelected = Element.isIntersected(value, paper.selection);
-        if (isSelected) {
-          setElement(paper, value, attributes);
-        }
-      });
+      // elements.forEach((value) => {
+      //   const isSelected = Element.isIntersected(value, paper.selection);
+      //   if (isSelected) {
+      //     setElement(paper, value, attributes);
+      //   }
+      // });
     }
   }
 

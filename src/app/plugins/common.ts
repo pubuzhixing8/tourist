@@ -1,5 +1,5 @@
 import { Point } from "roughjs/bin/geometry";
-import { roughDrawer } from "../drawer";
+import { roughDrawer } from "../engine";
 import { EdgeMode } from "../interfaces/attributes";
 import { ElementType, Element } from "../interfaces/element";
 import { addElement, Paper } from "../interfaces/paper";

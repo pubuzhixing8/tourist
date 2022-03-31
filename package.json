@@ -19,6 +19,7 @@
         "@angular/platform-browser-dynamic": "~12.2.0",
         "@angular/router": "~12.2.0",
         "is-hotkey": "^0.2.0",
+        "points-on-curve": "^1.0.0",
         "roughjs": "^4.5.2",
         "rxjs": "~6.6.0",
         "slate": "^0.73.1",
