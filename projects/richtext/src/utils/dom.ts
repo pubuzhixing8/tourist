@@ -48,3 +48,7 @@ export const getDefaultView = (value: any): Window => {
         (value && value.ownerDocument && value.ownerDocument.defaultView) || window
     );
 }
+
+export const ZERO_WIDTH_CHAR = '\uFEFF';
+
+export const WITH_ZERO_WIDTH_CHAR = 'with-zero-width-char';

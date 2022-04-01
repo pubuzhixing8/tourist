@@ -15,3 +15,5 @@ export const EDITOR_TO_WINDOW: WeakMap<Editor, Window> = new WeakMap();
 
 export const ELEMENT_TO_NODE: WeakMap<HTMLElement, Node> = new WeakMap();
 export const NODE_TO_ELEMENT: WeakMap<Node, HTMLElement> = new WeakMap();
+
+export const IS_NATIVE_INPUT: WeakMap<Editor, boolean> = new WeakMap();

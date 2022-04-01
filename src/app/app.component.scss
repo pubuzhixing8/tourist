@@ -90,9 +90,13 @@
 
 .basic-plait-richtext {
     width: 200px;
+    height: 150px;
     top: 20px;
     right: calc((100vw - 800px) / 2 - 260px);
     position: absolute !important;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
 }
 
 @import '../../projects/richtext/src/styles.scss';

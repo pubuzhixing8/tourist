@@ -1,13 +1,14 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
-import { Text } from "slate";
+import { WITH_ZERO_WIDTH_CHAR, ZERO_WIDTH_CHAR } from "../utils/dom";
+import { Text, Element } from "slate";
 import { ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from "../utils/weak-maps";
 
 @Component({
     selector: 'plait-text, span[plaitTextNode]',
-    template: '{{ text?.text }}',
+    template: '',
     host: {
         class: 'plait-text-node',
-        'data-plait-node': 'text'
+        'data-plait-node': 'text',
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -18,7 +19,28 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
     @Input()
     index = 0;
 
+    @Input()
+    parent?: Element;
+
     initialized = false;
+
+    get dataTextContent() {
+        if (this.text && Text.isText(this.text)) {
+            return this.text.text;
+        }
+        return '';
+    }
+
+    get domTextContent() {
+        return this.elementRef.nativeElement.textContent;
+    }
+
+    get isLastText() {
+        if (this.parent && this.text) {
+            return this.index === this.parent.children.length - 1;
+        }
+        return false;
+    }
 
     constructor(private elementRef: ElementRef<HTMLElement>) { }
 
@@ -35,7 +57,7 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     ngAfterViewInit(): void {
-        this.render();
+        this.renderText();
         this.initialized = true;
     }
 
@@ -45,14 +67,25 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
         }
         const textChange = changes['text'];
         if (textChange) {
-            this.render();
+            this.renderText();
         }
         this.updateWeakMap();
     }
 
-    render() {
-        if (this.text) {
-            // this.elementRef.nativeElement.innerText = this.text?.text;
+    renderText() {
+        let withZeroWidthChar = false;
+        if (this.isLastText && this.text && (this.text.text === '' || this.text.text.endsWith(`\n`))) {
+            withZeroWidthChar = true;
+            this.elementRef.nativeElement.setAttribute(WITH_ZERO_WIDTH_CHAR, 'true');
+        } else {
+            this.elementRef.nativeElement.setAttribute(WITH_ZERO_WIDTH_CHAR, 'false');
+        }
+        if (this.domTextContent !== this.dataTextContent) {
+            this.elementRef.nativeElement.textContent = this.dataTextContent + (withZeroWidthChar ? ZERO_WIDTH_CHAR : '');
+        }
+        if (this.elementRef.nativeElement.childNodes.length === 0) {
+            const textNode = document.createTextNode('');
+            this.elementRef.nativeElement.appendChild(textNode);
         }
     }
 }

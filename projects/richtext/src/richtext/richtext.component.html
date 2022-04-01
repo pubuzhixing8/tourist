@@ -1,2 +1,2 @@
-<plait-text *ngFor="let item of bindValue?.children;let index = index;trackBy: trackBy" [text]="item"></plait-text>
-<span #plaitBreakFiller class="plait-break-filler"><br /></span>
+<plait-text *ngFor="let item of bindValue?.children;let index = index;trackBy: trackBy" [text]="item" [parent]="bindValue"></plait-text>
+<!-- <span #plaitBreakFiller class="plait-break-filler"><br /></span> -->

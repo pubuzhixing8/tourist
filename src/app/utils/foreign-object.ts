@@ -42,8 +42,8 @@ export function startEditRichtext(paper: Paper, element: Element, g: SVGGElement
             }, 0);
         }
         let richtext = element.richtext;
-        const valueChange$ = richTextRef.instance.valueChange.subscribe((value) => {
-            richtext = value;
+        const valueChange$ = richTextRef.instance.onChange.subscribe((event) => {
+            richtext = event.value;
         });
         richTextRef.instance.blur.pipe(take(1)).subscribe(() => {
             richTextRef.instance.readonly = true;

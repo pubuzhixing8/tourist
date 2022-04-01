@@ -21,6 +21,7 @@ import { getRoughSVG } from './utils/rough';
 import { circlePaper } from './plugins/circle';
 import { likeLinePaper } from './plugins/like-line';
 import { textPaper } from './plugins/text';
+import { OnChangeEvent } from 'richtext/interface/event';
 
 export const LOCALSTORAGE_PAPER_DATA_KEY = 'paper-data';
 
@@ -93,8 +94,9 @@ export class AppComponent implements OnInit {
     }
   }
 
-  valueChange(value: any) {
-    console.log(value, 'change');
+  onChange(event: OnChangeEvent) {
+    console.log(event.value, 'value');
+    console.log(event.operations, 'operations');
   }
 
   initializePen(rc: RoughSVG, paper: HistoryPaper) {

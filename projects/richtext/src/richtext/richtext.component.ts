@@ -1,10 +1,12 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { withRichtext } from '../plugins/with-richtext';
 import { createEditor, Editor, Element, Node, Operation, Range, Transforms } from 'slate';
-import { BeforeInputEvent } from '../interface/event';
-import { RichtextEditor } from '../plugins/richtext-editor';
+import { BeforeInputEvent, OnChangeEvent } from '../interface/event';
+import { RichtextEditor, toSlateRange } from '../plugins/richtext-editor';
 import { getDefaultView } from '../utils/dom';
-import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, IS_FOCUSED } from '../utils/weak-maps';
+import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, IS_FOCUSED, IS_NATIVE_INPUT } from '../utils/weak-maps';
+
+const NATIVE_INPUT_TYPES = ['insertText'];
 
 @Component({
   selector: 'plait-richtext',
@@ -16,7 +18,7 @@ import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW, ELEMENT_TO_NO
     '[attr.readonly]': 'readonly'
   }
 })
-export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
   initialized = false;
 
   isComposing = false;
@@ -30,7 +32,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   readonly = false;
 
   @Output()
-  valueChange: EventEmitter<Element> = new EventEmitter();
+  onChange: EventEmitter<OnChangeEvent> = new EventEmitter();
 
   @Output()
   blur: EventEmitter<FocusEvent> = new EventEmitter();
@@ -72,6 +74,11 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     this.initialized = true;
   }
 
+  ngAfterViewChecked(): void {
+    // feedback
+    this.toNativeSelection();
+  }
+
   initialize() {
     let window = getDefaultView(this.editable);
     EDITOR_TO_WINDOW.set(this.editor, window);
@@ -88,7 +95,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
       this.addEventListener('blur', (evt: Event) => this.onBlur(evt as FocusEvent));
       // 监控选区改变
       this.addEventListener('selectionchange', () => {
-        if (this.isComposing && this.readonly) {
+        if (this.readonly) {
           return;
         }
         this.toSlateSelection();
@@ -96,27 +103,50 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     });
     // 监控 onChange
     EDITOR_TO_ON_CHANGE.set(this.editor, () => {
-      this.ngZone.run(() => {
-        this.onChange();
-      });
+      this.onChangeHandle();
     });
   }
 
-  onChange() {
+  onChangeHandle() {
+    this.onChange.emit({ value: this.editor.children[0] as Element, operations: this.editor.operations });
     const isValueChange = this.editor.operations.some(op => !Operation.isSelectionOperation(op));
-    if (isValueChange) {
+    if (isValueChange && !IS_NATIVE_INPUT.get(this.editor)) {
       this.cdr.detectChanges();
-      this.valueChange.emit(this.editor.children[0] as any);
+      this.toNativeSelection();
     }
-    this.toNativeSelection();
+    if (IS_NATIVE_INPUT.get(this.editor)) {
+      setTimeout(() => {
+        this.normalizeBreakFiller();
+      }, 0);
+    }
+    IS_NATIVE_INPUT.set(this.editor, false);
   }
 
   private beforeInput(event: BeforeInputEvent) {
+    IS_NATIVE_INPUT.set(this.editor, false);
     const editor = this.editor;
     const { selection } = editor;
     const { inputType: type } = event;
     const data = event.dataTransfer || event.data || undefined;
-    event.preventDefault();
+    // These two types occur while a user is composing text and can't be
+    // cancelled. Let them through and wait for the composition to end.
+    if (
+      type === 'insertCompositionText' ||
+      type === 'deleteCompositionText'
+    ) {
+      return
+    }
+
+    if (NATIVE_INPUT_TYPES.includes(type) && selection &&
+      Range.isCollapsed(selection)
+      // Chrome has issues correctly editing the start of nodes: https://bugs.chromium.org/p/chromium/issues/detail?id=1249405
+      // When there is an inline element, e.g. a link, and you select
+      // right after it (the start of the next node).
+      ) {
+      IS_NATIVE_INPUT.set(this.editor, true);
+    } else {
+      event.preventDefault();
+    }
 
     // COMPAT: If the selection is expanded, even if the command seems like
     // a delete forward/backward command it should delete the selection.
@@ -222,9 +252,13 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
     this.isComposing = false;
     Editor.insertText(this.editor, event.data);
     // normalize paragraph break filler
-    if (this.plaitBreakFiller && this.plaitBreakFiller.nativeElement.innerHTML !== '<br />') {
-      this.plaitBreakFiller.nativeElement.innerHTML = '<br />';
-    }
+    this.normalizeBreakFiller();
+  }
+
+  normalizeBreakFiller() {
+    // if (this.plaitBreakFiller && this.plaitBreakFiller.nativeElement.innerHTML !== '<br />') {
+    //   this.plaitBreakFiller.nativeElement.innerHTML = '<br />';
+    // }
   }
 
   private onFocus(event: FocusEvent) {
@@ -238,11 +272,24 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private toNativeSelection() {
+    if (this.isComposing) {
+      return;
+    }
     const window = RichtextEditor.getWindow(this.editor);
     const domSelection = window.getSelection();
     const { selection } = this.editor;
     const document = window.document;
     if (selection && domSelection) {
+      try {
+        const slateRange = toSlateRange(this.editor, domSelection, false);
+        if (Range.equals(selection, slateRange)) {
+          console.log('=');
+          return;
+        }  
+      } catch (error) {
+        console.log(error);
+      }
+      
       const newDomRange = selection && RichtextEditor.toDOMRange(this.editor, selection);
       if (newDomRange) {
         const isBackward = Range.isBackward(selection);
@@ -268,6 +315,9 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private toSlateSelection() {
+    if (this.isComposing) {
+      return;
+    }
     const domSelection = window.getSelection();
     if (domSelection) {
       if (!this.editable.contains(domSelection.anchorNode) || this.readonly) {
@@ -291,7 +341,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   trackBy = (index: number, node: Node) => {
-    return node;
+    return index;
   }
 
   ngOnDestroy(): void {
