@@ -59,6 +59,5 @@ export const roughCommonDrawer: BaseDrawer = {
     },
     destroy(roughSVG: RoughSVG, element: Element, hostSVGG: SVGGElement[]) {
         hostSVGG.forEach((g) => g.remove());
-        throw new Error(`destroy unknow ${element}`);
     }
 };

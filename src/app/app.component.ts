@@ -148,17 +148,6 @@ export class AppComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
       }
-      if (Hotkeys.isDeleteBackward(event) && paper.pointer === PointerType.pointer) {
-        // const elements = [...paper.elements];
-        // elements.forEach((value) => {
-        //   const isSelected = Element.isIntersected(value, paper.selection);
-        //   if (isSelected) {
-        //     removeElement(paper, value);
-        //   }
-        // });
-        event.stopPropagation();
-        event.preventDefault();
-      }
       if (Hotkeys.isUndo(event)) {
         paper.undo();
       }

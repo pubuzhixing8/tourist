@@ -2,6 +2,7 @@ import { Element } from './element';
 import { AddOperation, Operation, RemoveOperation, SetElementOperation, SetSelectionOperation } from './operation';
 import { PointerType } from './pointer';
 import { Selection } from './selection';
+import Hotkeys from '../utils/hotkeys';
 
 export interface Paper {
     container: SVGElement | null;
@@ -69,12 +70,17 @@ export function createPaper(): Paper {
                 paper.operations = [];
             });
         },
-        mousedown: (event) => {},
-        mouseup: (event) => {},
-        mousemove: (event) => {},
-        keydown: (event) => {},
-        keyup: (event) => {},
-        dblclick: (event) => {}
+        mousedown: (event) => { },
+        mouseup: (event) => { },
+        mousemove: (event) => { },
+        keydown: (event) => {
+            if (Hotkeys.isDeleteBackward(event) && paper.pointer === PointerType.pointer) {
+                const deleteElements = paper.elements.filter((ele) => paper.selectedMap.get(ele));
+                deleteElements.forEach((ele) => removeElement(paper, ele));
+            }
+        },
+        keyup: (event) => { },
+        dblclick: (event) => { }
     };
     return paper;
 }
