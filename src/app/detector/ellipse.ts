@@ -2,7 +2,7 @@ import { Point } from "roughjs/bin/geometry";
 import { DISTANCE_THRESHOLD } from "../constants";
 import { Element } from "../interfaces/element";
 import { Selection } from "../interfaces/selection";
-import { toEllipseClient } from "../utils/shape";
+import { toEllipseClient, toRectangleClient } from "../utils/shape";
 import { BaseDetector } from "./base";
 
 export const ellipseDetector: BaseDetector = {
@@ -10,18 +10,16 @@ export const ellipseDetector: BaseDetector = {
         throw new Error('error');
     },
     hit: (point: Point, element: Element) => {
-        const [x, y] = point;
-        const [start, end] = element.points;
-        const ellipseClient = toEllipseClient([start, end]);
+        const rectangleClient = toRectangleClient([element.points[0], element.points[1]]);
         // https://stackoverflow.com/a/46007540/232122
-        const px = Math.abs(x - ellipseClient.center[0] - ellipseClient.width / 2);
-        const py = Math.abs(y - ellipseClient.center[1] - ellipseClient.height / 2);
+        const px = Math.abs(point[0] - rectangleClient.x - rectangleClient.width / 2);
+        const py = Math.abs(point[1] - rectangleClient.y - rectangleClient.height / 2);
 
         let tx = 0.707;
         let ty = 0.707;
 
-        const a = ellipseClient.width / 2;
-        const b = ellipseClient.height / 2;
+        const a = Math.abs(rectangleClient.width) / 2;
+        const b = Math.abs(rectangleClient.height) / 2;
 
         [0, 1, 2, 3].forEach(x => {
             const xx = a * tx;
