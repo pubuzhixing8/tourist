@@ -6,6 +6,8 @@ import { Paper } from "../interfaces/paper";
 
 @Directive()
 export class PlaitBaseElement {
+    selected = false;
+
     @Input() rootSVG?: SVGElement | HTMLElement;
 
     @Input() roughSVG?: RoughSVG;

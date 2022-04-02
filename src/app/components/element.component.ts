@@ -65,6 +65,14 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
                 HOSTSVGG_TO_ELEMENT.set(g, this.element as Element);
             });
         }
+        const selectionChange = changes['selection'];
+        if (selectionChange && this.paper && this.element) {
+            const selected = this.paper.selectedMap.get(this.element);
+            if (selected !== undefined && selected !== this.selected) {
+                this.selected = selected;
+                console.log(this.selected, 'selected');
+            }
+        }
     }
 
     ngOnDestroy(): void {

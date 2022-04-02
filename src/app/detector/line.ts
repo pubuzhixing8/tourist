@@ -29,7 +29,10 @@ export const lineDetector: BaseDetector = {
 };
 
 export function pointsDetection(origin: Point, target: Point[], distance: number) {
-    return target.filter((value, index) => index > 0).some((value, index) => {
+    return target.some((value, index) => {
+        if (index === 0) {
+            return false;
+        } 
         const start = target[index - 1];
         const end = value;
         return distanceBetweenPointAndSegment(origin[0], origin[1], start[0], start[1], end[0], end[1]) < distance;

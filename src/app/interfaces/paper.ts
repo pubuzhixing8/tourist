@@ -18,6 +18,7 @@ export interface Paper {
     dblclick: (event: MouseEvent) => void;
     pointer: PointerType;
     dragging: boolean;
+    selectedMap: WeakMap<Element, boolean>;
 }
 
 
@@ -29,6 +30,7 @@ export function createPaper(): Paper {
         elements: [],
         operations: [],
         selection: { anchor: [-1, -1], focus: [-1, -1] },
+        selectedMap: new WeakMap(),
         dragging: false,
         onChange: () => {
 
@@ -73,7 +75,6 @@ export function createPaper(): Paper {
         keydown: (event) => {},
         keyup: (event) => {},
         dblclick: (event) => {}
-
     };
     return paper;
 }
