@@ -2,8 +2,8 @@ import { BaseDrawer } from "./base-drawer";
 import { Element, ElementType } from "../interfaces/element";
 import { RoughSVG } from "roughjs/bin/svg";
 import { EdgeMode } from "../interfaces/attributes";
-import { drawRoundRectangle } from "../utils/rectangle";
 import { arrowPoints } from "../utils/shape";
+import { drawRoundRectangle } from "../utils/rough";
 
 export const roughCommonDrawer: BaseDrawer = {
     draw(roughSVG: RoughSVG, element: Element) {
@@ -11,7 +11,7 @@ export const roughCommonDrawer: BaseDrawer = {
             const start = element.points[0];
             const end = element.points[1];
             if (element.edgeMode === EdgeMode.round) {
-                return drawRoundRectangle(start, end, roughSVG, { stroke: element.stroke, strokeWidth: element.strokeWidth });
+                return drawRoundRectangle(roughSVG, start, end, { stroke: element.stroke, strokeWidth: element.strokeWidth });
             } else {
                 return roughSVG.rectangle(start[0], start[1], end[0] - start[0], end[1] - start[1], { stroke: element.stroke, strokeWidth: element.strokeWidth });
             }
