@@ -80,8 +80,9 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
         } else {
             this.elementRef.nativeElement.setAttribute(WITH_ZERO_WIDTH_CHAR, 'false');
         }
-        if (this.domTextContent !== this.dataTextContent) {
-            this.elementRef.nativeElement.textContent = this.dataTextContent + (withZeroWidthChar ? ZERO_WIDTH_CHAR : '');
+        const textContent = this.dataTextContent + (withZeroWidthChar ? ZERO_WIDTH_CHAR : '');
+        if (this.domTextContent !== textContent) {
+            this.elementRef.nativeElement.textContent = textContent;
         }
         if (this.elementRef.nativeElement.childNodes.length === 0) {
             const textNode = document.createTextNode('');

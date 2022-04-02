@@ -50,6 +50,8 @@
             &[readonly="false"] {
                 cursor: text;
                 display: inline-block;
+                // 设置最小宽度，否则空内容无法显示光标
+                min-width: 5px;
             }
         }
     }

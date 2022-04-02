@@ -95,8 +95,8 @@ export class AppComponent implements OnInit {
   }
 
   onChange(event: OnChangeEvent) {
-    console.log(event.value, 'value');
-    console.log(event.operations, 'operations');
+    // console.log(event.value, 'value');
+    // console.log(event.operations, 'operations');
   }
 
   initializePen(rc: RoughSVG, paper: HistoryPaper) {

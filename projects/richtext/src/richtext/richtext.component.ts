@@ -1,6 +1,6 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
 import { withRichtext } from '../plugins/with-richtext';
-import { createEditor, Editor, Element, Node, Operation, Range, Transforms } from 'slate';
+import { BaseRange, createEditor, Editor, Element, Node, Operation, Range, Transforms } from 'slate';
 import { BeforeInputEvent, OnChangeEvent } from '../interface/event';
 import { RichtextEditor, toSlateRange } from '../plugins/richtext-editor';
 import { getDefaultView } from '../utils/dom';
@@ -18,7 +18,7 @@ const NATIVE_INPUT_TYPES = ['insertText'];
     '[attr.readonly]': 'readonly'
   }
 })
-export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
+export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges, OnDestroy {
   initialized = false;
 
   isComposing = false;
@@ -76,7 +76,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
 
   ngAfterViewChecked(): void {
     // feedback
-    this.toNativeSelection();
+    // this.toNativeSelection();
   }
 
   initialize() {
@@ -108,17 +108,27 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   onChangeHandle() {
+    console.log(this.editor.children[0], 'value');
+    console.log(this.editor.operations, 'operations');
     this.onChange.emit({ value: this.editor.children[0] as Element, operations: this.editor.operations });
     const isValueChange = this.editor.operations.some(op => !Operation.isSelectionOperation(op));
-    if (isValueChange && !IS_NATIVE_INPUT.get(this.editor)) {
-      this.cdr.detectChanges();
+    if (!IS_NATIVE_INPUT.get(this.editor)) {
+      if (isValueChange) {
+        this.cdr.detectChanges();
+      }
       this.toNativeSelection();
+    } else {
+      // 修正更新零宽字符导致的选区移动
+      // onChange 时间订阅将触发变化检测
+      // this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+      //   this.toNativeSelection();
+      // });
     }
-    if (IS_NATIVE_INPUT.get(this.editor)) {
-      setTimeout(() => {
-        this.normalizeBreakFiller();
-      }, 0);
-    }
+    // if (IS_NATIVE_INPUT.get(this.editor)) {
+    //   setTimeout(() => {
+    //     this.normalizeBreakFiller();
+    //   }, 0);
+    // }
     IS_NATIVE_INPUT.set(this.editor, false);
   }
 
@@ -142,7 +152,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
       // Chrome has issues correctly editing the start of nodes: https://bugs.chromium.org/p/chromium/issues/detail?id=1249405
       // When there is an inline element, e.g. a link, and you select
       // right after it (the start of the next node).
-      ) {
+    ) {
       IS_NATIVE_INPUT.set(this.editor, true);
     } else {
       event.preventDefault();
@@ -261,6 +271,10 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
     // }
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes, 'changes');
+  }
+
   private onFocus(event: FocusEvent) {
     IS_FOCUSED.set(this.editor, true);
     this.focus.emit(event);
@@ -285,11 +299,11 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
         if (Range.equals(selection, slateRange)) {
           console.log('=');
           return;
-        }  
+        }
       } catch (error) {
         console.log(error);
       }
-      
+
       const newDomRange = selection && RichtextEditor.toDOMRange(this.editor, selection);
       if (newDomRange) {
         const isBackward = Range.isBackward(selection);
@@ -324,6 +338,11 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
         return;
       }
       const slateRange = RichtextEditor.toSlateRange(this.editor, domSelection);
+      if (slateRange && this.editor.selection && Range.equals(slateRange, this.editor.selection as BaseRange)) {
+        // 有可能是脏路径
+        this.toNativeSelection();
+        return;
+      }
       Transforms.select(this.editor, slateRange);
       return;
     }
