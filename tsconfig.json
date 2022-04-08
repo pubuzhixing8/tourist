@@ -8,6 +8,12 @@
         "dist/data-structures/data-structures",
         "dist/data-structures"
       ],
+      "mindmap": [
+        "projects/mindmap/src/public-api"
+      ],
+      "mindmap/*": [
+        "projects/mindmap/src/*"
+      ],
       "richtext": [
         "projects/richtext/src/public-api"
       ],

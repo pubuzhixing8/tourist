@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { MindmapModule } from 'mindmap';
 import { RichtextModule } from 'richtext/richtext.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PlaitElementComponent } from './components/element.component';
 import { StyleCardComponent } from './components/style-card/style-card.component';
-import { PlaitMinMapComponent } from './mind-map/mind-map.component';
+import { MindmapPageComponent } from './mindmap-page/page.component';
 import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
 
 @NgModule({
@@ -13,13 +14,14 @@ import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
     AppComponent,
     PlaitElementComponent,
     PlaitWhiteBoardComponent,
-    PlaitMinMapComponent,
+    MindmapPageComponent,
     StyleCardComponent
   ],
   imports: [
     BrowserModule,
     RichtextModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MindmapModule
   ],
   providers: [],
   bootstrap: [AppComponent]

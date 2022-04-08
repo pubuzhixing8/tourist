@@ -167,6 +167,37 @@
                     }
                 }
             }
+        },
+        "mindmap": {
+            "projectType": "library",
+            "root": "projects/mindmap",
+            "sourceRoot": "projects/mindmap/src",
+            "prefix": "lib",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:ng-packagr",
+                    "options": {
+                        "project": "projects/mindmap/ng-package.json"
+                    },
+                    "configurations": {
+                        "production": {
+                            "tsConfig": "projects/mindmap/tsconfig.lib.prod.json"
+                        },
+                        "development": {
+                            "tsConfig": "projects/mindmap/tsconfig.lib.json"
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/mindmap/src/test.ts",
+                        "tsConfig": "projects/mindmap/tsconfig.spec.json",
+                        "karmaConfig": "projects/mindmap/karma.conf.js"
+                    }
+                }
+            }
         }
     },
     "defaultProject": "tourist"
