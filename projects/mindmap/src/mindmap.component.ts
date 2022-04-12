@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRe
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { PEM } from './constants';
+import { drawLine } from './draw/line';
 import { drawNode } from './draw/node';
 import { MindmapElement } from './interface/element';
 import { MindmapNode } from './interface/node';
@@ -49,8 +50,9 @@ export class PlaitMindmapComponent implements OnInit {
       // 画矩形框
       rootNode.eachNode((node: MindmapNode) => {
         node.children.forEach(child => {
-          // drawLink(node, child, ctx, isHorizontal(layoutType), scale)
           // 画链接线
+          const lineG = drawLine(this.roughSVG as RoughSVG, node, child, true, 1);
+          this.container.appendChild(lineG);
         })
         // 画矩形、渲染富文本
         const { nodeG, richTextG, richtextComponentRef } = drawNode(this.roughSVG as RoughSVG, node, this.componentFactoryResolver, this.viewContainerRef, 1);
