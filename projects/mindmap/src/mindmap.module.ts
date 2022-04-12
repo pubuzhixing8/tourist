@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { RichtextModule } from 'richtext';
 import { PlaitMindmapComponent } from './mindmap.component';
 
 
@@ -8,6 +9,7 @@ import { PlaitMindmapComponent } from './mindmap.component';
     PlaitMindmapComponent
   ],
   imports: [
+    RichtextModule
   ],
   exports: [
     PlaitMindmapComponent

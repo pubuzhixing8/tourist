@@ -26,7 +26,7 @@ const mindmapData: MindmapElement = {
                 children: [{ text: '富文本' }]
             },
             children: [],
-            width: 20,
+            width: 48,
             height: 22
         },
         {
@@ -35,7 +35,7 @@ const mindmapData: MindmapElement = {
                 children: [{ text: '绘图技术' }]
             },
             children: [],
-            width: 20,
+            width: 64,
             height: 22
         },
         // {
@@ -66,6 +66,6 @@ const mindmapData: MindmapElement = {
         //     height: 22
         // }
     ],
-    width: 30,
+    width: 64,
     height: 22
 };
