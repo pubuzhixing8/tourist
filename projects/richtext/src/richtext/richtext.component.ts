@@ -40,17 +40,11 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
   @Output()
   focus: EventEmitter<FocusEvent> = new EventEmitter();
 
-  @Output()
-  compositionStartHandle: EventEmitter<FocusEvent> = new EventEmitter();
-
   editor = withRichtext(createEditor());
 
   get bindValue(): Element {
     return this.editor.children[0] as Element;
   }
-
-  @ViewChild('plaitBreakFiller', { static: true })
-  plaitBreakFiller: ElementRef<HTMLElement> | undefined;
 
   get editable() {
     return this.elementRef.nativeElement;
@@ -75,8 +69,6 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   ngAfterViewChecked(): void {
-    // feedback
-    // this.toNativeSelection();
   }
 
   initialize() {
@@ -87,7 +79,8 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
 
     this.ngZone.runOutsideAngular(() => {
       // 拦截输入行为
-      this.addEventListener('beforeinput', (evt: Event) => this.beforeInput(evt as BeforeInputEvent));
+      this.addEventListener('beforeinput', (evt: Event) => this.onBeforeInput(evt as BeforeInputEvent));
+      this.addEventListener('keydown', (event: Event) => this.onKeydown(event as KeyboardEvent));
       this.addEventListener('compositionstart', (evt: Event) => this.compositionStart(evt as CompositionEvent));
       this.addEventListener('compositionupdate', (evt: Event) => this.compositionUpdate(evt as CompositionEvent));
       this.addEventListener('compositionend', (evt: Event) => this.compositionEnd(evt as CompositionEvent));
@@ -108,8 +101,6 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   onChangeHandle() {
-    console.log(this.editor.children[0], 'value');
-    console.log(this.editor.operations, 'operations');
     this.onChange.emit({ value: this.editor.children[0] as Element, operations: this.editor.operations });
     const isValueChange = this.editor.operations.some(op => !Operation.isSelectionOperation(op));
     if (!IS_NATIVE_INPUT.get(this.editor)) {
@@ -117,22 +108,11 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
         this.cdr.detectChanges();
       }
       this.toNativeSelection();
-    } else {
-      // 修正更新零宽字符导致的选区移动
-      // onChange 时间订阅将触发变化检测
-      // this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-      //   this.toNativeSelection();
-      // });
     }
-    // if (IS_NATIVE_INPUT.get(this.editor)) {
-    //   setTimeout(() => {
-    //     this.normalizeBreakFiller();
-    //   }, 0);
-    // }
     IS_NATIVE_INPUT.set(this.editor, false);
   }
 
-  private beforeInput(event: BeforeInputEvent) {
+  private onBeforeInput(event: BeforeInputEvent) {
     IS_NATIVE_INPUT.set(this.editor, false);
     const editor = this.editor;
     const { selection } = editor;
@@ -248,31 +228,24 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
     }
   }
 
+  private onKeydown(event: KeyboardEvent) {
+    this.editor.keydown(event);
+  }
+
   private compositionStart(event: CompositionEvent) {
     this.isComposing = true;
-    this.compositionStartHandle.emit();
   }
 
   private compositionUpdate(event: CompositionEvent) {
     this.isComposing = true;
-    this.compositionStartHandle.emit();
   }
 
   private compositionEnd(event: CompositionEvent) {
     this.isComposing = false;
     Editor.insertText(this.editor, event.data);
-    // normalize paragraph break filler
-    this.normalizeBreakFiller();
-  }
-
-  normalizeBreakFiller() {
-    // if (this.plaitBreakFiller && this.plaitBreakFiller.nativeElement.innerHTML !== '<br />') {
-    //   this.plaitBreakFiller.nativeElement.innerHTML = '<br />';
-    // }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes, 'changes');
   }
 
   private onFocus(event: FocusEvent) {
@@ -292,16 +265,14 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
     const window = RichtextEditor.getWindow(this.editor);
     const domSelection = window.getSelection();
     const { selection } = this.editor;
-    const document = window.document;
     if (selection && domSelection) {
       try {
+        // detect real slate selection
         const slateRange = toSlateRange(this.editor, domSelection, false);
         if (Range.equals(selection, slateRange)) {
-          console.log('=');
           return;
         }
       } catch (error) {
-        console.log(error);
       }
 
       const newDomRange = selection && RichtextEditor.toDOMRange(this.editor, selection);
@@ -334,12 +305,12 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
     }
     const domSelection = window.getSelection();
     if (domSelection) {
-      if (!this.editable.contains(domSelection.anchorNode) || this.readonly) {
+      if (!this.editable.contains(domSelection.anchorNode) || !this.editable.contains(domSelection.focusNode) || this.readonly) {
         return;
       }
       const slateRange = RichtextEditor.toSlateRange(this.editor, domSelection);
       if (slateRange && this.editor.selection && Range.equals(slateRange, this.editor.selection as BaseRange)) {
-        // 有可能是脏路径
+        // detect unnormalized native selection
         this.toNativeSelection();
         return;
       }

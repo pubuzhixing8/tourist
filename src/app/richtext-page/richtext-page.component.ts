@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { OnChangeEvent } from 'richtext/interface/event';
 
 @Component({
     selector: 'richtext-page',
@@ -12,5 +13,9 @@ export class RichtextPageComponent implements OnInit {
     };
     ngOnInit(): void {
 
+    }
+
+    onChange(event: OnChangeEvent) {
+        console.log(event);
     }
 }
