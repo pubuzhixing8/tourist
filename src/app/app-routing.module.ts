@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { MindmapPageComponent } from './mindmap-page/page.component';
+import { MindmapPageComponent } from './mindmap-page/mindmap-page.component';
+import { RichtextPageComponent } from './richtext-page/richtext-page.component';
 import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
 
 const routes: Routes = [
@@ -9,8 +10,16 @@ const routes: Routes = [
         component: PlaitWhiteBoardComponent
     },
     {
+        path: 'white-board',
+        component: PlaitWhiteBoardComponent
+    },
+    {
         path: 'mindmap',
         component: MindmapPageComponent
+    },
+    {
+        path: 'richtext',
+        component: RichtextPageComponent
     }
 ];
 @NgModule({

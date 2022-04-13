@@ -82,6 +82,7 @@ export function toSlateRange(editor: Editor, domRange: DOMRange | DOMSelection, 
 
     return { anchor, focus };
 }
+
 export function toSlatePoint(editor: Editor, domPoint: DOMPoint, withNormalize: boolean): Point {
     let [node, offset] = domPoint;
     const parentNode = node.parentElement;

@@ -3,7 +3,7 @@ import { MindmapElement } from 'mindmap/interface/element';
 
 @Component({
     selector: 'mindmap-page',
-    templateUrl: './page.component.html'
+    templateUrl: './mindmap-page.component.html'
 })
 export class MindmapPageComponent implements OnInit {
 

@@ -6,7 +6,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PlaitElementComponent } from './components/element.component';
 import { StyleCardComponent } from './components/style-card/style-card.component';
-import { MindmapPageComponent } from './mindmap-page/page.component';
+import { MindmapPageComponent } from './mindmap-page/mindmap-page.component';
+import { RichtextPageComponent } from './richtext-page/richtext-page.component';
 import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
 
 @NgModule({
@@ -15,7 +16,8 @@ import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
     PlaitElementComponent,
     PlaitWhiteBoardComponent,
     MindmapPageComponent,
-    StyleCardComponent
+    StyleCardComponent,
+    RichtextPageComponent
   ],
   imports: [
     BrowserModule,
