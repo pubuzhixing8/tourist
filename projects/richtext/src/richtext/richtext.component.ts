@@ -5,6 +5,7 @@ import { BeforeInputEvent, OnChangeEvent } from '../interface/event';
 import { RichtextEditor, toSlateRange } from '../plugins/richtext-editor';
 import { getDefaultView } from '../utils/dom';
 import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, IS_FOCUSED, IS_NATIVE_INPUT } from '../utils/weak-maps';
+import { withMarks } from '../plugins/with-marks';
 
 const NATIVE_INPUT_TYPES = ['insertText'];
 
@@ -40,7 +41,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
   @Output()
   focus: EventEmitter<FocusEvent> = new EventEmitter();
 
-  editor = withRichtext(createEditor());
+  editor = withMarks(withRichtext(createEditor()));
 
   get bindValue(): Element {
     return this.editor.children[0] as Element;
@@ -127,12 +128,18 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
       return
     }
 
+    let native = false;
+
     if (NATIVE_INPUT_TYPES.includes(type) && selection &&
-      Range.isCollapsed(selection)
+      Range.isCollapsed(selection) && !editor.marks
       // Chrome has issues correctly editing the start of nodes: https://bugs.chromium.org/p/chromium/issues/detail?id=1249405
       // When there is an inline element, e.g. a link, and you select
       // right after it (the start of the next node).
     ) {
+      native = true;
+    }
+
+    if (native) {
       IS_NATIVE_INPUT.set(this.editor, true);
     } else {
       event.preventDefault();
@@ -242,6 +249,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
 
   private compositionEnd(event: CompositionEvent) {
     this.isComposing = false;
+    preventDefaultIME(event, this.editor);
     Editor.insertText(this.editor, event.data);
   }
 
@@ -341,5 +349,25 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
     EDITOR_TO_WINDOW.delete(this.editor);
     EDITOR_TO_ELEMENT.delete(this.editor);
     ELEMENT_TO_NODE.delete(this.editable);
+  }
+}
+
+
+/**
+ * remove default insert from composition
+ * @param text
+ */
+const preventDefaultIME = (event: Event, editor: RichtextEditor) => {
+  const types = ['compositionend', 'insertFromComposition'];
+  if (!types.includes(event.type)) {
+    return;
+  }
+  const insertText = (event as CompositionEvent).data;
+  const window = RichtextEditor.getWindow(editor);
+  const domSelection = window.getSelection();
+  // ensure text node insert composition input text
+  if (domSelection && insertText && domSelection.anchorNode instanceof Text && domSelection.anchorNode.textContent?.endsWith(insertText)) {
+    const textNode = domSelection.anchorNode;
+    textNode.splitText(textNode.length - insertText.length).remove();
   }
 }

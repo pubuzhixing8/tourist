@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges } from "@angular/core";
 import { WITH_ZERO_WIDTH_CHAR, ZERO_WIDTH_CHAR } from "../utils/dom";
 import { Text, Element } from "slate";
 import { ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from "../utils/weak-maps";
@@ -8,11 +8,13 @@ import { ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from "../utils/weak-m
     template: '',
     host: {
         class: 'plait-text-node',
-        'data-plait-node': 'text',
+        'data-plait-node': 'text'
     },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
+    attributes: string[] = [];
+
     @Input()
     text?: Text | any;
 
@@ -42,7 +44,7 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
         return false;
     }
 
-    constructor(private elementRef: ElementRef<HTMLElement>) { }
+    constructor(private elementRef: ElementRef<HTMLElement>, public renderer2: Renderer2) { }
 
     ngOnInit(): void {
         this.updateWeakMap();
@@ -87,6 +89,21 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
         if (this.elementRef.nativeElement.childNodes.length === 0) {
             const textNode = document.createTextNode('');
             this.elementRef.nativeElement.appendChild(textNode);
+        }
+        this.applyTextMarks();
+    }
+
+    applyTextMarks() {
+        this.attributes.forEach(attr => {
+            this.renderer2.removeAttribute(this.elementRef.nativeElement, attr);
+        });
+        this.attributes = [];
+        for (const key in this.text) {
+            if (Object.prototype.hasOwnProperty.call(this.text, key) && key !== 'text' && !!this.text[key]) {
+                const attr = `slate-${key}`;
+                this.renderer2.setAttribute(this.elementRef.nativeElement, attr, 'true');
+                this.attributes.push(attr);
+            }
         }
     }
 }

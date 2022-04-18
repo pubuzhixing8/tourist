@@ -8,12 +8,26 @@
     &[readonly="true"] {
     }
 
-    .plait-end-break {
-        display: inline;
-        text-indent: 0;
-        min-width: 1px;
-        vertical-align: baseline;
-        font-size: 1em;
-        height: 1em;
+    [slate-underlined][slate-strike] {
+        text-decoration: underline line-through;
     }
+    [slate-strike] {
+        text-decoration: line-through;
+    }
+    [slate-underlined] {
+        text-decoration: underline;
+    }
+    [slate-italic] {
+        font-style: italic;
+    }
+    [slate-bold] {
+        font-weight: bold;
+    }
+    // [slate-inline-code] {
+    //     margin: 0 4px;
+    //     padding: 2px 3px;
+    //     border: 1px solid rgba($color: #000000, $alpha: 0.08);
+    //     border-radius: 2px;
+    //     background-color: rgba($color: #000000, $alpha: 0.06);
+    // }
 }
