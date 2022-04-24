@@ -1,8 +1,8 @@
-import { ComponentFactoryResolver, Directive, ElementRef, Input, ViewContainerRef } from "@angular/core";
+import { ComponentFactoryResolver, Directive, ElementRef, Input, Renderer2, ViewContainerRef } from "@angular/core";
 import { RoughSVG } from "roughjs/bin/svg";
 import { Element } from "../interfaces/element";
 import { Selection } from "../interfaces/selection";
-import { Paper } from "../interfaces/paper";
+import { Paper, SceneState } from "../interfaces/paper";
 
 @Directive()
 export class PlaitBaseElement {
@@ -15,6 +15,8 @@ export class PlaitBaseElement {
     @Input() element?: Element;
 
     @Input() selection?: Selection;
+
+    @Input() sceneState?: SceneState;
 
     @Input() paper?: Paper;
 
@@ -29,7 +31,13 @@ export class PlaitBaseElement {
 
     constructor(public elementRef: ElementRef,
         public componentFactoryResolver: ComponentFactoryResolver,
-        public viewContainerRef: ViewContainerRef) {
+        public viewContainerRef: ViewContainerRef, public renderer2: Renderer2) {
         this.hostSVGG = [];
+    }
+
+    transform() {
+        this.hostSVGG.forEach((g) => {
+            this.renderer2.setAttribute(g, 'transform', `translate(${this.sceneState?.scrollX} ${this.sceneState?.scrollY})`);
+        });
     }
 }

@@ -22,7 +22,7 @@
         <svg #SVG width="800" height="600">
         </svg>
         <ng-container *ngFor="let item of paper?.elements;trackBy: trackBy">
-            <plait-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection"
+            <plait-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection" [sceneState]="paper?.sceneState"
                 [paper]="paper"></plait-element>
         </ng-container>
     </div>

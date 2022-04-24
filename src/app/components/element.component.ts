@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { Element } from "../interfaces/element";
 import { ELEMENT_TO_COMPONENTS, HOSTSVGG_TO_ELEMENT } from "../utils/weak-maps";
 import { PlaitBaseElement } from "../base/element-base";
@@ -15,8 +15,9 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
 
     constructor(public elementRef: ElementRef,
         public componentFactoryResolver: ComponentFactoryResolver,
-        public viewContainerRef: ViewContainerRef) {
-        super(elementRef, componentFactoryResolver, viewContainerRef);
+        public viewContainerRef: ViewContainerRef,
+        public renderer2: Renderer2) {
+        super(elementRef, componentFactoryResolver, viewContainerRef, renderer2);
     }
 
     ngOnInit(): void {
@@ -36,6 +37,7 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
                 HOSTSVGG_TO_ELEMENT.set(g, this.element as Element);
             });
         }
+        this.transform();
     }
 
     ngAfterViewInit(): void {
@@ -72,6 +74,10 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
                 this.selected = selected;
                 console.log(this.selected, 'selected');
             }
+        }
+        const sceneState = changes['sceneState'];
+        if (sceneState && this.paper && this.element) {
+            this.transform();
         }
     }
 

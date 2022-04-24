@@ -3,10 +3,10 @@ import { Point } from 'roughjs/bin/geometry';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
-import { filter, tap } from 'rxjs/operators';
+import { filter, takeUntil, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from '../utils/hotkeys';
-import { createPaper, Paper, setSelection } from '../interfaces/paper';
+import { createPaper, Paper, SceneState, setSceneState, setSelection } from '../interfaces/paper';
 import { Element } from '../interfaces/element';
 import { Attributes, EdgeMode } from '../interfaces/attributes';
 import { Operation } from '../interfaces/operation';
@@ -161,6 +161,11 @@ export class PlaitWhiteBoardComponent implements OnInit {
         });
         fromEvent<MouseEvent>(this.container as SVGElement, 'dblclick').pipe().subscribe((event: MouseEvent) => {
             this.paper?.dblclick(event);
+        });
+        fromEvent<WheelEvent>(this.container, 'wheel').pipe().subscribe((event: WheelEvent) => {
+            event.preventDefault();
+            const sceneState = this.paper?.sceneState as SceneState;
+            setSceneState(this.paper as Paper, { ...sceneState, scrollX: sceneState?.scrollX - event.deltaX, scrollY: sceneState?.scrollY - event.deltaY });
         });
     }
 
