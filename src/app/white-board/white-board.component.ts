@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Point } from 'roughjs/bin/geometry';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
@@ -53,6 +53,17 @@ export class PlaitWhiteBoardComponent implements OnInit {
         }]
     };
 
+    get zoomRatio() {
+        if (this.paper) {
+            return Math.floor(this.paper.sceneState.zoom * 100);
+        } else {
+            return 100;
+        }
+    }
+
+    constructor(private renderer2: Renderer2) {
+    }
+
     ngOnInit(): void {
         this.container = this.SVG?.nativeElement;
         const roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
@@ -84,6 +95,9 @@ export class PlaitWhiteBoardComponent implements OnInit {
                 //   this.attributes.strokeWidth = strokeWidth;
                 // }
             }
+            if (paper.operations.some(op => Operation.isSetSceneStateOperation(op))) {
+                this.renderer2.setAttribute(this.container, 'transform', `scale(${this.paper?.sceneState.zoom}, ${this.paper?.sceneState.zoom})`)
+            }
         }
         this.paper.container = this.container;
 
@@ -94,10 +108,10 @@ export class PlaitWhiteBoardComponent implements OnInit {
         }
     }
 
-    onChange(event: OnChangeEvent) {
-        // console.log(event.value, 'value');
-        // console.log(event.operations, 'operations');
-    }
+    // onChange(event: OnChangeEvent) {
+    //     // console.log(event.value, 'value');
+    //     // console.log(event.operations, 'operations');
+    // }
 
     initializePen(rc: RoughSVG, paper: HistoryPaper) {
         // mousedown、mousemove、mouseup
@@ -180,6 +194,23 @@ export class PlaitWhiteBoardComponent implements OnInit {
             //   }
             // });
         }
+    }
+
+    // 放大
+    zoomIn(event: MouseEvent) {
+        const sceneState = this.paper?.sceneState as SceneState;
+        setSceneState(this.paper as Paper, { ...sceneState, zoom: sceneState.zoom + 0.1 });
+    }
+    
+    // 缩小
+    zoomOut(event: MouseEvent) {
+        const sceneState = this.paper?.sceneState as SceneState;
+        setSceneState(this.paper as Paper, { ...sceneState, zoom: sceneState.zoom - 0.1 });
+    }
+
+    resetZoom(event: MouseEvent) {
+        const sceneState = this.paper?.sceneState as SceneState;
+        setSceneState(this.paper as Paper, { ...sceneState, zoom: 1 });
     }
 
     startDraw() {

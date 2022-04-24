@@ -13,9 +13,11 @@ export function appendHostSVGG(paper: Paper, hostSVGG: SVGGElement[] | SVGGEleme
     if (Array.isArray(hostSVGG)) {
         hostSVGG.forEach((dom) => {
             paper.container?.appendChild(dom);
+            dom.setAttribute('transform', `translate(${paper.sceneState.scrollX} ${paper.sceneState.scrollY}})`);
         });
     } else {
         paper.container?.appendChild(hostSVGG);
+        hostSVGG.setAttribute('transform', `translate(${paper.sceneState.scrollX} ${paper.sceneState.scrollY})`);
     }
 }
 
