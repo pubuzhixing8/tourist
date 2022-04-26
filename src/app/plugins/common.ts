@@ -8,7 +8,7 @@ import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from ".
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { getRoughSVG } from "../utils/rough";
-import { transform } from "../utils/scene";
+import { transform } from "../utils/viewport";
 
 const DRAW_SKIP_SAWTOOTH = 3;
 

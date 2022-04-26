@@ -1,5 +1,5 @@
 import { Element } from './element';
-import { AddOperation, Operation, RemoveOperation, SetElementOperation, SetSceneStateOperation, SetSelectionOperation } from './operation';
+import { AddOperation, Operation, RemoveOperation, SetElementOperation, SetViewportOperation, SetSelectionOperation } from './operation';
 import { PointerType } from './pointer';
 import { Selection } from './selection';
 import Hotkeys from '../utils/hotkeys';
@@ -19,11 +19,13 @@ export interface Paper {
     dblclick: (event: MouseEvent) => void;
     pointer: PointerType;
     dragging: boolean;
-    sceneState: SceneState;
+    viewport: Viewport;
     selectedMap: WeakMap<Element, boolean>;
 }
 
-export function createPaper(): Paper {
+export function createPaper(config: PaperConfig = {
+    viewport: { zoom: 1, offsetX: 0, offsetY: 0, viewBackgroundColor: '#000000' }
+}): Paper {
     const paper: Paper = {
         container: null,
         pointer: PointerType.draw,
@@ -32,7 +34,7 @@ export function createPaper(): Paper {
         selection: { anchor: [-1, -1], focus: [-1, -1] },
         selectedMap: new WeakMap(),
         dragging: false,
-        sceneState: { zoom: 1, scrollX: 0, scrollY: 0, viewBackgroundColor: '#000000' },
+        viewport: config.viewport,
         onChange: () => {
 
         },
@@ -44,8 +46,8 @@ export function createPaper(): Paper {
                 paper.elements.splice(index, 1);
             } else if (Operation.isSetSelectionOperation(operation)) {
                 paper.selection = operation.data;
-            } else if (Operation.isSetSceneStateOperation(operation)) {
-                paper.sceneState = operation.data;
+            } else if (Operation.isSetViewportOperation(operation)) {
+                paper.viewport = operation.data;
             }
             else if (Operation.isSetElementOperation(operation)) {
                 const index = paper.elements.findIndex((element) => element.key === operation.data.key);
@@ -103,8 +105,8 @@ export function setSelection(paper: Paper, selection: Selection) {
     paper.apply(operation);
 }
 
-export function setSceneState(paper: Paper, sceneState: SceneState) {
-    const operation: SetSceneStateOperation = { type: 'set_scene_state', data: sceneState };
+export function setViewport(paper: Paper, viewport: Viewport) {
+    const operation: SetViewportOperation = { type: 'set_viewport', data: viewport };
     paper.apply(operation);
 }
 
@@ -120,10 +122,14 @@ export function setElement(paper: Paper, element: Element, newProperties: Partia
     paper.apply(operation);
 }
 
-export type SceneState = {
-    scrollX: number;
-    scrollY: number;
+export type Viewport = {
+    offsetX: number;
+    offsetY: number;
     // null indicates transparent bg
     viewBackgroundColor: string | null;
     zoom: number;
 };
+
+export type PaperConfig = {
+    viewport: Viewport;
+}

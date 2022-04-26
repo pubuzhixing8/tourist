@@ -6,7 +6,7 @@ import { fromEvent } from 'rxjs';
 import { filter, takeUntil, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from '../utils/hotkeys';
-import { createPaper, Paper, SceneState, setSceneState, setSelection } from '../interfaces/paper';
+import { createPaper, Paper, Viewport, setViewport, setSelection } from '../interfaces/paper';
 import { Element } from '../interfaces/element';
 import { Attributes, EdgeMode } from '../interfaces/attributes';
 import { Operation } from '../interfaces/operation';
@@ -25,6 +25,7 @@ import { OnChangeEvent } from 'richtext/interface/event';
 import { selectionPager } from '../plugins/selection';
 
 export const LOCALSTORAGE_PAPER_DATA_KEY = 'paper-data';
+export const LOCALSTORAGE_PAPER_VIEWPORT_KEY = 'paper-viewport';
 
 @Component({
     selector: 'plait-white-board',
@@ -55,7 +56,7 @@ export class PlaitWhiteBoardComponent implements OnInit {
 
     get zoomRatio() {
         if (this.paper) {
-            return Math.floor(this.paper.sceneState.zoom * 100);
+            return Math.floor(this.paper.viewport.zoom * 100);
         } else {
             return 100;
         }
@@ -65,9 +66,15 @@ export class PlaitWhiteBoardComponent implements OnInit {
     }
 
     ngOnInit(): void {
+
+        // 加载本地 viewport 状态
+        const viewportJSON = localStorage.getItem(LOCALSTORAGE_PAPER_VIEWPORT_KEY);
+
         this.container = this.SVG?.nativeElement;
         const roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
-        const paper = selectionPager(textPaper(likeLinePaper(circlePaper(commonPaper(historyPaper(createPaper()))))));
+
+        const basePaper = viewportJSON ? createPaper({ viewport: JSON.parse(viewportJSON) }) : createPaper();
+        const paper = selectionPager(textPaper(likeLinePaper(circlePaper(commonPaper(historyPaper(basePaper))))));
         PAPER_TO_ROUGHSVG.set(paper, roughSVG);
         PAPER_TO_ATTRIBUTES.set(paper, () => {
             return this.attributes;
@@ -82,6 +89,7 @@ export class PlaitWhiteBoardComponent implements OnInit {
             console.log(paper.operations, 'operations');
             console.log(paper.elements, 'elements');
             localStorage.setItem(LOCALSTORAGE_PAPER_DATA_KEY, JSON.stringify(paper.elements));
+            localStorage.setItem(LOCALSTORAGE_PAPER_VIEWPORT_KEY, JSON.stringify(paper.viewport));
             const op = paper.operations.filter((op: any) => Operation.isSetSelectionOperation(op));
             if (op && this.paper) {
                 const elements = [...this.paper.elements];
@@ -95,8 +103,12 @@ export class PlaitWhiteBoardComponent implements OnInit {
                 //   this.attributes.strokeWidth = strokeWidth;
                 // }
             }
-            if (paper.operations.some(op => Operation.isSetSceneStateOperation(op))) {
-                this.renderer2.setAttribute(this.container, 'transform', `scale(${this.paper?.sceneState.zoom}, ${this.paper?.sceneState.zoom})`)
+            if (paper.operations.some(op => Operation.isSetViewportOperation(op))) {
+                const width = 800 - (paper.viewport.zoom - 1) * 800;
+                const height = 600 - (paper.viewport.zoom - 1) * 600;
+                const minX = ((paper.viewport.zoom - 1) * 800) / 2;
+                const minY = ((paper.viewport.zoom - 1) * 600) / 2;
+                this.renderer2.setAttribute(this.container, 'viewBox', `${minX}, ${minY}, ${width}, ${height}`);
             }
         }
         this.paper.container = this.container;
@@ -113,7 +125,17 @@ export class PlaitWhiteBoardComponent implements OnInit {
     //     // console.log(event.operations, 'operations');
     // }
 
+    updateViewport() {
+        const paper = this.paper as HistoryPaper;
+        const width = 800 - (paper.viewport.zoom - 1) * 800;
+        const height = 600 - (paper.viewport.zoom - 1) * 600;
+        const minX = ((paper.viewport.zoom - 1) * 800) / 2;
+        const minY = ((paper.viewport.zoom - 1) * 600) / 2;
+        this.renderer2.setAttribute(this.container, 'viewBox', `${minX}, ${minY}, ${width}, ${height}`);
+    }
+
     initializePen(rc: RoughSVG, paper: HistoryPaper) {
+        this.updateViewport();
         // mousedown、mousemove、mouseup
         let context: PenContext = { points: [], isDrawing: false, isReadying: false, rc };
         fromEvent<MouseEvent>(this.container as SVGElement, 'mousedown').pipe(
@@ -178,8 +200,8 @@ export class PlaitWhiteBoardComponent implements OnInit {
         });
         fromEvent<WheelEvent>(this.container, 'wheel').pipe().subscribe((event: WheelEvent) => {
             event.preventDefault();
-            const sceneState = this.paper?.sceneState as SceneState;
-            setSceneState(this.paper as Paper, { ...sceneState, scrollX: sceneState?.scrollX - event.deltaX, scrollY: sceneState?.scrollY - event.deltaY });
+            const viewport = this.paper?.viewport as Viewport;
+            setViewport(this.paper as Paper, { ...viewport, offsetX: viewport?.offsetX - event.deltaX, offsetY: viewport?.offsetY - event.deltaY });
         });
     }
 
@@ -198,19 +220,19 @@ export class PlaitWhiteBoardComponent implements OnInit {
 
     // 放大
     zoomIn(event: MouseEvent) {
-        const sceneState = this.paper?.sceneState as SceneState;
-        setSceneState(this.paper as Paper, { ...sceneState, zoom: sceneState.zoom + 0.1 });
+        const viewport = this.paper?.viewport as Viewport;
+        setViewport(this.paper as Paper, { ...viewport, zoom: viewport.zoom + 0.1 });
     }
-    
+
     // 缩小
     zoomOut(event: MouseEvent) {
-        const sceneState = this.paper?.sceneState as SceneState;
-        setSceneState(this.paper as Paper, { ...sceneState, zoom: sceneState.zoom - 0.1 });
+        const viewport = this.paper?.viewport as Viewport;
+        setViewport(this.paper as Paper, { ...viewport, zoom: viewport.zoom - 0.1 });
     }
 
     resetZoom(event: MouseEvent) {
-        const sceneState = this.paper?.sceneState as SceneState;
-        setSceneState(this.paper as Paper, { ...sceneState, zoom: 1 });
+        const viewport = this.paper?.viewport as Viewport;
+        setViewport(this.paper as Paper, { ...viewport, zoom: 1 });
     }
 
     startDraw() {

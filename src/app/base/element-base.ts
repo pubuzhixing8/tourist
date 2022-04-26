@@ -2,7 +2,7 @@ import { ComponentFactoryResolver, Directive, ElementRef, Input, Renderer2, View
 import { RoughSVG } from "roughjs/bin/svg";
 import { Element } from "../interfaces/element";
 import { Selection } from "../interfaces/selection";
-import { Paper, SceneState } from "../interfaces/paper";
+import { Paper, Viewport } from "../interfaces/paper";
 
 @Directive()
 export class PlaitBaseElement {
@@ -16,7 +16,7 @@ export class PlaitBaseElement {
 
     @Input() selection?: Selection;
 
-    @Input() sceneState?: SceneState;
+    @Input() viewport?: Viewport;
 
     @Input() paper?: Paper;
 
@@ -36,8 +36,12 @@ export class PlaitBaseElement {
     }
 
     transform() {
-        this.hostSVGG.forEach((g) => {
-            this.renderer2.setAttribute(g, 'transform', `translate(${this.sceneState?.scrollX} ${this.sceneState?.scrollY})`);
-        });
+        if (this.viewport) {
+            const offsetX = this.viewport.offsetX;
+            const offsetY = this.viewport.offsetY;
+            this.hostSVGG.forEach((g) => {
+                this.renderer2.setAttribute(g, 'transform', `translate(${offsetX} ${offsetY})`);
+            });
+        }
     }
 }

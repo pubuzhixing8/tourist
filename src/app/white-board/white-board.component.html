@@ -23,7 +23,7 @@
         </svg>
         <ng-container *ngFor="let item of paper?.elements;trackBy: trackBy">
             <plait-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection"
-                [sceneState]="paper?.sceneState" [paper]="paper"></plait-element>
+                [viewport]="paper?.viewport" [paper]="paper"></plait-element>
         </ng-container>
         <div class="zoom-toolbar-container">
             <button class="item" (mousedown)="zoomIn($event)">+</button>
