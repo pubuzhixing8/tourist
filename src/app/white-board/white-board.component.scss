@@ -5,8 +5,8 @@
     overflow: hidden;
 
     .panel-container {
-        width: 800px;
-        height: 600px;
+        width: 100%;
+        height: 100%;
         background-color: white;
         position: absolute;
         top: 50%;
@@ -64,15 +64,14 @@
         }
     }
 
-    .style-card-container {
-        position: absolute;
-        width: 200px;
-        height: 560px;
-        background-color: white;
-        position: absolute;
-        top: calc((100vh - 600px) / 2);
-        left: calc((100vw - 800px) / 2 - 260px);
-        padding: 20px;
+    .plait-style-card {
+        &.plait-card {
+            width: 200px;
+            height: 560px;
+            position: absolute;
+            top: 70px;
+            left: 50px;
+        }
 
         .color-picker-swatch {
             position: relative;
@@ -109,13 +108,18 @@
     }
 }
 
-.basic-plait-richtext {
-    width: 200px;
-    height: 150px;
-    top: 20px;
-    right: calc((100vw - 800px) / 2 - 260px);
-    position: absolute !important;
-    background-color: white;
-    padding: 15px;
-    border-radius: 5px;
-}
+.plait-white-board {
+    .plait-card {
+      --padding: 2;
+      background-color: var(--iscard-bg-color);
+      box-shadow: var(--shadow-iscard);
+      border-radius: var(--border-radius-lg);
+      padding: calc(var(--padding) * var(--space-factor));
+      transition: box-shadow 0.5s ease-in-out;
+  
+      &.zen-mode {
+        box-shadow: none;
+      }
+    }
+  }
+  

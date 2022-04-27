@@ -24,7 +24,7 @@ export interface Paper {
 }
 
 export function createPaper(config: PaperConfig = {
-    viewport: { zoom: 1, offsetX: 0, offsetY: 0, viewBackgroundColor: '#000000' }
+    viewport: { zoom: 1, offsetX: 0, offsetY: 0, viewBackgroundColor: '#000000', width: 800, height: 600 }
 }): Paper {
     const paper: Paper = {
         container: null,
@@ -123,6 +123,8 @@ export function setElement(paper: Paper, element: Element, newProperties: Partia
 }
 
 export type Viewport = {
+    width: number,
+    height: number,
     offsetX: number;
     offsetY: number;
     // null indicates transparent bg

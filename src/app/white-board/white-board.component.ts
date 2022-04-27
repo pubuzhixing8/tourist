@@ -1,9 +1,9 @@
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Point } from 'roughjs/bin/geometry';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
-import { filter, takeUntil, tap } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
 import Hotkeys from '../utils/hotkeys';
 import { createPaper, Paper, Viewport, setViewport, setSelection } from '../interfaces/paper';
@@ -21,17 +21,20 @@ import { getRoughSVG } from '../utils/rough';
 import { circlePaper } from '../plugins/circle';
 import { likeLinePaper } from '../plugins/like-line';
 import { textPaper } from '../plugins/text';
-import { OnChangeEvent } from 'richtext/interface/event';
 import { selectionPager } from '../plugins/selection';
+import { getViewBox } from '../utils/viewport';
 
 export const LOCALSTORAGE_PAPER_DATA_KEY = 'paper-data';
 export const LOCALSTORAGE_PAPER_VIEWPORT_KEY = 'paper-viewport';
 
 @Component({
     selector: 'plait-white-board',
-    templateUrl: './white-board.component.html'
+    templateUrl: './white-board.component.html',
+    host: {
+        class: 'plait-white-board'
+    }
 })
-export class PlaitWhiteBoardComponent implements OnInit {
+export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
     title = 'tourist';
     container: SVGSVGElement = {} as any;
 
@@ -66,23 +69,31 @@ export class PlaitWhiteBoardComponent implements OnInit {
     }
 
     ngOnInit(): void {
-
-        // 加载本地 viewport 状态
-        const viewportJSON = localStorage.getItem(LOCALSTORAGE_PAPER_VIEWPORT_KEY);
-
         this.container = this.SVG?.nativeElement;
-        const roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
+        // 加载本地 viewport 状态
+        const { width, height } = this.container.getBoundingClientRect();
+        const viewportJSON = localStorage.getItem(LOCALSTORAGE_PAPER_VIEWPORT_KEY);
+        const viewport = viewportJSON ? { ...JSON.parse(viewportJSON), width, height } : null;
 
-        const basePaper = viewportJSON ? createPaper({ viewport: JSON.parse(viewportJSON) }) : createPaper();
+        const basePaper = viewport ? createPaper({ viewport }) : createPaper();
         const paper = selectionPager(textPaper(likeLinePaper(circlePaper(commonPaper(historyPaper(basePaper))))));
+        this.paper = paper;
+        paper.container = this.container;
+        // 加载本地存储数据
+        const els = localStorage.getItem(LOCALSTORAGE_PAPER_DATA_KEY);
+        if (els) {
+            paper.elements = JSON.parse(els);
+        }
+
+        const roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
         PAPER_TO_ROUGHSVG.set(paper, roughSVG);
         PAPER_TO_ATTRIBUTES.set(paper, () => {
             return this.attributes;
         });
 
-        this.paper = paper;
         this.initializePen(this.roughSVG, paper);
         this.useCursor();
+
         const onChange = paper?.onChange;
         paper.onChange = () => {
             onChange();
@@ -104,34 +115,17 @@ export class PlaitWhiteBoardComponent implements OnInit {
                 // }
             }
             if (paper.operations.some(op => Operation.isSetViewportOperation(op))) {
-                const width = 800 - (paper.viewport.zoom - 1) * 800;
-                const height = 600 - (paper.viewport.zoom - 1) * 600;
-                const minX = ((paper.viewport.zoom - 1) * 800) / 2;
-                const minY = ((paper.viewport.zoom - 1) * 600) / 2;
-                this.renderer2.setAttribute(this.container, 'viewBox', `${minX}, ${minY}, ${width}, ${height}`);
+                this.updateViewport();
             }
-        }
-        this.paper.container = this.container;
-
-        // 加载本地存储数据
-        const els = localStorage.getItem(LOCALSTORAGE_PAPER_DATA_KEY);
-        if (els) {
-            paper.elements = JSON.parse(els);
         }
     }
 
-    // onChange(event: OnChangeEvent) {
-    //     // console.log(event.value, 'value');
-    //     // console.log(event.operations, 'operations');
-    // }
+    ngAfterViewInit(): void {
+    }
 
     updateViewport() {
-        const paper = this.paper as HistoryPaper;
-        const width = 800 - (paper.viewport.zoom - 1) * 800;
-        const height = 600 - (paper.viewport.zoom - 1) * 600;
-        const minX = ((paper.viewport.zoom - 1) * 800) / 2;
-        const minY = ((paper.viewport.zoom - 1) * 600) / 2;
-        this.renderer2.setAttribute(this.container, 'viewBox', `${minX}, ${minY}, ${width}, ${height}`);
+        const viewBox = getViewBox(this.paper as Paper);
+        this.renderer2.setAttribute(this.container, 'viewBox', `${viewBox.minX}, ${viewBox.minY}, ${viewBox.width}, ${viewBox.height}`);
     }
 
     initializePen(rc: RoughSVG, paper: HistoryPaper) {
@@ -203,6 +197,12 @@ export class PlaitWhiteBoardComponent implements OnInit {
             const viewport = this.paper?.viewport as Viewport;
             setViewport(this.paper as Paper, { ...viewport, offsetX: viewport?.offsetX - event.deltaX, offsetY: viewport?.offsetY - event.deltaY });
         });
+
+        window.onresize = () => {
+            const viewport = this.paper?.viewport as Viewport;
+            const { width, height } = this.container.getBoundingClientRect();
+            setViewport(this.paper as Paper, { ...viewport, width, height });
+        }
     }
 
     attributesChange(attributes: Attributes) {
