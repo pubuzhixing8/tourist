@@ -23,9 +23,7 @@ export interface Paper {
     selectedMap: WeakMap<Element, boolean>;
 }
 
-export function createPaper(config: PaperConfig = {
-    viewport: { zoom: 1, offsetX: 0, offsetY: 0, viewBackgroundColor: '#000000', width: 800, height: 600 }
-}): Paper {
+export function createPaper(config: PaperConfig): Paper {
     const paper: Paper = {
         container: null,
         pointer: PointerType.draw,

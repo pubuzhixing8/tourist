@@ -73,10 +73,9 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
         // 加载本地 viewport 状态
         const { width, height } = this.container.getBoundingClientRect();
         const viewportJSON = localStorage.getItem(LOCALSTORAGE_PAPER_VIEWPORT_KEY);
-        const viewport = viewportJSON ? { ...JSON.parse(viewportJSON), width, height } : null;
-
-        const basePaper = viewport ? createPaper({ viewport }) : createPaper();
-        const paper = selectionPager(textPaper(likeLinePaper(circlePaper(commonPaper(historyPaper(basePaper))))));
+        const initViewport =  { zoom: 1, offsetX: 0, offsetY: 0, viewBackgroundColor: '#000000', width, height };
+        const viewport = viewportJSON ? { ...JSON.parse(viewportJSON), width, height } : initViewport;
+        const paper = selectionPager(textPaper(likeLinePaper(circlePaper(commonPaper(historyPaper(createPaper({ viewport })))))));
         this.paper = paper;
         paper.container = this.container;
         // 加载本地存储数据
