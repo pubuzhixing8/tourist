@@ -6,6 +6,7 @@ import { startEditRichtext } from "../utils/foreign-object";
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { setFullSelectionAndFocus } from "../utils/richtext";
+import { transform } from "../utils/viewport";
 import { HOSTSVGG_TO_RICHTEXT_REF, HOSTSVGG_TO_ELEMENT, ELEMENT_TO_COMPONENTS } from "../utils/weak-maps";
 
 export const DEFAULT_LINE_HEIGHT = 22;
@@ -16,7 +17,7 @@ export function textPaper<T extends Paper>(paper: T) {
         if (paper.pointer === PointerType.text) {
             const start = toPoint(event.x, event.y - DEFAULT_LINE_HEIGHT / 2, paper.container as SVGElement);
             const end = [start[0] + 32, start[1] + DEFAULT_LINE_HEIGHT] as Point;
-            const text = createText(start, end);
+            const text = transform(paper, createText(start, end));
             addElement(paper, text);
             paper.pointer = PointerType.pointer;
             // 直接聚焦

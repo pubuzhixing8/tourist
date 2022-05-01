@@ -8,6 +8,7 @@ import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from ".
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { getRoughSVG } from "../utils/rough";
+import { transform } from "../utils/viewport";
 
 const DRAW_SKIP_SAWTOOTH = 3;
 
@@ -37,7 +38,7 @@ export function commonPaper<T extends Paper>(paper: T) {
             dragPoints.push(end);
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.rectangle) {
-                const tempElement = createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode);
+                const tempElement = transform(paper, createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode));
                 g = roughDrawer.draw(getRoughSVG(paper), tempElement);
             }
             if (paper.pointer === PointerType.draw) {
@@ -49,7 +50,7 @@ export function commonPaper<T extends Paper>(paper: T) {
                         return false;
                     }
                 });
-                const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
+                const curveElement = transform(paper, createCurve(points, attributes.stroke, attributes.strokeWidth));
                 g = roughDrawer.draw(getRoughSVG(paper), curveElement);
             }
             appendHostSVGG(paper, g);
@@ -64,7 +65,7 @@ export function commonPaper<T extends Paper>(paper: T) {
         mouseup(event);
         if (isDragging && start && end) {
             if (paper.pointer === PointerType.rectangle) {
-                addElement(paper, createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode));
+                addElement(paper, transform(paper, createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode)));
             }
             if (paper.pointer === PointerType.draw) {
                 let points = [start, ...dragPoints];
@@ -75,7 +76,7 @@ export function commonPaper<T extends Paper>(paper: T) {
                         return false;
                     }
                 });
-                const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
+                const curveElement = transform(paper, createCurve(points, attributes.stroke, attributes.strokeWidth));
                 addElement(paper, curveElement);
             }
             hostSVGG = destroyHostSVGG(hostSVGG);

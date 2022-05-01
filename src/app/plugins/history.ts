@@ -24,6 +24,9 @@ export const historyPaper = (paper: Paper) => {
         if (Operation.isSetSelectionOperation(op)) {
             return;
         }
+        if (Operation.isSetViewportOperation(op)) {
+            return;
+        }
         historyPaper.undos.push([Operation.reverse(op)]);
     }
 

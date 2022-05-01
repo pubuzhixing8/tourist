@@ -75,8 +75,8 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
                 console.log(this.selected, 'selected');
             }
         }
-        const sceneState = changes['sceneState'];
-        if (sceneState && this.paper && this.element) {
+        const viewport = changes['viewport'];
+        if (viewport && this.paper && this.element) {
             this.transform();
         }
     }

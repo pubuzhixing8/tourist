@@ -7,6 +7,7 @@ import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from ".
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { getRoughSVG } from "../utils/rough";
+import { transform } from "../utils/viewport";
 
 export function circlePaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
@@ -47,7 +48,7 @@ export function circlePaper<T extends Paper>(paper: T) {
                 if (shiftKey) {
                     realEnd = [end[0], end[1] > start[1] ? start[1] + width : start[1] - width];
                 }
-                const curveElement = createCircle(start, realEnd, attributes.stroke, attributes.strokeWidth);
+                const curveElement = transform(paper, createCircle(start, realEnd, attributes.stroke, attributes.strokeWidth));
                 const g = roughDrawer.draw(getRoughSVG(paper), curveElement);
                 appendHostSVGG(paper, g);
                 hostSVGG = arrayHostSVGG(g);
@@ -67,7 +68,7 @@ export function circlePaper<T extends Paper>(paper: T) {
                 if (shiftKey) {
                     realEnd = [end[0], end[1] > start[1] ? start[1] + width : start[1] - width];
                 }
-                const circleElement = createCircle(start, realEnd, attributes.stroke, attributes.strokeWidth);
+                const circleElement = transform(paper, createCircle(start, realEnd, attributes.stroke, attributes.strokeWidth));
                 addElement(paper, circleElement);
             }
             hostSVGG = destroyHostSVGG(hostSVGG);

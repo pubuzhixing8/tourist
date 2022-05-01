@@ -6,6 +6,7 @@ import { PointerType } from "../interfaces/pointer";
 import { mousePointToRelativePoint } from "../utils/dom";
 import { toPoint } from "../utils/position";
 import { toRectangleClient } from "../utils/shape";
+import { transform, transformPoints } from "../utils/viewport";
 
 export function selectionPager<T extends Paper>(paper: T) {
     const { mousedown, mousemove, mouseup, keyup } = paper;
@@ -35,13 +36,13 @@ export function selectionPager<T extends Paper>(paper: T) {
         if (start && end) {
 
         } else if (start) {
-            const point = mousePointToRelativePoint(event.x, event.y, paper.container as SVGElement);
+            const points = transformPoints(paper, [mousePointToRelativePoint(event.x, event.y, paper.container as SVGElement)]);
             const map: WeakMap<Element, boolean> = new WeakMap();
             paper.elements.forEach((ele) => {
-                map.set(ele, detector.hit(point, ele))
+                map.set(ele, detector.hit(points[0], ele))
             });
             paper.selectedMap = map;
-            setSelection(paper, { anchor: point, focus: point });
+            setSelection(paper, { anchor: points[0], focus: points[0] });
         }
         start = null;
         end = null;

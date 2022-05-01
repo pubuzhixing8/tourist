@@ -1,6 +1,6 @@
 <div class="full-page">
     <div class="panel-container">
-        <div class="toolbar">
+        <div class="toolbar plait-card">
             <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.pointer}"
                 (mousedown)="usePointer($event, pointerType.pointer)">选择</button>
             <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.draw}"
@@ -19,13 +19,18 @@
             <!-- <button class="item">eraser</button> -->
             <!-- <button class="item">export png</button> -->
         </div>
-        <svg #SVG width="800" height="600">
+        <svg #SVG width="100%" height="100%">
         </svg>
         <ng-container *ngFor="let item of paper?.elements;trackBy: trackBy">
-            <plait-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection" [sceneState]="paper?.sceneState"
-                [paper]="paper"></plait-element>
+            <plait-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection"
+                [viewport]="paper?.viewport" [paper]="paper"></plait-element>
         </ng-container>
+        <div class="zoom-toolbar-container">
+            <button class="item" (mousedown)="zoomIn($event)">+</button>
+            <button class="item" (mousedown)="zoomOut($event)">-</button>
+            <button class="item" (mousedown)="resetZoom($event)">{{ zoomRatio }}%</button>
+        </div>
     </div>
-    <style-card cdkScrollable class="style-card-container" [attributes]="attributes" [paper]="paper"
+    <style-card cdkScrollable class="plait-style-card plait-card" [attributes]="attributes" [paper]="paper"
         (attributesChange)="attributesChange($event)"></style-card>
 </div>
