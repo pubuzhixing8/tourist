@@ -8,6 +8,7 @@ import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from ".
 import { generateKey } from "../utils/key";
 import { toPoint } from "../utils/position";
 import { getRoughSVG } from "../utils/rough";
+import { transform } from "../utils/viewport";
 
 export function likeLinePaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
@@ -41,11 +42,11 @@ export function likeLinePaper<T extends Paper>(paper: T) {
             hostSVGG = destroyHostSVGG(hostSVGG);
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.line) {
-                const lineElement = createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const lineElement = transform(paper, createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 g = roughDrawer.draw(roughSVG, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const arrowElement = createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const arrowElement = transform(paper, createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 g = roughDrawer.draw(roughSVG, arrowElement);
             }
             appendHostSVGG(paper, g);
@@ -57,11 +58,11 @@ export function likeLinePaper<T extends Paper>(paper: T) {
             hostSVGG = destroyHostSVGG(hostSVGG);
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.line) {
-                const lineElement = createLikeLine(ElementType.line, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const lineElement = transform(paper, createLikeLine(ElementType.line, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 g = roughDrawer.draw(roughSVG, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const element = createLikeLine(ElementType.arrow, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const element = transform(paper, createLikeLine(ElementType.arrow, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 g = roughDrawer.draw(roughSVG, element);
             }
             appendHostSVGG(paper, g);
@@ -76,11 +77,11 @@ export function likeLinePaper<T extends Paper>(paper: T) {
         const attributes = getAttributes(paper);
         if (dragMode && start && end) {
             if (paper.pointer === PointerType.line) {
-                const lineElement = createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const lineElement = transform(paper, createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 addElement(paper, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const arrowElement = createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const arrowElement = transform(paper, createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 addElement(paper, arrowElement);
             }
             hostSVGG = destroyHostSVGG(hostSVGG);
@@ -101,11 +102,11 @@ export function likeLinePaper<T extends Paper>(paper: T) {
         const attributes = getAttributes(paper);
         if (clickMode && clickPoints.length > 3) {
             if (paper.pointer === PointerType.line) {
-                const lineElement = createLikeLine(ElementType.line, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const lineElement = transform(paper, createLikeLine(ElementType.line, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 addElement(paper, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const element = createLikeLine(ElementType.arrow, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode);
+                const element = transform(paper, createLikeLine(ElementType.arrow, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
                 addElement(paper, element);
             }
             hostSVGG = destroyHostSVGG(hostSVGG);

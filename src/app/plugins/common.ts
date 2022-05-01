@@ -50,7 +50,7 @@ export function commonPaper<T extends Paper>(paper: T) {
                         return false;
                     }
                 });
-                const curveElement = createCurve(points, attributes.stroke, attributes.strokeWidth);
+                const curveElement = transform(paper, createCurve(points, attributes.stroke, attributes.strokeWidth));
                 g = roughDrawer.draw(getRoughSVG(paper), curveElement);
             }
             appendHostSVGG(paper, g);

@@ -3,14 +3,18 @@ import { Element } from "../interfaces/element";
 import { Paper } from "../interfaces/paper";
 
 export function transform(paper: Paper, element: Element): Element {
+    return { ...element, points: transformPoints(paper, element.points) };
+}
+
+export function transformPoints(paper: Paper, points: Point[]) {
     const { width, height } = (paper.container as SVGGElement).getBoundingClientRect();
     const viewBox = getViewBox(paper);
-    const transformPoints = element.points.map((point) => {
+    const newPoints = points.map((point) => {
         let x = (point[0] / width) * viewBox.width + viewBox.minX;
         let y = (point[1] / height) * viewBox.height + viewBox.minY;
         return [x - paper.viewport.offsetX, y - paper.viewport.offsetY] as Point;
     });
-    return { ...element, points: transformPoints };
+    return newPoints;
 }
 
 export function getViewBox(paper: Paper): ViewBox {
