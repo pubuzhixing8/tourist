@@ -1,6 +1,6 @@
 <div class="full-page">
     <div class="panel-container">
-        <div class="toolbar plait-card">
+        <div class="plait-toolbar plait-toolbar-main plait-card">
             <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.pointer}"
                 (mousedown)="usePointer($event, pointerType.pointer)">选择</button>
             <button class="item" [ngClass]="{'active': paper?.pointer === pointerType.draw}"
@@ -25,10 +25,10 @@
             <plait-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection"
                 [viewport]="paper?.viewport" [paper]="paper"></plait-element>
         </ng-container>
-        <div class="zoom-toolbar-container">
-            <button class="item" (mousedown)="zoomIn($event)">+</button>
+        <div class="plait-toolbar plait-toolbar-zoom plait-card">
             <button class="item" (mousedown)="zoomOut($event)">-</button>
-            <button class="item" (mousedown)="resetZoom($event)">{{ zoomRatio }}%</button>
+            <button class="item zoom-value" (mousedown)="resetZoom($event)">{{ zoomRatio }}%</button>
+            <button class="item" (mousedown)="zoomIn($event)">+</button>
         </div>
     </div>
     <style-card cdkScrollable class="plait-style-card plait-card" [attributes]="attributes" [paper]="paper"
