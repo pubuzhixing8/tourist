@@ -3,27 +3,35 @@ import { Element } from "../interfaces/element";
 import { Paper } from "../interfaces/paper";
 
 export function transform(paper: Paper, element: Element): Element {
-    const baseWidth: number = paper.viewport.width
-    const baseHeight: number = paper.viewport.height;
+    const { width, height } = (paper.container as SVGGElement).getBoundingClientRect();
     const viewBox = getViewBox(paper);
     const transformPoints = element.points.map((point) => {
-        let x = (point[0] / baseWidth) * viewBox.width + viewBox.minX;
-        let y = (point[1] / baseHeight) * viewBox.height + viewBox.minY;
+        let x = (point[0] / width) * viewBox.width + viewBox.minX;
+        let y = (point[1] / height) * viewBox.height + viewBox.minY;
         return [x - paper.viewport.offsetX, y - paper.viewport.offsetY] as Point;
     });
     return { ...element, points: transformPoints };
 }
 
 export function getViewBox(paper: Paper): ViewBox {
-    const baseWidth: number = paper.viewport.width
-    const baseHeight: number = paper.viewport.height;
-    const scaleWidth = (paper.viewport.zoom - 1) * baseWidth;
-    const scaleHeight = (paper.viewport.zoom - 1) * baseHeight;
-    const width = baseWidth - scaleWidth;
-    const height = baseHeight - scaleHeight;
+    const viewBoxValues = paper?.container?.getAttribute('viewBox');
+    const { width, height } = paper?.container?.getBoundingClientRect() as DOMRect;
+    let deltaX = 0;
+    let deltaY = 0;
+    if (paper.container && viewBoxValues) {
+        const values = viewBoxValues.split(',');
+        const scaleWidth = width - Number(values[2].trim());
+        const scaleHeight = height - Number(values[3].trim());
+        deltaX = (scaleWidth / 2 - Number(values[0].trim()));
+        deltaY = (scaleHeight / 2 - Number(values[1].trim()));
+    }
+    const scaleWidth = (paper.viewport.zoom - 1) * width;
+    const scaleHeight = (paper.viewport.zoom - 1) * height;
+    const viewBoxWidth = width - scaleWidth;
+    const viewBoxHeight = height - scaleHeight;
     const minX = scaleWidth / 2;
     const minY = scaleHeight / 2;
-    return { minX, minY, width, height };
+    return { minX: minX - deltaX, minY: minY - deltaY, width: viewBoxWidth, height: viewBoxHeight };
 }
 
 export type ViewBox = {

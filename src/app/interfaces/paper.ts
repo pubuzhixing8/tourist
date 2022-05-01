@@ -121,8 +121,6 @@ export function setElement(paper: Paper, element: Element, newProperties: Partia
 }
 
 export type Viewport = {
-    width: number,
-    height: number,
     offsetX: number;
     offsetY: number;
     // null indicates transparent bg

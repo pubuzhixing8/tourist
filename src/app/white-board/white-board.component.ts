@@ -71,10 +71,9 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         this.container = this.SVG?.nativeElement;
         // 加载本地 viewport 状态
-        const { width, height } = this.container.getBoundingClientRect();
         const viewportJSON = localStorage.getItem(LOCALSTORAGE_PAPER_VIEWPORT_KEY);
-        const initViewport =  { zoom: 1, offsetX: 0, offsetY: 0, viewBackgroundColor: '#000000', width, height };
-        const viewport = viewportJSON ? { ...JSON.parse(viewportJSON), width, height } : initViewport;
+        const initViewport = { zoom: 1, offsetX: 0, offsetY: 0, viewBackgroundColor: '#000000' };
+        const viewport = viewportJSON ? { ...JSON.parse(viewportJSON) } : initViewport;
         const paper = selectionPager(textPaper(likeLinePaper(circlePaper(commonPaper(historyPaper(createPaper({ viewport })))))));
         this.paper = paper;
         paper.container = this.container;
@@ -198,9 +197,16 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
         });
 
         window.onresize = () => {
-            const viewport = this.paper?.viewport as Viewport;
             const { width, height } = this.container.getBoundingClientRect();
-            setViewport(this.paper as Paper, { ...viewport, width, height });
+            const baseWidth: number = width;
+            const baseHeight: number = height;
+            const scaleWidth = (paper.viewport.zoom - 1) * baseWidth;
+            const scaleHeight = (paper.viewport.zoom - 1) * baseHeight;
+            const newWidth = baseWidth - scaleWidth;
+            const newHeight = baseHeight - scaleHeight;
+            const viewBox = this.container.getAttribute('viewBox') as string;
+            const values = viewBox.split(',')
+            this.renderer2.setAttribute(this.container, 'viewBox', `${values[0].trim()}, ${values[1].trim()}, ${newWidth}, ${newHeight}`);
         }
     }
 
