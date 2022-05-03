@@ -45,7 +45,7 @@ export function drawLine(roughSVG: RoughSVG, node: MindmapNode, child: MindmapNo
             [endX / scale, endY / scale]
         ];
         const points = pointsOnBezierCurves(curve);
-        return roughSVG.curve(points as any, { stroke: '#862e9c' });
+        return roughSVG.curve(points as any, { stroke: '#e67700' });
     } else {
         const curve: Point[] = [
             [beginX / scale, beginY / scale],
@@ -54,7 +54,7 @@ export function drawLine(roughSVG: RoughSVG, node: MindmapNode, child: MindmapNo
             [endX / scale, endY / scale]
         ];
         const points = pointsOnBezierCurves(curve);
-        return roughSVG.curve(points as any, { stroke: '#862e9c' });
+        return roughSVG.curve(points as any, { stroke: '#e67700' });
         // ctx.bezierCurveTo(
         //     beginX / scale, Math.round(beginY + (beginNode.vgap + endNode.vgap) / 2) / scale,
         //     endX / scale, Math.round(endY - (beginNode.vgap + endNode.vgap) / 2) / scale,

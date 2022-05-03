@@ -15,6 +15,7 @@ declare const require: any;
   template: `
   <svg #svg width="100%" height="100%">
   </svg>
+  <plait-mindmap-node [roughSVG]="roughSVG" [rootSVG]="container" [node]="root"></plait-mindmap-node>
   `,
   styles: [
   ],
@@ -22,6 +23,8 @@ declare const require: any;
 })
 export class PlaitMindmapComponent implements OnInit {
   roughSVG: RoughSVG | undefined;
+
+  root: MindmapNode | undefined;
 
   @ViewChild('svg', { static: true })
   svg: ElementRef | undefined;
@@ -36,7 +39,7 @@ export class PlaitMindmapComponent implements OnInit {
   @Input()
   value: MindmapElement | undefined;
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private viewContainerRef: ViewContainerRef) { }
+  constructor() { }
 
   ngOnInit(): void {
     this.roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
@@ -45,20 +48,20 @@ export class PlaitMindmapComponent implements OnInit {
       this.value.isRoot = true;
       const options = this.getOptions();
       const layout = new MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
-      const rootNode = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
-      console.log(rootNode);
-      // 画矩形框
-      rootNode.eachNode((node: MindmapNode) => {
-        node.children.forEach(child => {
-          // 画链接线
-          const lineG = drawLine(this.roughSVG as RoughSVG, node, child, true, 1);
-          this.container.appendChild(lineG);
-        })
-        // 画矩形、渲染富文本
-        const { nodeG, richTextG, richtextComponentRef } = drawNode(this.roughSVG as RoughSVG, node, this.componentFactoryResolver, this.viewContainerRef, 1);
-        this.container.appendChild(nodeG);
-        this.container.appendChild(richTextG);
-      })
+      this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
+      // console.log(rootNode);
+      // // 画矩形框
+      // rootNode.eachNode((node: MindmapNode) => {
+      //   node.children.forEach(child => {
+      //     // 画链接线
+      //     const lineG = drawLine(this.roughSVG as RoughSVG, node, child, true, 1);
+      //     this.container.appendChild(lineG);
+      //   })
+      //   // 画矩形、渲染富文本
+      //   const { nodeG, richTextG, richtextComponentRef } = drawNode(this.roughSVG as RoughSVG, node, this.componentFactoryResolver, this.viewContainerRef, 1);
+      //   this.container.appendChild(nodeG);
+      //   this.container.appendChild(richTextG);
+      // })
     }
 
   }

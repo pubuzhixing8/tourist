@@ -18,7 +18,7 @@ export function drawNode(roughSVG: RoughSVG, node: MindmapNode, componentFactory
     const textX = (x + PEM * 0.8) / scale;
     const textY = (y + PEM * 0.2) / scale;
 
-    const nodeG = drawRoundRectangle(roughSVG, x, y, x + width, y + height, { stroke: color, fill: color, fillStyle: 'solid' });
+    const nodeG = drawRoundRectangle(roughSVG, x, y, x + width, y + height, { stroke: color, fill: 'white', fillStyle: 'solid' });
     const classList = [];
     if (data.isRoot) {
         classList.push('root-node');
