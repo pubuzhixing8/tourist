@@ -2,7 +2,7 @@
 import { pointsOnBezierCurves } from "points-on-curve";
 import { Point } from "roughjs/bin/geometry";
 import { RoughSVG } from "roughjs/bin/svg";
-import { MindmapNode } from '../interface/node';
+import { MindmapNode } from '../interfaces/node';
 
 export function drawLine(roughSVG: RoughSVG, node: MindmapNode, child: MindmapNode, isHorizontal = false, scale = 1) {
     let beginX, beginY, endX, endY, beginNode = node, endNode = child;

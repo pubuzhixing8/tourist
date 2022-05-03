@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MindmapElement } from 'mindmap/interface/element';
+import { MindmapElement } from 'mindmap/interfaces/element';
 
 @Component({
     selector: 'mindmap-page',

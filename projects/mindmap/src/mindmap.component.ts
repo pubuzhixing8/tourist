@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
+import { fromEvent } from 'rxjs';
 import { PEM } from './constants';
-import { drawLine } from './draw/line';
-import { drawNode } from './draw/node';
-import { MindmapElement } from './interface/element';
-import { MindmapNode } from './interface/node';
-// import layouts from 'mindmap-layouts';
+import { MindmapElement } from './interfaces/element';
+import { MindmapNode } from './interfaces/node';
+import { Selection } from './interfaces/selection';
 
 declare const require: any;
 
@@ -36,8 +35,9 @@ export class PlaitMindmapComponent implements OnInit {
     return this.svg.nativeElement;
   }
 
-  @Input()
-  value: MindmapElement | undefined;
+  @Input() value?: MindmapElement;
+
+  @Input() selection?: Selection;
 
   constructor() { }
 
@@ -49,21 +49,10 @@ export class PlaitMindmapComponent implements OnInit {
       const options = this.getOptions();
       const layout = new MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
       this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
-      // console.log(rootNode);
-      // // 画矩形框
-      // rootNode.eachNode((node: MindmapNode) => {
-      //   node.children.forEach(child => {
-      //     // 画链接线
-      //     const lineG = drawLine(this.roughSVG as RoughSVG, node, child, true, 1);
-      //     this.container.appendChild(lineG);
-      //   })
-      //   // 画矩形、渲染富文本
-      //   const { nodeG, richTextG, richtextComponentRef } = drawNode(this.roughSVG as RoughSVG, node, this.componentFactoryResolver, this.viewContainerRef, 1);
-      //   this.container.appendChild(nodeG);
-      //   this.container.appendChild(richTextG);
-      // })
     }
-
+    fromEvent(this.container, 'click').subscribe(() => {
+      
+    })
   }
 
   getOptions() {

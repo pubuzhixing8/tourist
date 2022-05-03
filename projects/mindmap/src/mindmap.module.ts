@@ -4,8 +4,6 @@ import { RichtextModule } from 'richtext';
 import { MindmapNodeComponent } from './components/node/node.component';
 import { PlaitMindmapComponent } from './mindmap.component';
 
-
-
 @NgModule({
   declarations: [
     PlaitMindmapComponent,
