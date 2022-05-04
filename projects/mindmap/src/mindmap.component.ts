@@ -1,11 +1,15 @@
-import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { mousePointToRelativePoint } from 'plait/utils/dom';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
 import { PEM } from './constants';
+import { getRectangleByNode } from './draw/node';
 import { MindmapElement } from './interfaces/element';
 import { MindmapNode } from './interfaces/node';
-import { Selection } from './interfaces/selection';
+import { HAS_SELECTED_MINDMAP_NODE } from './utils/weak-maps';
+import { Selection } from 'plait/interfaces/selection';
 
 declare const require: any;
 
@@ -14,7 +18,7 @@ declare const require: any;
   template: `
   <svg #svg width="100%" height="100%">
   </svg>
-  <plait-mindmap-node [roughSVG]="roughSVG" [rootSVG]="container" [node]="root"></plait-mindmap-node>
+  <plait-mindmap-node [roughSVG]="roughSVG" [rootSVG]="container" [node]="root" [selection]="selection"></plait-mindmap-node>
   `,
   styles: [
   ],
@@ -39,7 +43,7 @@ export class PlaitMindmapComponent implements OnInit {
 
   @Input() selection?: Selection;
 
-  constructor() { }
+  constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
@@ -50,8 +54,18 @@ export class PlaitMindmapComponent implements OnInit {
       const layout = new MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
       this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
     }
-    fromEvent(this.container, 'click').subscribe(() => {
-      
+    fromEvent<MouseEvent>(this.container, 'click').subscribe((event: MouseEvent) => {
+      const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
+      this.selection = { anchor: point, focus: point };
+      this.cdr.markForCheck();
+      (this.root as any).eachNode((node: MindmapNode) => {
+        const { x, y, width, height } = getRectangleByNode(node);
+        if (point[0] >= x && point[0] <= x + width && point[1] >= y && point[1] <= y + height) {
+          HAS_SELECTED_MINDMAP_NODE.set(node, true);
+        } else {
+          HAS_SELECTED_MINDMAP_NODE.delete(node);
+        }
+      });
     })
   }
 

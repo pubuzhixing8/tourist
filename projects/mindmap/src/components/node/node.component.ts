@@ -1,19 +1,19 @@
-import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, Input, OnInit, ViewContainerRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, Input, OnChanges, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { drawNode, getRectangleByNode } from "../../draw/node";
 import { RoughSVG } from "roughjs/bin/svg";
 import { MindmapNode } from "../../interfaces/node";
 import { drawLine } from "../../draw/line";
 import { drawRoundRectangle } from "../../utils/graph";
 import { primaryColor } from "../../constants";
+import { HAS_SELECTED_MINDMAP_NODE } from "../../utils/weak-maps";
+import { Selection } from 'plait/interfaces/selection';
 
 @Component({
     selector: 'plait-mindmap-node',
-    template: '<plait-mindmap-node *ngFor="let childNode of node?.children" [roughSVG]="roughSVG" [rootSVG]="rootSVG" [node]="childNode" [parent]="node"></plait-mindmap-node>',
+    template: '<plait-mindmap-node *ngFor="let childNode of node?.children" [roughSVG]="roughSVG" [rootSVG]="rootSVG" [node]="childNode" [parent]="node" [selection]="selection"></plait-mindmap-node>',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MindmapNodeComponent implements OnInit {
-    selected = false;
-
+export class MindmapNodeComponent implements OnInit, OnChanges {
     @Input() node?: MindmapNode;
 
     @Input() parent?: MindmapNode;
@@ -21,6 +21,8 @@ export class MindmapNodeComponent implements OnInit {
     @Input() rootSVG?: SVGSVGElement;
 
     @Input() roughSVG?: RoughSVG;
+
+    @Input() selection?: Selection;
 
     selectedMarks: SVGGElement[] = [];
 
@@ -52,8 +54,16 @@ export class MindmapNodeComponent implements OnInit {
         }
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        const selection = changes['selection'];
+        if (selection) {
+            this.updateSelectedState();
+        }
+    }
+
     updateSelectedState() {
-        if (this.selected && this.selectedMarks.length === 0) {
+        const selected = HAS_SELECTED_MINDMAP_NODE.get(this.node as MindmapNode);
+        if (selected && this.selectedMarks.length === 0) {
             const { x, y, width, height } = getRectangleByNode(this.node as MindmapNode);
             const selectedStrokeG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: primaryColor, strokeWidth: 2, fill: '' });
             const selectedG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: primaryColor, fill: primaryColor, fillStyle: 'solid' });
@@ -61,7 +71,7 @@ export class MindmapNodeComponent implements OnInit {
             this.container.appendChild(selectedG);
             this.container.appendChild(selectedStrokeG);
             this.selectedMarks.push(selectedG, selectedStrokeG);
-        } else if (!this.selected && this.selectedMarks.length > 0) {
+        } else if (!selected && this.selectedMarks.length > 0) {
             this.selectedMarks.forEach((g) => g.remove());
             this.selectedMarks = [];
         }
