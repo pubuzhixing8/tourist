@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, Input, OnChanges, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ComponentRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { drawNode, getRectangleByNode } from "../../draw/node";
 import { RoughSVG } from "roughjs/bin/svg";
 import { MindmapNode } from "../../interfaces/node";
@@ -7,13 +7,16 @@ import { drawRoundRectangle } from "../../utils/graph";
 import { primaryColor } from "../../constants";
 import { HAS_SELECTED_MINDMAP_NODE } from "../../utils/weak-maps";
 import { Selection } from 'plait/interfaces/selection';
+import { PlaitRichtextComponent } from "richtext";
 
 @Component({
     selector: 'plait-mindmap-node',
     template: '<plait-mindmap-node *ngFor="let childNode of node?.children" [roughSVG]="roughSVG" [rootSVG]="rootSVG" [node]="childNode" [parent]="node" [selection]="selection"></plait-mindmap-node>',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MindmapNodeComponent implements OnInit, OnChanges {
+export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
+    initialized = false;
+
     @Input() node?: MindmapNode;
 
     @Input() parent?: MindmapNode;
@@ -32,6 +35,8 @@ export class MindmapNodeComponent implements OnInit, OnChanges {
 
     richtextG?: SVGGElement;
 
+    richtextComponentRef?: ComponentRef<PlaitRichtextComponent>;
+
     get container(): SVGSVGElement {
         if (!this.rootSVG) {
             throw new Error('undefined svg container');
@@ -44,6 +49,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges {
     ngOnInit(): void {
         // 画矩形、渲染富文本
         const { nodeG, richTextG, richtextComponentRef } = drawNode(this.roughSVG as RoughSVG, this.node as MindmapNode, this.componentFactoryResolver, this.viewContainerRef, 1);
+        this.richtextComponentRef = richtextComponentRef;
         this.container.appendChild(nodeG);
         this.container.appendChild(richTextG);
         this.nodeG = nodeG;
@@ -52,12 +58,20 @@ export class MindmapNodeComponent implements OnInit, OnChanges {
             this.container.prepend(lineG);
             this.lineG = lineG;
         }
+        this.initialized = true;
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         const selection = changes['selection'];
         if (selection) {
             this.updateSelectedState();
+        }
+        if (this.initialized) {
+            const node = changes['node'];
+            if (node) {
+                this.ngOnDestroy();
+                this.ngOnInit();
+            }
         }
     }
 
@@ -74,6 +88,24 @@ export class MindmapNodeComponent implements OnInit, OnChanges {
         } else if (!selected && this.selectedMarks.length > 0) {
             this.selectedMarks.forEach((g) => g.remove());
             this.selectedMarks = [];
+        }
+    }
+
+    ngOnDestroy(): void {
+        if (this.richtextG) {
+            this.richtextG.remove();
+        }
+        if (this.lineG) {
+            this.lineG.remove();
+        }
+        if (this.nodeG) {
+            this.nodeG.remove();
+        }
+        if (this.selectedMarks.length > 0) {
+            this.selectedMarks.forEach((mark) => mark.remove());
+        }
+        if (this.richtextComponentRef) {
+            this.richtextComponentRef.destroy();
         }
     }
 }

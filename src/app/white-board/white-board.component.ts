@@ -5,7 +5,7 @@ import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import { isHotkey } from 'is-hotkey';
-import Hotkeys from '../utils/hotkeys';
+import Hotkeys from '../../../projects/plait/src/utils/hotkeys';
 import { createPaper, Paper, Viewport, setViewport, setSelection } from '../interfaces/paper';
 import { Element } from '../interfaces/element';
 import { Attributes, EdgeMode } from '../interfaces/attributes';

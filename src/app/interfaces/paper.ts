@@ -2,7 +2,7 @@ import { Element } from './element';
 import { AddOperation, Operation, RemoveOperation, SetElementOperation, SetViewportOperation, SetSelectionOperation } from './operation';
 import { PointerType } from './pointer';
 import { Selection } from './selection';
-import Hotkeys from '../utils/hotkeys';
+import Hotkeys from '../../../projects/plait/src/utils/hotkeys';
 
 export interface Paper {
     container: SVGElement | null;

@@ -1,15 +1,15 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ElementRef, Input, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { mousePointToRelativePoint } from 'plait/utils/dom';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
 import { PEM } from './constants';
 import { getRectangleByNode } from './draw/node';
-import { MindmapElement } from './interfaces/element';
+import { addMindmapElement, MindmapElement, removeMindmapElement } from './interfaces/element';
 import { MindmapNode } from './interfaces/node';
 import { HAS_SELECTED_MINDMAP_NODE } from './utils/weak-maps';
 import { Selection } from 'plait/interfaces/selection';
+import hotkeys from 'plait/utils/hotkeys';
 
 declare const require: any;
 
@@ -29,6 +29,9 @@ export class PlaitMindmapComponent implements OnInit {
 
   root: MindmapNode | undefined;
 
+  MindmapLayouts = require('mindmap-layouts');
+
+
   @ViewChild('svg', { static: true })
   svg: ElementRef | undefined;
 
@@ -47,11 +50,10 @@ export class PlaitMindmapComponent implements OnInit {
 
   ngOnInit(): void {
     this.roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
-    const MindmapLayouts = require('mindmap-layouts');
     if (this.value) {
       this.value.isRoot = true;
       const options = this.getOptions();
-      const layout = new MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
+      const layout = new this.MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
       this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
     }
     fromEvent<MouseEvent>(this.container, 'click').subscribe((event: MouseEvent) => {
@@ -67,6 +69,25 @@ export class PlaitMindmapComponent implements OnInit {
         }
       });
     })
+    fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        (this.root as any).eachNode((node: MindmapNode) => {
+          if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
+            addMindmapElement(this.value as MindmapElement, node.data);
+            this.updateMindmap();
+          }
+        });
+      }
+      if (hotkeys.isDeleteBackward(event)) {
+        (this.root as any).eachNode((node: MindmapNode) => {
+          if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
+            removeMindmapElement(this.value as MindmapElement, node.data);
+            this.updateMindmap();
+          }
+        });
+      }
+    });
   }
 
   getOptions() {
@@ -96,5 +117,16 @@ export class PlaitMindmapComponent implements OnInit {
         return Math.round(PEM)
       }
     };
+  }
+
+  updateMindmap() {
+    if (!this.value) {
+      throw new Error('');
+    }
+    this.value.isRoot = true;
+    const options = this.getOptions();
+    const layout = new this.MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
+    this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
+    this.cdr.markForCheck();
   }
 }
