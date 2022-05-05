@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MindmapElement } from 'mindmap/interfaces/element';
 
+export const LOCALSTORAGE_DATA_KEY = 'mindmap-data';
+
 @Component({
     selector: 'mindmap-page',
     templateUrl: './mindmap-page.component.html'
@@ -8,10 +10,19 @@ import { MindmapElement } from 'mindmap/interfaces/element';
 export class MindmapPageComponent implements OnInit {
 
     mindmapData = mindmapData;
-    ngOnInit(): void {
 
+    ngOnInit(): void {
+        // 加载本地存储数据
+        const nodes = localStorage.getItem(LOCALSTORAGE_DATA_KEY);
+        if (nodes) {
+            this.mindmapData = JSON.parse(nodes);
+        }
     }
 
+    valueChange(value: MindmapElement) {
+        console.log('value', value);
+        localStorage.setItem(LOCALSTORAGE_DATA_KEY, JSON.stringify(value));
+    }
 }
 
 const mindmapData: MindmapElement = {
