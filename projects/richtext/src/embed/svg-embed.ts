@@ -1,11 +1,7 @@
 import { ComponentFactoryResolver, ComponentRef, ViewContainerRef } from '@angular/core';
+import { createG, NS } from 'plait/utils/dom';
 import { PlaitRichtextComponent } from 'richtext';
-import { Editor, Element as SlateElement } from 'slate';
-import { take } from 'rxjs/operators';
-import { Point } from 'roughjs/bin/geometry';
-
-const NS = 'http://www.w3.org/2000/svg';
-
+import { Element as SlateElement } from 'slate';
 
 export function createForeignObject(x: number, y: number, width: number, height: number) {
     var newForeignObject = document.createElementNS(NS, "foreignObject");
@@ -16,63 +12,14 @@ export function createForeignObject(x: number, y: number, width: number, height:
     return newForeignObject;
 }
 
-export function updateForeignObject(g: SVGGElement, width: number, height: number) {
+export function updateForeignObject(g: SVGGElement, width: number, height: number, x: number, y: number,) {
     const foreignObject = g.querySelector('foreignObject');
     if (foreignObject) {
         foreignObject.setAttribute("width", `${width}`);
         foreignObject.setAttribute("height", `${height}`);
+        foreignObject.setAttribute("x", `${x}`);
+        foreignObject.setAttribute("y", `${y}`);
     }
-}
-
-// export function startEditRichtext(paper: Paper, element: Element, g: SVGGElement) {
-//     const maxSize = 2000;
-//     IS_TEXT_EDITABLE.set(paper, true);
-//     updateForeignObject(g, maxSize, maxSize);
-//     const richTextRef = HOSTSVGG_TO_RICHTEXT_REF.get(g);
-//     if (richTextRef) {
-//         if (richTextRef.instance.readonly) {
-//             richTextRef.instance.readonly = false;
-//             richTextRef.changeDetectorRef.markForCheck();
-//             setTimeout(() => {
-//                 setFullSelectionAndFocus(richTextRef.instance.editor);
-//             }, 0);
-//         }
-//         let richtext = element.richtext;
-//         const valueChange$ = richTextRef.instance.onChange.subscribe((event) => {
-//             richtext = event.value;
-//         });
-//         richTextRef.instance.blur.pipe(take(1)).subscribe(() => {
-//             richTextRef.instance.readonly = true;
-//             richTextRef.changeDetectorRef.markForCheck();
-//             endEditRichtext(paper, g);
-
-//             // 空内容是移除富文本
-//             if (richtext && Editor.isEmpty(richTextRef.instance.editor, richtext)) {
-//                 removeElement(paper, element);
-//             }
-//             // 更新富文本内容
-//             if (richtext !== element.richtext) {
-//                 // 更新富文本、更新宽高
-//                 const { width, height } = richTextRef.instance.editable.getBoundingClientRect();
-//                 const newEnd: Point = [element.points[0][0] + width, element.points[0][1] + height];
-//                 setElement(paper, element, { richtext, points: [element.points[0], newEnd] });
-//             }
-//             // 取消订阅内容变化
-//             valueChange$.unsubscribe();
-//         });
-//     }
-// }
-
-// export function endEditRichtext(paper: Paper, g: SVGGElement) {
-//     const foreignObject = g.querySelector<HTMLElement>('plait-richtext') as HTMLElement;
-//     const { width, height } = foreignObject.getBoundingClientRect();
-//     IS_TEXT_EDITABLE.set(paper, false);
-//     updateForeignObject(g, width, height);
-// }
-
-export function createG() {
-    const newG = document.createElementNS(NS, "g");
-    return newG;
 }
 
 export function createRichtext(element: SlateElement, componentFactoryResolver: ComponentFactoryResolver, viewContainerRef: ViewContainerRef, edit: boolean) {

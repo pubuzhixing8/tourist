@@ -1,15 +1,15 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { mousePointToRelativePoint } from 'plait/utils/dom';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
-import { fromEvent } from 'rxjs';
-import { PEM } from './constants';
-import { getRectangleByNode } from './draw/node';
-import { addMindmapElement, MindmapElement, removeMindmapElement } from './interfaces/element';
+import { fromEvent, timer } from 'rxjs';
+import { nodeGroup, PEM } from './constants';
+import { addMindmapElement, addMindmapElementAfter, MindmapElement, removeMindmapElement, updateMindmapElement } from './interfaces/element';
 import { MindmapNode } from './interfaces/node';
-import { HAS_SELECTED_MINDMAP_NODE } from './utils/weak-maps';
+import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT } from './utils/weak-maps';
 import { Selection } from 'plait/interfaces/selection';
 import hotkeys from 'plait/utils/hotkeys';
+import { getRectangleByNode, hitMindmapNode } from './utils/graph';
 
 declare const require: any;
 
@@ -46,6 +46,8 @@ export class PlaitMindmapComponent implements OnInit {
 
   @Input() selection?: Selection;
 
+  @Output() valueChange: EventEmitter<MindmapElement> = new EventEmitter();
+
   constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
@@ -58,17 +60,33 @@ export class PlaitMindmapComponent implements OnInit {
     }
     fromEvent<MouseEvent>(this.container, 'click').subscribe((event: MouseEvent) => {
       const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
-      this.selection = { anchor: point, focus: point };
-      this.cdr.markForCheck();
-      (this.root as any).eachNode((node: MindmapNode) => {
-        const { x, y, width, height } = getRectangleByNode(node);
-        if (point[0] >= x && point[0] <= x + width && point[1] >= y && point[1] <= y + height) {
-          HAS_SELECTED_MINDMAP_NODE.set(node, true);
-        } else {
-          HAS_SELECTED_MINDMAP_NODE.delete(node);
-        }
-      });
+      timer(500).subscribe(() => {
+        this.selection = { anchor: point, focus: point };
+        this.cdr.markForCheck();
+        (this.root as any).eachNode((node: MindmapNode) => {
+          if (hitMindmapNode(point, node)) {
+            HAS_SELECTED_MINDMAP_NODE.set(node, true);
+          } else {
+            HAS_SELECTED_MINDMAP_NODE.delete(node);
+          }
+        });
+      })
     })
+    fromEvent<MouseEvent>(this.container, 'dblclick').subscribe((event: MouseEvent) => {
+      if (event.target instanceof HTMLElement) {
+        const mindmapNodeGroup = event.target.closest(`.${nodeGroup}`);
+        if (mindmapNodeGroup) {
+          const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
+          const nodeComponent = ELEMENT_GROUP_TO_COMPONENT.get(mindmapNodeGroup as SVGGElement);
+          if (nodeComponent && hitMindmapNode(point, nodeComponent.node as MindmapNode)) {
+            nodeComponent.startEditText((node) => {
+              updateMindmapElement(this.value as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
+              this.updateMindmap();
+            });
+          }
+        }
+      }
+    });
     fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event: KeyboardEvent) => {
       if (event.key === 'Tab') {
         event.preventDefault();
@@ -83,6 +101,14 @@ export class PlaitMindmapComponent implements OnInit {
         (this.root as any).eachNode((node: MindmapNode) => {
           if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
             removeMindmapElement(this.value as MindmapElement, node.data);
+            this.updateMindmap();
+          }
+        });
+      }
+      if (event.key === 'Enter') {
+        (this.root as any).eachNode((node: MindmapNode) => {
+          if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
+            addMindmapElementAfter(this.value as MindmapElement, node.data);
             this.updateMindmap();
           }
         });
@@ -128,5 +154,6 @@ export class PlaitMindmapComponent implements OnInit {
     const layout = new this.MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
     this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
     this.cdr.markForCheck();
+    this.valueChange.emit(this.value);
   }
 }
