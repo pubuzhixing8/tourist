@@ -8,7 +8,7 @@ import { nodeGroup, primaryColor } from "../../constants";
 import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT } from "../../utils/weak-maps";
 import { Selection } from 'plait/interfaces/selection';
 import { PlaitRichtextComponent, setFullSelectionAndFocus } from "richtext";
-import { take } from "rxjs/operators";
+import { debounceTime, delay, take } from "rxjs/operators";
 import { drawMindmapNodeRichtext, updateMindmapNodeRichtextLocation } from "../../draw/richtext";
 import { createG } from "plait/utils/dom";
 import { MindmapElement } from "../../interfaces/element";
@@ -20,6 +20,8 @@ import { MindmapElement } from "../../interfaces/element";
 })
 export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     initialized = false;
+
+    isEditable = false;
 
     @Input() node?: MindmapNode;
 
@@ -103,6 +105,8 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             if (this.richtextComponentRef?.instance.readonly === true) {
                 const selectedBackgroundG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: primaryColor, fill: primaryColor, fillStyle: 'solid' });
                 selectedBackgroundG.style.opacity = '0.4';
+                // 影响双击事件
+                selectedBackgroundG.style.pointerEvents = 'none';
                 this.container.appendChild(selectedBackgroundG);
                 this.selectedMarks.push(selectedBackgroundG, selectedStrokeG);
             }
@@ -131,7 +135,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateRichtextLocation() {
-        updateMindmapNodeRichtextLocation(this.node as MindmapNode, this.richtextG as SVGGElement);
+        updateMindmapNodeRichtextLocation(this.node as MindmapNode, this.richtextG as SVGGElement, this.isEditable);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -142,6 +146,9 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         if (this.initialized) {
             const node = changes['node'];
             if (node) {
+                if (this.isEditable) {
+                    console.log(this.node);
+                }
                 this.drawNode();
                 this.drawLine();
                 this.updateRichtextLocation();
@@ -150,7 +157,8 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    startEditText(setElement: (element: MindmapElement) => void) {
+    startEditText(setElement: (element: MindmapElement) => void, endCallback: () => void) {
+        this.isEditable = true;
         if (!this.richtextComponentRef) {
             throw new Error('undefined richtextComponentRef');
         }
@@ -164,19 +172,29 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             }, 0);
         }
         let richtext = richtextInstance.value;
-        const valueChange$ = richtextInstance.onChange.subscribe((event) => {
+        // 增加 debounceTime 等待 DOM 渲染完成后再去取文本宽高
+        const valueChange$ = richtextInstance.onChange.pipe(debounceTime(10)).subscribe((event) => {
             richtext = event.value;
             // 更新富文本、更新宽高
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
-            const newElement = { ...this.node?.data, value: richtext, width: width, height } as MindmapElement;
+            const newElement = { ...this.node?.data, value: richtext, width, height } as MindmapElement;
+            setElement(newElement);
+        });
+        // 增加 debounceTime 等待 DOM 渲染完成后再去取文本宽高
+        const composition$ = richtextInstance.composition.subscribe((event) => {
+            const { width, height } = richtextInstance.editable.getBoundingClientRect();
+            const newElement = { ...this.node?.data, width, height } as MindmapElement;
             setElement(newElement);
         });
         richtextInstance.blur.pipe(take(1)).subscribe(() => {
             richtextInstance.readonly = true;
             this.richtextComponentRef?.changeDetectorRef.markForCheck();
-            // 取消订阅内容变化
-            valueChange$.unsubscribe();
             this.endEditText();
+            endCallback();
+            this.isEditable = false;
+            // 取消订阅
+            valueChange$.unsubscribe();
+            composition$.unsubscribe();
         });
     }
 
