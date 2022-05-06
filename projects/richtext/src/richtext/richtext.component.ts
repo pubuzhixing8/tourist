@@ -6,6 +6,7 @@ import { RichtextEditor, toSlateRange } from '../plugins/richtext-editor';
 import { getDefaultView } from '../utils/dom';
 import { EDITOR_TO_ELEMENT, EDITOR_TO_ON_CHANGE, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, IS_FOCUSED, IS_NATIVE_INPUT } from '../utils/weak-maps';
 import { withMarks } from '../plugins/with-marks';
+import { PlaitCompositionEvent } from '../interface/composition';
 
 const NATIVE_INPUT_TYPES = ['insertText'];
 
@@ -40,6 +41,9 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
 
   @Output()
   focus: EventEmitter<FocusEvent> = new EventEmitter();
+
+  @Output()
+  composition: EventEmitter<PlaitCompositionEvent> = new EventEmitter();
 
   editor = withMarks(withRichtext(createEditor()));
 
@@ -241,14 +245,17 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
 
   private compositionStart(event: CompositionEvent) {
     this.isComposing = true;
+    this.composition.emit({ originEvent: event, isComposing: this.isComposing });
   }
 
   private compositionUpdate(event: CompositionEvent) {
     this.isComposing = true;
+    this.composition.emit({ originEvent: event, isComposing: this.isComposing });
   }
 
   private compositionEnd(event: CompositionEvent) {
-    this.isComposing = false;
+    this.isComposing = true;
+    this.composition.emit({ originEvent: event, isComposing: this.isComposing });
     preventDefaultIME(event, this.editor);
     Editor.insertText(this.editor, event.data);
   }
