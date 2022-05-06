@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MindmapElement } from 'mindmap/interfaces/element';
+import { PlaitMindmap } from 'mindmap/interfaces/mindmap';
 
 export const LOCALSTORAGE_DATA_KEY = 'mindmap-data';
 
@@ -9,7 +10,7 @@ export const LOCALSTORAGE_DATA_KEY = 'mindmap-data';
 })
 export class MindmapPageComponent implements OnInit {
 
-    mindmapData = mindmapData;
+    mindmapData = { root: mindmapData };
 
     ngOnInit(): void {
         // 加载本地存储数据
@@ -19,7 +20,7 @@ export class MindmapPageComponent implements OnInit {
         }
     }
 
-    valueChange(value: MindmapElement) {
+    valueChange(value: PlaitMindmap) {
         console.log('value', value);
         localStorage.setItem(LOCALSTORAGE_DATA_KEY, JSON.stringify(value));
     }

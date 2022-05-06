@@ -2,14 +2,16 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Even
 import { mousePointToRelativePoint } from 'plait/utils/dom';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
-import { fromEvent, timer } from 'rxjs';
+import { fromEvent } from 'rxjs';
 import { nodeGroup, PEM } from './constants';
 import { addMindmapElement, addMindmapElementAfter, MindmapElement, removeMindmapElement, updateMindmapElement } from './interfaces/element';
 import { MindmapNode } from './interfaces/node';
 import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT } from './utils/weak-maps';
 import { Selection } from 'plait/interfaces/selection';
 import hotkeys from 'plait/utils/hotkeys';
-import { getRectangleByNode, hitMindmapNode } from './utils/graph';
+import { hitMindmapNode } from './utils/graph';
+import { PlaitMindmap } from './interfaces/mindmap';
+import { IS_TEXT_EDITABLE } from 'plait/utils/weak-maps';
 
 declare const require: any;
 
@@ -42,35 +44,36 @@ export class PlaitMindmapComponent implements OnInit {
     return this.svg.nativeElement;
   }
 
-  @Input() value?: MindmapElement;
+  @Input() value?: PlaitMindmap;
 
   @Input() selection?: Selection;
 
-  @Output() valueChange: EventEmitter<MindmapElement> = new EventEmitter();
+  @Output() valueChange: EventEmitter<PlaitMindmap> = new EventEmitter();
 
   constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.roughSVG = rough.svg(this.container, { options: { roughness: 0, strokeWidth: 1 } });
     if (this.value) {
-      this.value.isRoot = true;
+      this.value.root.isRoot = true;
       const options = this.getOptions();
-      const layout = new this.MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
+      const layout = new this.MindmapLayouts.RightLogical(this.value.root, options) // root is tree node like above
       this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
     }
     fromEvent<MouseEvent>(this.container, 'click').subscribe((event: MouseEvent) => {
+      if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
+        return;
+      }
       const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
-      timer(500).subscribe(() => {
-        this.selection = { anchor: point, focus: point };
-        this.cdr.markForCheck();
-        (this.root as any).eachNode((node: MindmapNode) => {
-          if (hitMindmapNode(point, node)) {
-            HAS_SELECTED_MINDMAP_NODE.set(node, true);
-          } else {
-            HAS_SELECTED_MINDMAP_NODE.delete(node);
-          }
-        });
-      })
+      this.selection = { anchor: point, focus: point };
+      this.cdr.markForCheck();
+      (this.root as any).eachNode((node: MindmapNode) => {
+        if (hitMindmapNode(point, node)) {
+          HAS_SELECTED_MINDMAP_NODE.set(node, true);
+        } else {
+          HAS_SELECTED_MINDMAP_NODE.delete(node);
+        }
+      });
     })
     fromEvent<MouseEvent>(this.container, 'dblclick').subscribe((event: MouseEvent) => {
       if (event.target instanceof HTMLElement) {
@@ -80,19 +83,25 @@ export class PlaitMindmapComponent implements OnInit {
           const nodeComponent = ELEMENT_GROUP_TO_COMPONENT.get(mindmapNodeGroup as SVGGElement);
           if (nodeComponent && hitMindmapNode(point, nodeComponent.node as MindmapNode)) {
             nodeComponent.startEditText((node) => {
-              updateMindmapElement(this.value as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
+              updateMindmapElement(this.value?.root as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
               this.updateMindmap();
+              IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, true);
+            }, () => {
+              IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, false);
             });
           }
         }
       }
     });
     fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event: KeyboardEvent) => {
+      if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
+        return;
+      }
       if (event.key === 'Tab') {
         event.preventDefault();
         (this.root as any).eachNode((node: MindmapNode) => {
           if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
-            addMindmapElement(this.value as MindmapElement, node.data);
+            addMindmapElement(this.value?.root as MindmapElement, node.data);
             this.updateMindmap();
           }
         });
@@ -100,7 +109,7 @@ export class PlaitMindmapComponent implements OnInit {
       if (hotkeys.isDeleteBackward(event)) {
         (this.root as any).eachNode((node: MindmapNode) => {
           if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
-            removeMindmapElement(this.value as MindmapElement, node.data);
+            removeMindmapElement(this.value?.root as MindmapElement, node.data);
             this.updateMindmap();
           }
         });
@@ -108,7 +117,7 @@ export class PlaitMindmapComponent implements OnInit {
       if (event.key === 'Enter') {
         (this.root as any).eachNode((node: MindmapNode) => {
           if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
-            addMindmapElementAfter(this.value as MindmapElement, node.data);
+            addMindmapElementAfter(this.value?.root as MindmapElement, node.data);
             this.updateMindmap();
           }
         });
@@ -149,11 +158,11 @@ export class PlaitMindmapComponent implements OnInit {
     if (!this.value) {
       throw new Error('');
     }
-    this.value.isRoot = true;
+    this.value.root.isRoot = true;
     const options = this.getOptions();
-    const layout = new this.MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
+    const layout = new this.MindmapLayouts.RightLogical(this.value.root, options) // root is tree node like above
     this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
     this.valueChange.emit(this.value);
   }
 }
