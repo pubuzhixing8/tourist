@@ -4,11 +4,11 @@ import { RoughSVG } from "roughjs/bin/svg";
 import { MindmapNode } from "../../interfaces/node";
 import { drawLine } from "../../draw/line";
 import { drawRoundRectangle, getRectangleByNode } from "../../utils/graph";
-import { nodeGroup, primaryColor } from "../../constants";
-import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT } from "../../utils/weak-maps";
+import { MINDMAP_NODE_GROUP_KEY, primaryColor } from "../../constants";
+import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from "../../utils/weak-maps";
 import { Selection } from 'plait/interfaces/selection';
 import { PlaitRichtextComponent, setFullSelectionAndFocus } from "richtext";
-import { debounceTime, delay, take } from "rxjs/operators";
+import { debounceTime, take } from "rxjs/operators";
 import { drawMindmapNodeRichtext, updateMindmapNodeRichtextLocation } from "../../draw/richtext";
 import { createG } from "plait/utils/dom";
 import { MindmapElement } from "../../interfaces/element";
@@ -51,16 +51,17 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver, private viewContainerRef: ViewContainerRef) {
         this.gGroup = createG()
-        this.gGroup.classList.add(nodeGroup);
+        this.gGroup.setAttribute(MINDMAP_NODE_GROUP_KEY, 'true');
     }
 
     ngOnInit(): void {
-        this.rootSVG?.append(this.gGroup);
+        this.rootSVG?.prepend(this.gGroup);
         this.drawNode();
         this.drawLine();
         this.drawRichtext();
         this.initialized = true;
         ELEMENT_GROUP_TO_COMPONENT.set(this.container, this);
+        MINDMAP_NODE_TO_COMPONENT.set(this.node as MindmapNode, this);
     }
 
     drawNode() {
@@ -146,13 +147,11 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         if (this.initialized) {
             const node = changes['node'];
             if (node) {
-                if (this.isEditable) {
-                    console.log(this.node);
-                }
                 this.drawNode();
                 this.drawLine();
                 this.updateRichtextLocation();
                 this.drawSelectedState();
+                MINDMAP_NODE_TO_COMPONENT.set(this.node as MindmapNode, this);
             }
         }
     }
@@ -210,5 +209,6 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         this.destroyRichtext();
         this.container.remove();
         ELEMENT_GROUP_TO_COMPONENT.delete(this.container);
+        MINDMAP_NODE_TO_COMPONENT.delete(this.node as MindmapNode);
     }
 }

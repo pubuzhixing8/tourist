@@ -1,4 +1,3 @@
-// import { Point, pointsOnBezierCurves } from "points-on-curve";
 import { pointsOnBezierCurves } from "points-on-curve";
 import { Point } from "roughjs/bin/geometry";
 import { RoughSVG } from "roughjs/bin/svg";
@@ -33,10 +32,6 @@ export function drawLine(roughSVG: RoughSVG, node: MindmapNode, child: MindmapNo
         endX = Math.round(endNode.x + endNode.width / 2)
         endY = Math.round(endNode.y + endNode.height / 2)
     }
-    // console.log(`(${beginX}, ${beginY}), (${endX}, ${endY})`)
-    // ctx.strokeStyle = lineColor
-    // ctx.beginPath()
-    // ctx.moveTo(beginX / scale, beginY / scale)
     if (isHorizontal) {
         const curve: Point[] = [
             [beginX / scale, beginY / scale],
@@ -55,10 +50,5 @@ export function drawLine(roughSVG: RoughSVG, node: MindmapNode, child: MindmapNo
         ];
         const points = pointsOnBezierCurves(curve);
         return roughSVG.curve(points as any, { stroke: '#e67700' });
-        // ctx.bezierCurveTo(
-        //     beginX / scale, Math.round(beginY + (beginNode.vgap + endNode.vgap) / 2) / scale,
-        //     endX / scale, Math.round(endY - (beginNode.vgap + endNode.vgap) / 2) / scale,
-        //     endX / scale, endY / scale
-        // )
     }
 }

@@ -3,10 +3,10 @@ import { mousePointToRelativePoint } from 'plait/utils/dom';
 import rough from 'roughjs/bin/rough';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { fromEvent } from 'rxjs';
-import { nodeGroup, PEM } from './constants';
+import { PEM } from './constants';
 import { addMindmapElement, addMindmapElementAfter, MindmapElement, removeMindmapElement, updateMindmapElement } from './interfaces/element';
 import { MindmapNode } from './interfaces/node';
-import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT } from './utils/weak-maps';
+import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from './utils/weak-maps';
 import { Selection } from 'plait/interfaces/selection';
 import hotkeys from 'plait/utils/hotkeys';
 import { hitMindmapNode } from './utils/graph';
@@ -75,24 +75,28 @@ export class PlaitMindmapComponent implements OnInit {
         }
       });
     })
+
     fromEvent<MouseEvent>(this.container, 'dblclick').subscribe((event: MouseEvent) => {
       if (event.target instanceof HTMLElement) {
-        const mindmapNodeGroup = event.target.closest(`.${nodeGroup}`);
-        if (mindmapNodeGroup) {
-          const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
-          const nodeComponent = ELEMENT_GROUP_TO_COMPONENT.get(mindmapNodeGroup as SVGGElement);
-          if (nodeComponent && hitMindmapNode(point, nodeComponent.node as MindmapNode)) {
-            nodeComponent.startEditText((node) => {
-              updateMindmapElement(this.value?.root as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
-              this.updateMindmap();
-              IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, true);
-            }, () => {
-              IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, false);
-            });
+        const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
+        (this.root as any).eachNode((node: MindmapNode) => {
+          if (hitMindmapNode(point, node)) {
+            const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
+            if (nodeComponent) {
+              nodeComponent.startEditText((node) => {
+                updateMindmapElement(this.value?.root as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
+                this.updateMindmap();
+                IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, true);
+              }, () => {
+                IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, false);
+              });
+            }
+            return;
           }
-        }
+        });
       }
     });
+
     fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event: KeyboardEvent) => {
       if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
         return;
