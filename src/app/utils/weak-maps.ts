@@ -15,6 +15,3 @@ export const HOSTSVGG_TO_RICHTEXT_REF = new WeakMap<SVGGElement, ComponentRef<Pl
 export const PAPER_TO_ROUGHSVG = new WeakMap<Paper, RoughSVG>();
 
 export const PAPER_TO_ATTRIBUTES = new WeakMap<Paper, ()=> Attributes>();
-
-// record richtext type status
-export const IS_TEXT_EDITABLE = new WeakMap<Paper, boolean>();

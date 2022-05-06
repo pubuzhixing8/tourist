@@ -3,10 +3,11 @@ import { PlaitRichtextComponent } from 'richtext';
 import { Element } from '../interfaces/element';
 import { Editor, Element as SlateElement } from 'slate';
 import { Paper, removeElement, setElement } from '../interfaces/paper';
-import { HOSTSVGG_TO_RICHTEXT_REF, IS_TEXT_EDITABLE } from './weak-maps';
+import { HOSTSVGG_TO_RICHTEXT_REF } from './weak-maps';
 import { take } from 'rxjs/operators';
 import { setFullSelectionAndFocus } from './richtext';
 import { Point } from 'roughjs/bin/geometry';
+import { IS_TEXT_EDITABLE } from 'plait/utils/weak-maps';
 
 const NS = 'http://www.w3.org/2000/svg';
 
