@@ -65,6 +65,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     drawNode() {
+        // console.log('drawNode');
         this.destroyNode();
         this.nodeG = drawNode(this.roughSVG as RoughSVG, this.node as MindmapNode);
         this.container.prepend(this.nodeG);
@@ -96,6 +97,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     drawSelectedState() {
+        // console.log('drawSelectedState');
         this.destroySelectedState();
         const selected = HAS_SELECTED_MINDMAP_NODE.get(this.node as MindmapNode);
         if (selected || this.isEditable) {
@@ -136,7 +138,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateRichtextLocation() {
-        updateMindmapNodeRichtextLocation(this.node as MindmapNode, this.richtextG as SVGGElement, this.isEditable);
+        updateMindmapNodeRichtextLocation(this.node as MindmapNode, this.richtextG as SVGGElement);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -166,13 +168,16 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             richtextInstance.readonly = false;
             this.richtextComponentRef.changeDetectorRef.markForCheck();
             setTimeout(() => {
+                this.drawSelectedState();
                 setFullSelectionAndFocus(richtextInstance.editor);
-                updateMindmapNodeRichtextLocation(this.node as MindmapNode, this.richtextG as SVGGElement, true);
             }, 0);
         }
         let richtext = richtextInstance.value;
         // 增加 debounceTime 等待 DOM 渲染完成后再去取文本宽高
         const valueChange$ = richtextInstance.onChange.pipe(debounceTime(10)).subscribe((event) => {
+            if (richtext === event.value) {
+                return;
+            }
             richtext = event.value;
             // 更新富文本、更新宽高
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
@@ -198,7 +203,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     endEditText() {
-        this.drawSelectedState();
+        this.destroySelectedState();
     }
 
     trackBy = (index: number, node: MindmapNode) => {

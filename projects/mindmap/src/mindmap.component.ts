@@ -80,16 +80,19 @@ export class PlaitMindmapComponent implements OnInit {
     })
 
     fromEvent<MouseEvent>(this.container, 'dblclick').subscribe((event: MouseEvent) => {
+      if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
+        return;
+      }
       if (event.target instanceof HTMLElement) {
         const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
         (this.root as any).eachNode((node: MindmapNode) => {
           if (hitMindmapNode(point, node)) {
             const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
             if (nodeComponent) {
+              IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, true);
               nodeComponent.startEditText((node) => {
                 updateMindmapElement(this.value?.root as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
                 this.updateMindmap();
-                IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, true);
               }, () => {
                 IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, false);
               });
