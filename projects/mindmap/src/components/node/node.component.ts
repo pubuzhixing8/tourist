@@ -98,14 +98,14 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     drawSelectedState() {
         this.destroySelectedState();
         const selected = HAS_SELECTED_MINDMAP_NODE.get(this.node as MindmapNode);
-        if (selected) {
+        if (selected || this.isEditable) {
             const { x, y, width, height } = getRectangleByNode(this.node as MindmapNode);
             const selectedStrokeG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: primaryColor, strokeWidth: 2, fill: '' });
             this.container.appendChild(selectedStrokeG);
             this.selectedMarks.push(selectedStrokeG);
             if (this.richtextComponentRef?.instance.readonly === true) {
                 const selectedBackgroundG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: primaryColor, fill: primaryColor, fillStyle: 'solid' });
-                selectedBackgroundG.style.opacity = '0.4';
+                selectedBackgroundG.style.opacity = '0.15';
                 // 影响双击事件
                 selectedBackgroundG.style.pointerEvents = 'none';
                 this.container.appendChild(selectedBackgroundG);

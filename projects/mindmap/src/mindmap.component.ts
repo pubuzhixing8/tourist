@@ -24,7 +24,10 @@ declare const require: any;
   `,
   styles: [
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    'class': 'plait-mindmap'
+  }
 })
 export class PlaitMindmapComponent implements OnInit {
   roughSVG: RoughSVG | undefined;
