@@ -254,7 +254,7 @@ export class PlaitRichtextComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   private compositionEnd(event: CompositionEvent) {
-    this.isComposing = true;
+    this.isComposing = false;
     this.composition.emit({ originEvent: event, isComposing: this.isComposing });
     preventDefaultIME(event, this.editor);
     Editor.insertText(this.editor, event.data);
