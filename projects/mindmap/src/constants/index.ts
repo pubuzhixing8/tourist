@@ -1,3 +1,4 @@
 export const PEM = 22;
-export const primaryColor = '#4e8afa';
+export const PRIMARY_COLOR = '#4e8afa';
 export const MINDMAP_NODE_GROUP_KEY = 'plait-group';
+export const MAX_RADIUS = 15;

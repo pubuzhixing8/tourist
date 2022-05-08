@@ -3,15 +3,16 @@ import { drawNode } from "../../draw/node";
 import { RoughSVG } from "roughjs/bin/svg";
 import { MindmapNode } from "../../interfaces/node";
 import { drawLine } from "../../draw/line";
-import { drawRoundRectangle, getRectangleByNode } from "../../utils/graph";
-import { MINDMAP_NODE_GROUP_KEY, primaryColor } from "../../constants";
+import { drawRoundRectangle, getRectangleByNode, hitMindmapNode } from "../../utils/graph";
+import { MINDMAP_NODE_GROUP_KEY, PRIMARY_COLOR } from "../../constants";
 import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from "../../utils/weak-maps";
 import { Selection } from 'plait/interfaces/selection';
 import { PlaitRichtextComponent, setFullSelectionAndFocus } from "richtext";
-import { debounceTime, take } from "rxjs/operators";
+import { debounceTime } from "rxjs/operators";
 import { drawMindmapNodeRichtext, updateMindmapNodeRichtextLocation } from "../../draw/richtext";
-import { createG } from "plait/utils/dom";
+import { createG, mousePointToRelativePoint } from "plait/utils/dom";
 import { MindmapElement } from "../../interfaces/element";
+import { fromEvent } from "rxjs";
 
 @Component({
     selector: 'plait-mindmap-node',
@@ -102,11 +103,11 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         const selected = HAS_SELECTED_MINDMAP_NODE.get(this.node as MindmapNode);
         if (selected || this.isEditable) {
             const { x, y, width, height } = getRectangleByNode(this.node as MindmapNode);
-            const selectedStrokeG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: primaryColor, strokeWidth: 2, fill: '' });
+            const selectedStrokeG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: PRIMARY_COLOR, strokeWidth: 2, fill: '' }, true);
             this.container.appendChild(selectedStrokeG);
             this.selectedMarks.push(selectedStrokeG);
             if (this.richtextComponentRef?.instance.readonly === true) {
-                const selectedBackgroundG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: primaryColor, fill: primaryColor, fillStyle: 'solid' });
+                const selectedBackgroundG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: PRIMARY_COLOR, fill: PRIMARY_COLOR, fillStyle: 'solid' }, true);
                 selectedBackgroundG.style.opacity = '0.15';
                 // 影响双击事件
                 selectedBackgroundG.style.pointerEvents = 'none';
@@ -158,7 +159,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    startEditText(setElement: (element: MindmapElement) => void, endCallback: () => void) {
+    startEditText(setElement: (element: MindmapElement) => void, exitCallback: () => void) {
         this.isEditable = true;
         if (!this.richtextComponentRef) {
             throw new Error('undefined richtextComponentRef');
@@ -190,20 +191,33 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             const newElement = { ...this.node?.data, width, height } as MindmapElement;
             setElement(newElement);
         });
-        richtextInstance.blur.pipe(take(1)).subscribe(() => {
-            richtextInstance.readonly = true;
-            this.richtextComponentRef?.changeDetectorRef.markForCheck();
-            this.endEditText();
-            endCallback();
-            this.isEditable = false;
-            // 取消订阅
+        const mousedown$ = fromEvent<MouseEvent>(document, 'mousedown').subscribe((event: MouseEvent) => {
+            const point = mousePointToRelativePoint(event.x, event.y, this.rootSVG as SVGElement);
+            if (!hitMindmapNode(point, this.node as MindmapNode)) {
+                event.preventDefault();
+                exitHandle();
+            }
+        });
+        const keydown$ = fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                exitHandle();
+                this.drawSelectedState();
+            }
+        });
+
+        const exitHandle = () => {
+            // unsubscribe
             valueChange$.unsubscribe();
             composition$.unsubscribe();
-        });
-    }
-
-    endEditText() {
-        this.destroySelectedState();
+            mousedown$.unsubscribe();
+            keydown$.unsubscribe();
+            // editable status
+            richtextInstance.readonly = true;
+            this.richtextComponentRef?.changeDetectorRef.markForCheck();
+            this.isEditable = false;
+            // callback
+            exitCallback();
+        }
     }
 
     trackBy = (index: number, node: MindmapNode) => {
