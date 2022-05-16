@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { PlaitBoardComponent } from './plait.component';
+import { PlaitBoardComponent } from './board/board.component';
 
 
 

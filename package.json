@@ -27,7 +27,8 @@
         "slate-history": "^0.66.0",
         "tslib": "^2.3.0",
         "zone.js": "~0.11.4",
-        "open-color": "1.9.1"
+        "open-color": "1.9.1",
+        "immer": "^9.0.6"
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "~12.2.9",
