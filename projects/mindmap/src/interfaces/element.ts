@@ -1,3 +1,4 @@
+import { PlaitBoard } from "plait/interfaces/board";
 import { Element } from "slate";
 
 export interface MindmapElement {

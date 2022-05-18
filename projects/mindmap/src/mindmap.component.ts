@@ -6,12 +6,11 @@ import { fromEvent } from 'rxjs';
 import { PEM } from './constants';
 import { addMindmapElement, addMindmapElementAfter, MindmapElement, removeMindmapElement, updateMindmapElement } from './interfaces/element';
 import { MindmapNode } from './interfaces/node';
-import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from './utils/weak-maps';
+import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT, IS_TEXT_EDITABLE } from './utils/weak-maps';
 import { Selection } from 'plait/interfaces/selection';
 import hotkeys from 'plait/utils/hotkeys';
 import { hitMindmapNode } from './utils/graph';
 import { PlaitMindmap } from './interfaces/mindmap';
-import { IS_TEXT_EDITABLE } from 'plait/utils/weak-maps';
 
 declare const require: any;
 
