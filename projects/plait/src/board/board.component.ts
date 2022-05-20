@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
-import { BOARD_TO_ON_CHANGE, IS_TEXT_EDITABLE } from '../utils/weak-maps';
+import { BOARD_TO_ON_CHANGE, HOST_TO_ROUGH_SVG, IS_TEXT_EDITABLE } from '../utils/weak-maps';
 import { PlaitBoard } from '../interfaces/board';
 import { PlaitElement } from '../interfaces/element';
 import { createBoard } from '../plugins/create-board';
@@ -7,6 +7,8 @@ import { withBoard } from '../plugins/with-board';
 import { fromEvent, Subject } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { PlaitPlugin } from '../interfaces/plugin';
+import { RoughSVG } from 'roughjs/bin/svg';
+import rough from 'roughjs/bin/rough';
 
 @Component({
   selector: 'plait-board',
@@ -28,6 +30,8 @@ import { PlaitPlugin } from '../interfaces/plugin';
 export class PlaitBoardComponent implements OnInit, OnDestroy {
   board!: PlaitBoard;
 
+  roughSVG!: RoughSVG;
+
   destroy$: Subject<any> = new Subject();
 
   @ViewChild('svg', { static: true })
@@ -46,6 +50,8 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
   constructor(private cdr: ChangeDetectorRef, private renderer2: Renderer2) { }
 
   ngOnInit(): void {
+    const roughSVG = rough.svg(this.host as SVGSVGElement, { options: { roughness: 0, strokeWidth: 1 } });
+    HOST_TO_ROUGH_SVG.set(this.host, roughSVG);
     this.initializePlugins();
     BOARD_TO_ON_CHANGE.set(this.board, () => {
       this.valueChange.emit(this.value);
@@ -94,12 +100,13 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
   }
 
 
-  trackBy = (index: number, node: Element) => {
+  trackBy = (index: number, element: PlaitElement) => {
     return index;
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    HOST_TO_ROUGH_SVG.delete(this.host);
   }
 }
