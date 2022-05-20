@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { PlaitBoardComponent } from './board/board.component';
 import { PlaitElementComponent } from './core/element/element.component';
 
@@ -8,6 +9,7 @@ import { PlaitElementComponent } from './core/element/element.component';
     PlaitElementComponent
   ],
   imports: [
+    BrowserModule
   ],
   exports: [
     PlaitBoardComponent,
