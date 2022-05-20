@@ -7,7 +7,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PlaitElementComponent } from './components/element.component';
 import { StyleCardComponent } from './components/style-card/style-card.component';
-import { MindmapPageComponent } from './mindmap-page/mindmap-page.component';
 import { BasicMindmapComponent } from './mindmap/mindmap.component';
 import { RichtextPageComponent } from './richtext-page/richtext-page.component';
 import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
@@ -17,7 +16,6 @@ import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
     AppComponent,
     PlaitElementComponent,
     PlaitWhiteBoardComponent,
-    MindmapPageComponent,
     StyleCardComponent,
     RichtextPageComponent,
     BasicMindmapComponent
