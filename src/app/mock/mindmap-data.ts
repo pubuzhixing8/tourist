@@ -1,32 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { MindmapElement } from 'mindmap/interfaces/element';
-import { PlaitMindmap } from 'mindmap/interfaces/mindmap';
+import { MindmapElement } from "mindmap/interfaces/element";
+import { PlaitMindmap } from "mindmap/interfaces/mindmap";
 
-export const LOCALSTORAGE_DATA_KEY = 'mindmap-data';
-
-@Component({
-    selector: 'mindmap-page',
-    templateUrl: './mindmap-page.component.html'
-})
-export class MindmapPageComponent implements OnInit {
-
-    mindmapData = { root: mindmapData };
-
-    ngOnInit(): void {
-        // 加载本地存储数据
-        const nodes = localStorage.getItem(LOCALSTORAGE_DATA_KEY);
-        if (nodes) {
-            this.mindmapData = JSON.parse(nodes);
-        }
-    }
-
-    valueChange(value: PlaitMindmap) {
-        console.log('value', value);
-        localStorage.setItem(LOCALSTORAGE_DATA_KEY, JSON.stringify(value));
-    }
-}
-
-const mindmapData: MindmapElement = {
+const mindmapElement: MindmapElement = {
     id: 'c909a4ed-c9ba-4812-b353-93bf18027f88',
     value: {
         children: [{ text: '脑图调研' }]
@@ -101,17 +76,13 @@ const mindmapData: MindmapElement = {
             },],
             width: 96,
             height: 22
-        },
-        // {
-        //     id: 'c909a4ed-c9ba-4812-b353-93bf18027f36',
-        //     value: {
-        //         children: [{ text: '开源脑图' }]
-        //     },
-        //     children: [],
-        //     width: 20,
-        //     height: 22
-        // }
+        }
     ],
     width: 64,
     height: 22
 };
+
+export const mockMindmapData: PlaitMindmap = {
+    root: mindmapElement,
+    points: [[500, 500]]
+}
