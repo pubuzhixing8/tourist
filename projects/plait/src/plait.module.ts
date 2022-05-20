@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PlaitBoardComponent } from './board/board.component';
 
-
-
 @NgModule({
   declarations: [
     PlaitBoardComponent
