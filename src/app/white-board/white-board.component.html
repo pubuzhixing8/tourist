@@ -22,8 +22,8 @@
         <svg #SVG width="100%" height="100%">
         </svg>
         <ng-container *ngFor="let item of paper?.elements;trackBy: trackBy">
-            <plait-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection"
-                [viewport]="paper?.viewport" [paper]="paper"></plait-element>
+            <white-board-element [rootSVG]="SVG" [roughSVG]="roughSVG" [element]="item" [selection]="paper?.selection"
+                [viewport]="paper?.viewport" [paper]="paper"></white-board-element>
         </ng-container>
         <div class="plait-toolbar plait-toolbar-zoom plait-card">
             <button class="item" (mousedown)="zoomOut($event)">-</button>
