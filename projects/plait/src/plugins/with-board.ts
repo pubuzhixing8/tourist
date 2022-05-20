@@ -1,13 +1,18 @@
+import { BOARD_TO_ON_CHANGE } from "../utils/weak-maps";
 import { PlaitBoard } from "../interfaces/board";
 
-export function createBoard(): PlaitBoard {
-    return {
-        children: [],
-        viewport: {
-            offsetX: 0,
-            offsetY: 0,
-            zoom: 1,
-            viewBackgroundColor: '#000'
+export function withBoard(board: PlaitBoard) {
+    const { onChange } = board;
+
+    board.onChange = () => {
+        const onContextChange = BOARD_TO_ON_CHANGE.get(board);
+
+        if (onContextChange) {
+            onContextChange();
         }
+
+        onChange();
     }
+
+    return board;
 }

@@ -3,9 +3,8 @@ import { AddOperation, Operation, RemoveOperation, SetElementOperation, SetViewp
 import { PointerType } from './pointer';
 import { Selection } from './selection';
 import Hotkeys from '../../../projects/plait/src/utils/hotkeys';
-import { PlaitBoard } from 'plait/interfaces/board';
 
-export interface Paper extends PlaitBoard {
+export interface Paper {
     container: SVGElement | null;
     elements: Element[];
     operations: Operation[];
@@ -28,7 +27,6 @@ export function createPaper(config: PaperConfig): Paper {
     const paper: Paper = {
         container: null,
         pointer: PointerType.draw,
-        children: [],
         elements: [],
         operations: [],
         selection: { anchor: [-1, -1], focus: [-1, -1] },
