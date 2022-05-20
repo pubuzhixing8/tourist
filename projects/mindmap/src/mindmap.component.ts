@@ -62,76 +62,76 @@ export class PlaitMindmapComponent implements OnInit {
       const layout = new this.MindmapLayouts.RightLogical(this.value.root, options) // root is tree node like above
       this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
     }
-    fromEvent<MouseEvent>(this.container, 'click').subscribe((event: MouseEvent) => {
-      if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
-        return;
-      }
-      const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
-      this.selection = { anchor: point, focus: point };
-      this.cdr.markForCheck();
-      (this.root as any).eachNode((node: MindmapNode) => {
-        if (hitMindmapNode(point, node)) {
-          HAS_SELECTED_MINDMAP_NODE.set(node, true);
-        } else {
-          HAS_SELECTED_MINDMAP_NODE.delete(node);
-        }
-      });
-    })
+    // fromEvent<MouseEvent>(this.container, 'click').subscribe((event: MouseEvent) => {
+    //   if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
+    //     return;
+    //   }
+    //   const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
+    //   this.selection = { anchor: point, focus: point };
+    //   this.cdr.markForCheck();
+    //   (this.root as any).eachNode((node: MindmapNode) => {
+    //     if (hitMindmapNode(point, node)) {
+    //       HAS_SELECTED_MINDMAP_NODE.set(node, true);
+    //     } else {
+    //       HAS_SELECTED_MINDMAP_NODE.delete(node);
+    //     }
+    //   });
+    // })
 
-    fromEvent<MouseEvent>(this.container, 'dblclick').subscribe((event: MouseEvent) => {
-      if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
-        return;
-      }
-      if (event.target instanceof HTMLElement) {
-        const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
-        (this.root as any).eachNode((node: MindmapNode) => {
-          if (hitMindmapNode(point, node)) {
-            const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
-            if (nodeComponent) {
-              IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, true);
-              nodeComponent.startEditText((node) => {
-                updateMindmapElement(this.value?.root as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
-                this.updateMindmap();
-              }, () => {
-                IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, false);
-              });
-            }
-            return;
-          }
-        });
-      }
-    });
+    // fromEvent<MouseEvent>(this.container, 'dblclick').subscribe((event: MouseEvent) => {
+    //   if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
+    //     return;
+    //   }
+    //   if (event.target instanceof HTMLElement) {
+    //     const point = mousePointToRelativePoint(event.x, event.y, this.container as SVGElement);
+    //     (this.root as any).eachNode((node: MindmapNode) => {
+    //       if (hitMindmapNode(point, node)) {
+    //         const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
+    //         if (nodeComponent) {
+    //           IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, true);
+    //           nodeComponent.startEditText((node) => {
+    //             updateMindmapElement(this.value?.root as MindmapElement, nodeComponent.node?.data as MindmapElement, node);
+    //             this.updateMindmap();
+    //           }, () => {
+    //             IS_TEXT_EDITABLE.set(this.value as PlaitMindmap, false);
+    //           });
+    //         }
+    //         return;
+    //       }
+    //     });
+    //   }
+    // });
 
-    fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event: KeyboardEvent) => {
-      if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
-        return;
-      }
-      if (event.key === 'Tab') {
-        event.preventDefault();
-        (this.root as any).eachNode((node: MindmapNode) => {
-          if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
-            addMindmapElement(this.value?.root as MindmapElement, node.data);
-            this.updateMindmap();
-          }
-        });
-      }
-      if (hotkeys.isDeleteBackward(event)) {
-        (this.root as any).eachNode((node: MindmapNode) => {
-          if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
-            removeMindmapElement(this.value?.root as MindmapElement, node.data);
-            this.updateMindmap();
-          }
-        });
-      }
-      if (event.key === 'Enter') {
-        (this.root as any).eachNode((node: MindmapNode) => {
-          if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
-            addMindmapElementAfter(this.value?.root as MindmapElement, node.data);
-            this.updateMindmap();
-          }
-        });
-      }
-    });
+    // fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event: KeyboardEvent) => {
+    //   if (IS_TEXT_EDITABLE.get(this.value as PlaitMindmap)) {
+    //     return;
+    //   }
+    //   if (event.key === 'Tab') {
+    //     event.preventDefault();
+    //     (this.root as any).eachNode((node: MindmapNode) => {
+    //       if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
+    //         addMindmapElement(this.value?.root as MindmapElement, node.data);
+    //         this.updateMindmap();
+    //       }
+    //     });
+    //   }
+    //   if (hotkeys.isDeleteBackward(event)) {
+    //     (this.root as any).eachNode((node: MindmapNode) => {
+    //       if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
+    //         removeMindmapElement(this.value?.root as MindmapElement, node.data);
+    //         this.updateMindmap();
+    //       }
+    //     });
+    //   }
+    //   if (event.key === 'Enter') {
+    //     (this.root as any).eachNode((node: MindmapNode) => {
+    //       if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
+    //         addMindmapElementAfter(this.value?.root as MindmapElement, node.data);
+    //         this.updateMindmap();
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   getOptions() {
