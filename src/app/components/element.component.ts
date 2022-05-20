@@ -6,7 +6,7 @@ import { Subject } from "rxjs";
 import { roughDrawer } from "../engine";
 
 @Component({
-    selector: 'plait-element',
+    selector: 'white-board-element',
     template: '',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
