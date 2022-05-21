@@ -9,6 +9,7 @@ import { filter, take, takeUntil } from 'rxjs/operators';
 import { PlaitPlugin } from '../interfaces/plugin';
 import { RoughSVG } from 'roughjs/bin/svg';
 import rough from 'roughjs/bin/rough';
+import { setViewport } from '../transfroms/viewport';
 
 @Component({
   selector: 'plait-board',
@@ -53,8 +54,10 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
     const roughSVG = rough.svg(this.host as SVGSVGElement, { options: { roughness: 0, strokeWidth: 1 } });
     HOST_TO_ROUGH_SVG.set(this.host, roughSVG);
     this.initializePlugins();
+    this.initializeEvents();
     BOARD_TO_ON_CHANGE.set(this.board, () => {
       this.valueChange.emit(this.value);
+      this.cdr.markForCheck();
     });
   }
 
@@ -79,10 +82,10 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
     fromEvent<MouseEvent>(this.host, 'dblclick').pipe(takeUntil(this.destroy$)).subscribe((event: MouseEvent) => {
       this.board.dblclick(event);
     });
-    fromEvent<WheelEvent>(this.host, 'wheel').pipe().subscribe((event: WheelEvent) => {
+    fromEvent<WheelEvent>(this.host, 'wheel').pipe(takeUntil(this.destroy$)).subscribe((event: WheelEvent) => {
       event.preventDefault();
       const viewport = this.board.viewport;
-      // setViewport(this.paper as Paper, { ...viewport, offsetX: viewport?.offsetX - event.deltaX, offsetY: viewport?.offsetY - event.deltaY });
+      setViewport(this.board, { ...viewport, offsetX: viewport?.offsetX - event.deltaX, offsetY: viewport?.offsetY - event.deltaY });
     });
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
       takeUntil(this.destroy$),
