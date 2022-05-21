@@ -26,7 +26,7 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
 
   @Input() value!: PlaitMindmap;
 
-  @Input() selection!: Selection;
+  @Input() selection: Selection | null = null;
 
   @Input() host!: SVGElement;
 

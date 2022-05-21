@@ -35,7 +35,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
 
     @Input() mindmapGGroup!: SVGGElement;
 
-    @Input() selection!: Selection;
+    @Input() selection: Selection | null = null;
 
     @Input() host!: SVGElement;
 
