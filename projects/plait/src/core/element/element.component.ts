@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { PlaitElement } from "../../interfaces/element";
-import { PlaitBoard, Viewport } from "../../interfaces/board";
+import { PlaitBoard } from "../../interfaces/board";
 import { Selection } from '../../interfaces/selection';
 import { createG } from "../../utils/dom";
+import { Viewport } from "../../interfaces/viewport";
 
 @Component({
     selector: 'plait-element',
@@ -22,7 +23,7 @@ export class PlaitElementComponent implements OnInit, OnChanges, OnDestroy {
 
     @Input() viewport!: Viewport;
 
-    @Input() selection!: Selection;
+    @Input() selection: Selection | null = null;
 
     @Input() host!: SVGElement;
 

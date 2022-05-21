@@ -3,13 +3,14 @@ import { PlaitElement } from "./element";
 import { PlaitElementContext } from "./element-context";
 import { PlaitOperation } from "./operation";
 import { Selection } from './selection';
+import { Viewport } from "./viewport";
 
 export interface PlaitBoard {
     host: SVGElement;
     viewport: Viewport;
     children: PlaitElement[];
     operations: PlaitOperation[];
-    selection: Selection;
+    selection: Selection | null;
     apply: (operation: PlaitOperation) => void;
     onChange: () => void;
     mousedown: (event: MouseEvent) => void;
@@ -23,9 +24,3 @@ export interface PlaitBoard {
     destroyElement: () => void;
 }
 
-export type Viewport = {
-    offsetX: number;
-    offsetY: number;
-    zoom: number;
-    viewBackgroundColor: string | null;
-};
