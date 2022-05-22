@@ -79,7 +79,8 @@ const mindmapElement: MindmapElement = {
         }
     ],
     width: 64,
-    height: 22
+    height: 22,
+    isRoot: true
 };
 
 export const mockMindmapData: PlaitMindmap = {

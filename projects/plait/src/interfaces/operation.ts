@@ -1,3 +1,4 @@
+import { Selection } from "./selection";
 import { Viewport } from "./viewport";
 
 export type SetViewportOperation = {
@@ -6,7 +7,14 @@ export type SetViewportOperation = {
     newProperties: Partial<Viewport>
 };
 
-export type PlaitOperation = SetViewportOperation;
+export type SetSelectionOperation = {
+    type: 'set_selection',
+    properties: Selection | null,
+    newProperties: Selection | null
+};
+
+
+export type PlaitOperation = SetViewportOperation | SetSelectionOperation;
 
 
 const isSetViewportOperation = (value: any): value is SetViewportOperation => {

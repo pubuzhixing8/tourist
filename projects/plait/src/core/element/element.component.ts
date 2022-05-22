@@ -63,7 +63,7 @@ export class PlaitElementComponent implements OnInit, OnChanges, OnDestroy {
             this.transform();
         }
         if (this.initialized) {
-            this.board.redrawElement(changes);
+            this.board.redrawElement({ elementInstance: this }, changes);
         }
     }
 

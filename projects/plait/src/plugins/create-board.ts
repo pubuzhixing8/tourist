@@ -5,6 +5,7 @@ import { PlaitElementContext } from "../interfaces/element-context";
 import { SimpleChanges } from "@angular/core";
 import { FLUSHING } from "../utils/weak-maps";
 import { Transforms } from "../transfroms";
+import { BaseCursorStatus } from "../interfaces/cursor";
 
 export function createBoard(host: SVGElement, children: PlaitElement[]): PlaitBoard {
     const board: PlaitBoard = {
@@ -18,6 +19,7 @@ export function createBoard(host: SVGElement, children: PlaitElement[]): PlaitBo
         children,
         operations: [],
         selection: { anchor: [0, -1], focus: [-1, -1] },
+        cursor: BaseCursorStatus.select,
         apply: (operation: PlaitOperation) => {
             board.operations.push(operation);
             
@@ -41,7 +43,7 @@ export function createBoard(host: SVGElement, children: PlaitElement[]): PlaitBo
         keyup: (event: KeyboardEvent) => { },
         dblclick: (event: MouseEvent) => { },
         drawElement: (context: PlaitElementContext) => [],
-        redrawElement: (changes: SimpleChanges) => [],
+        redrawElement: (context: PlaitElementContext, changes: SimpleChanges) => [],
         destroyElement: () => { }
     }
     return board;

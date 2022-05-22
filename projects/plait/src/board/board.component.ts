@@ -9,7 +9,8 @@ import { filter, take, takeUntil } from 'rxjs/operators';
 import { PlaitPlugin } from '../interfaces/plugin';
 import { RoughSVG } from 'roughjs/bin/svg';
 import rough from 'roughjs/bin/rough';
-import { setViewport } from '../transfroms/viewport';
+import { Transforms } from '../transfroms';
+import { withSelection } from 'plait/plugins/with-selection';
 
 @Component({
   selector: 'plait-board',
@@ -62,7 +63,7 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
   }
 
   initializePlugins() {
-    let board = withBoard(createBoard(this.host, this.value));
+    let board = withSelection(withBoard(createBoard(this.host, this.value)));
     this.plugins.forEach((plugin) => {
       board = plugin(board);
     })
@@ -72,12 +73,12 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
   initializeEvents() {
     fromEvent<MouseEvent>(this.host, 'mousedown').pipe(takeUntil(this.destroy$)).subscribe((event: MouseEvent) => {
       this.board.mousedown(event);
-      fromEvent<MouseEvent>(document, 'mouseup').pipe(take(1)).subscribe((event: MouseEvent) => {
-        this.board.mouseup(event);
-      });
     });
     fromEvent<MouseEvent>(this.host, 'mousemove').pipe(takeUntil(this.destroy$)).subscribe((event: MouseEvent) => {
       this.board.mousemove(event);
+    });
+    fromEvent<MouseEvent>(document, 'mouseup').pipe(takeUntil(this.destroy$)).subscribe((event: MouseEvent) => {
+      this.board.mouseup(event);
     });
     fromEvent<MouseEvent>(this.host, 'dblclick').pipe(takeUntil(this.destroy$)).subscribe((event: MouseEvent) => {
       this.board.dblclick(event);
@@ -85,7 +86,7 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
     fromEvent<WheelEvent>(this.host, 'wheel').pipe(takeUntil(this.destroy$)).subscribe((event: WheelEvent) => {
       event.preventDefault();
       const viewport = this.board.viewport;
-      setViewport(this.board, { ...viewport, offsetX: viewport?.offsetX - event.deltaX, offsetY: viewport?.offsetY - event.deltaY });
+      Transforms.setViewport(this.board, { ...viewport, offsetX: viewport?.offsetX - event.deltaX, offsetY: viewport?.offsetY - event.deltaY });
     });
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
       takeUntil(this.destroy$),

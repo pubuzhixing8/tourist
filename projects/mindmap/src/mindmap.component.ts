@@ -5,6 +5,7 @@ import { MindmapNode } from './interfaces/node';
 import { Selection } from 'plait/interfaces/selection';
 import { PlaitMindmap } from './interfaces/mindmap';
 import { createG } from 'plait/utils/dom';
+import { MINDMAP_TO_COMPONENT } from './utils/weak-maps';
 
 declare const require: any;
 const MindmapLayouts = require('mindmap-layouts');
@@ -30,18 +31,16 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
 
   @Input() host!: SVGElement;
 
-  @Output() valueChange: EventEmitter<PlaitMindmap> = new EventEmitter();
-
   constructor(private cdr: ChangeDetectorRef) {
     this.mindmapGGroup = createG()
     this.mindmapGGroup.setAttribute(MINDMAP_KEY, 'true');
   }
 
   ngOnInit(): void {
-    this.value.root.isRoot = true;
     const options = this.getOptions();
     const layout = new MindmapLayouts.RightLogical(this.value.root, options) // root is tree node like above
     this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
+    MINDMAP_TO_COMPONENT.set(this.value, this);
   }
 
   getOptions() {
@@ -77,15 +76,18 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
     if (!this.value) {
       throw new Error('');
     }
-    this.value.root.isRoot = true;
     const options = this.getOptions();
     const layout = new MindmapLayouts.RightLogical(this.value.root, options) // root is tree node like above
     this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
-    this.cdr.detectChanges();
-    this.valueChange.emit(this.value);
+    this.cdr.markForCheck();
+  }
+
+  doCheck() {
+    this.cdr.markForCheck();
   }
 
   ngOnDestroy(): void {
     this.mindmapGGroup.remove();
+    MINDMAP_TO_COMPONENT.delete(this.value);
   }
 }

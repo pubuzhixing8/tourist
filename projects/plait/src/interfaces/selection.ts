@@ -1,4 +1,6 @@
+import { Point } from "./point";
+
 export interface Selection {
-    anchor: [number, number];
-    focus: [number, number];
+    anchor: Point;
+    focus: Point;
 }

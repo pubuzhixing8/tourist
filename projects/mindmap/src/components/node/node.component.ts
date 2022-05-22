@@ -10,7 +10,7 @@ import { Selection } from 'plait/interfaces/selection';
 import { PlaitRichtextComponent, setFullSelectionAndFocus } from "richtext";
 import { debounceTime } from "rxjs/operators";
 import { drawMindmapNodeRichtext, updateMindmapNodeRichtextLocation } from "../../draw/richtext";
-import { createG, mousePointToRelativePoint } from "plait/utils/dom";
+import { createG, toPoint } from "plait/utils/dom";
 import { MindmapElement } from "../../interfaces/element";
 import { fromEvent } from "rxjs";
 import { HOST_TO_ROUGH_SVG } from "plait/utils/weak-maps";
@@ -192,7 +192,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             setElement(newElement);
         });
         const mousedown$ = fromEvent<MouseEvent>(document, 'mousedown').subscribe((event: MouseEvent) => {
-            const point = mousePointToRelativePoint(event.x, event.y, this.host);
+            const point = toPoint(event.x, event.y, this.host);
             if (!hitMindmapNode(point, this.node as MindmapNode)) {
                 event.preventDefault();
                 exitHandle();

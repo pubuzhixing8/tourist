@@ -38,6 +38,20 @@ const applyToDraft = (board: PlaitBoard, selection: Selection | null, viewport: 
             }
             break;
         }
+        case 'set_selection': {
+            const { newProperties } = op;
+            if (newProperties == null) {
+                selection = newProperties
+            } else {
+                if (selection === null) {
+                    selection = op.newProperties;
+                } else {
+                    selection.anchor = newProperties.anchor;
+                    selection.focus = newProperties.focus;
+                }
+            }
+            break;
+        }
     }
     return { selection, viewport };
 }
