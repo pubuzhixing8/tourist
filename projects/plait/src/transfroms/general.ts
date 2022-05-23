@@ -3,6 +3,7 @@ import { PlaitBoard } from "../interfaces/board";
 import { createDraft, finishDraft, isDraft } from 'immer';
 import { Viewport } from '../interfaces/viewport';
 import { Selection } from '../interfaces/selection';
+import { PlaitNode } from "../interfaces/node";
 
 export interface GeneralTransforms {
     transform: (board: PlaitBoard, op: PlaitOperation) => void
@@ -10,6 +11,20 @@ export interface GeneralTransforms {
 
 const applyToDraft = (board: PlaitBoard, selection: Selection | null, viewport: Viewport, op: PlaitOperation) => {
     switch (op.type) {
+        case 'insert_node': {
+            const { path, node } = op
+            const parent = PlaitNode.parent(board, path);
+            const index = path[path.length - 1]
+
+            if (!parent.children || index > parent.children.length) {
+                throw new Error(
+                    `Cannot apply an "insert_node" operation at path [${path}] because the destination is past the end of the node.`
+                )
+            }
+
+            parent.children.splice(index, 0, node)
+            break;
+        }
         case 'set_viewport': {
             const { newProperties } = op;
             if (newProperties == null) {

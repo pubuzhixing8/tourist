@@ -1,5 +1,13 @@
+import { PlaitNode } from "./node";
+import { Path } from "./path";
 import { Selection } from "./selection";
 import { Viewport } from "./viewport";
+
+export type InsertNodeOperation = {
+    type: 'insert_node'
+    path: Path
+    node: PlaitNode
+}
 
 export type SetViewportOperation = {
     type: 'set_viewport',
@@ -14,7 +22,7 @@ export type SetSelectionOperation = {
 };
 
 
-export type PlaitOperation = SetViewportOperation | SetSelectionOperation;
+export type PlaitOperation = InsertNodeOperation | SetViewportOperation | SetSelectionOperation;
 
 
 const isSetViewportOperation = (value: any): value is SetViewportOperation => {

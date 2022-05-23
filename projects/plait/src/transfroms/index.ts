@@ -1,10 +1,12 @@
 import { GeneralTransforms } from "./general";
+import { NodeTransforms } from "./node";
 import { SelectionTransforms } from "./selection";
 import { ViewportTransforms } from "./viewport";
 
 export const Transforms: GeneralTransforms &
-  ViewportTransforms & SelectionTransforms = {
+  ViewportTransforms & SelectionTransforms & NodeTransforms = {
   ...GeneralTransforms,
   ...ViewportTransforms,
-  ...SelectionTransforms
+  ...SelectionTransforms,
+  ...NodeTransforms
 }

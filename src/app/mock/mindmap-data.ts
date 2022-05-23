@@ -1,7 +1,7 @@
-import { MindmapElement } from "mindmap/interfaces/element";
 import { PlaitMindmap } from "mindmap/interfaces/mindmap";
 
-const mindmapElement: MindmapElement = {
+export const mockMindmapData: PlaitMindmap = {
+    type: 'mindmap',
     id: 'c909a4ed-c9ba-4812-b353-93bf18027f88',
     value: {
         children: [{ text: '脑图调研' }]
@@ -80,10 +80,6 @@ const mindmapElement: MindmapElement = {
     ],
     width: 64,
     height: 22,
-    isRoot: true
-};
-
-export const mockMindmapData: PlaitMindmap = {
-    root: mindmapElement,
+    isRoot: true,
     points: [[500, 500]]
-}
+};
