@@ -5,11 +5,13 @@ import { PlaitPlugin } from "plait/interfaces/plugin";
 import { PlaitMindmapComponent } from "../mindmap.component";
 import { IS_TEXT_EDITABLE } from "plait/utils/weak-maps";
 import { toPoint } from "plait/utils/dom";
-import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_NODE, MINDMAP_TO_COMPONENT } from "../utils/weak-maps";
+import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_ELEMENT, MINDMAP_TO_COMPONENT } from "../utils/weak-maps";
 import { hitMindmapNode } from "../utils/graph";
 import { PlaitElement } from "plait/interfaces/element";
 import { MindmapNode } from "../interfaces/node";
 import { SimpleChanges } from "@angular/core";
+import { Transforms } from "plait/transfroms";
+import { Path } from "plait/interfaces/path";
 
 export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
     const { drawElement, mousedown, mousemove, mouseup, keydown, redrawElement } = board;
@@ -39,10 +41,10 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
                     if (hitMindmapNode(point, node)) {
-                        HAS_SELECTED_MINDMAP_NODE.set(node, true);
+                        HAS_SELECTED_MINDMAP_ELEMENT.set(node.data, true);
                         selectedMindmap = value
                     } else {
-                        HAS_SELECTED_MINDMAP_NODE.delete(node);
+                        HAS_SELECTED_MINDMAP_ELEMENT.has(node.data) && HAS_SELECTED_MINDMAP_ELEMENT.delete(node.data);
                     }
                 });
             }
@@ -66,8 +68,19 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const mindmapComponent = MINDMAP_TO_COMPONENT.get(plaitMindmap);
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
-                    if (HAS_SELECTED_MINDMAP_NODE.get(node)) {
-                        
+                    if (HAS_SELECTED_MINDMAP_ELEMENT.has(node.data)) {
+                        const path = findPath(node).concat(node.children.length);
+                        const index = board.children.indexOf(plaitMindmap);
+                        const newElement = {
+                            id: 'c909a4ed-c9ba-4812-b353-93bf18027f33',
+                            value: {
+                                children: [{ text: '新节点' }]
+                            },
+                            children: [],
+                            width: 48,
+                            height: 22
+                        };
+                        Transforms.insertNode(board, newElement, [index].concat(...path));
                     }
                 });
             }
@@ -76,14 +89,16 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
 
     board.redrawElement = (context: PlaitElementContext, changes: SimpleChanges) => {
         const { element, selection } = context.elementInstance;
+        const elementChange = changes['element'];
         if (isPlaitMindmap(element)) {
-            const mindmapInstance = MINDMAP_TO_COMPONENT.get(element);
+            const previousElement = (elementChange && elementChange.previousValue) || element;
+            const mindmapInstance = MINDMAP_TO_COMPONENT.get(previousElement);
             if (!mindmapInstance) {
                 throw new Error('undefined mindmap component');
             }
             mindmapInstance.value = element;
             mindmapInstance.selection = selection;
-            if (changes['element']) {
+            if (elementChange) {
                 mindmapInstance.updateMindmap();
             } else {
                 mindmapInstance.doCheck();
@@ -94,4 +109,15 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
     }
 
     return board;
+}
+
+export function findPath(node: MindmapNode): Path {
+    const path = [];
+    let _node = node;
+    while(_node.parent) {
+        const index = _node.parent.children.indexOf(_node);
+        path.push(index);
+        _node = _node.parent;
+    }
+    return path.reverse();
 }

@@ -76,6 +76,7 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
     if (!this.value) {
       throw new Error('');
     }
+    MINDMAP_TO_COMPONENT.set(this.value, this);
     const options = this.getOptions();
     const layout = new MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
     this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.

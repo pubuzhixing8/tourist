@@ -3,8 +3,9 @@ import { MindmapNodeComponent } from "../components/node/node.component";
 import { MindmapNode } from "../interfaces/node";
 import { PlaitMindmapComponent } from "../mindmap.component";
 import { PlaitBoard } from "plait/interfaces/board";
+import { MindmapElement } from "../interfaces/element";
 
-export const HAS_SELECTED_MINDMAP_NODE: WeakMap<MindmapNode, boolean> = new WeakMap();
+export const HAS_SELECTED_MINDMAP_ELEMENT: WeakMap<MindmapElement, boolean> = new WeakMap();
 
 export const HAS_SELECTED_MINDMAP: WeakMap<PlaitBoard, PlaitMindmap> = new WeakMap();
 

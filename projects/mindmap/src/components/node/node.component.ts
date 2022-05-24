@@ -5,7 +5,7 @@ import { MindmapNode } from "../../interfaces/node";
 import { drawLine } from "../../draw/line";
 import { drawRoundRectangle, getRectangleByNode, hitMindmapNode } from "../../utils/graph";
 import { MINDMAP_NODE_KEY, PRIMARY_COLOR } from "../../constants";
-import { HAS_SELECTED_MINDMAP_NODE, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from "../../utils/weak-maps";
+import { HAS_SELECTED_MINDMAP_ELEMENT, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from "../../utils/weak-maps";
 import { Selection } from 'plait/interfaces/selection';
 import { PlaitRichtextComponent, setFullSelectionAndFocus } from "richtext";
 import { debounceTime } from "rxjs/operators";
@@ -100,7 +100,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     drawSelectedState() {
         // console.log('drawSelectedState');
         this.destroySelectedState();
-        const selected = HAS_SELECTED_MINDMAP_NODE.get(this.node as MindmapNode);
+        const selected = HAS_SELECTED_MINDMAP_ELEMENT.get(this.node.data);
         if (selected || this.isEditable) {
             const { x, y, width, height } = getRectangleByNode(this.node as MindmapNode);
             const selectedStrokeG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: PRIMARY_COLOR, strokeWidth: 2, fill: '' }, true);
