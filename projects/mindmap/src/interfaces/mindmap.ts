@@ -11,6 +11,6 @@ export interface PlaitMindmap extends PlaitElement {
     isRoot?: boolean
 }
 
-export const isPlaitMindmap = (value: PlaitElement): value is PlaitMindmap => {
+export const isPlaitMindmap = (value: any): value is PlaitMindmap => {
     return value.type === 'mindmap';
 }

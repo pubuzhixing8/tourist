@@ -20,7 +20,6 @@ export function drawMindmapNodeRichtext(node: MindmapNode, componentFactoryResol
 
 export function updateMindmapNodeRichtextLocation(node: MindmapNode, g: SVGGElement, scale = 1) {
     const { x, y, width, height } = getRectangleByNode(node);
-
     const textX = (x + PEM * 0.8) / scale;
     const textY = (y + PEM * 0.2) / scale; 
     updateForeignObject(g, width, height, textX, textY);

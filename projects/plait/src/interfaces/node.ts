@@ -1,8 +1,8 @@
 import { PlaitBoard } from "./board";
-import { PlaitElement } from "./element";
 import { Path } from "./path";
 
 export interface PlaitNode {
+    [key: string]: any;
     children?: PlaitNode[]
 }
 
@@ -27,9 +27,7 @@ export const PlaitNode: PlaitNodeInterface = {
 
             if (!node || !node.children || !node.children[p]) {
                 throw new Error(
-                    `Cannot find a descendant at path [${path}] in node: ${JSON.stringify(
-                        board
-                    )}`
+                    `Cannot find a descendant at path [${path}]`
                 );
             }
 

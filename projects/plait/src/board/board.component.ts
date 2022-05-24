@@ -57,8 +57,8 @@ export class PlaitBoardComponent implements OnInit, OnDestroy {
     this.initializePlugins();
     this.initializeEvents();
     BOARD_TO_ON_CHANGE.set(this.board, () => {
+      this.cdr.detectChanges();
       this.valueChange.emit(this.value);
-      this.cdr.markForCheck();
     });
   }
 

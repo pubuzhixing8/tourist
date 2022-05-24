@@ -80,7 +80,7 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
     const options = this.getOptions();
     const layout = new MindmapLayouts.RightLogical(this.value, options) // root is tree node like above
     this.root = layout.doLayout() // you have x, y, centX, centY, actualHeight, actualWidth, etc.
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   doCheck() {

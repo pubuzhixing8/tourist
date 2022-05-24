@@ -159,7 +159,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    startEditText(setElement: (element: MindmapElement) => void, exitCallback: () => void) {
+    startEditText(valueChange: (element: Partial<MindmapElement>) => void, exitCallback: () => void) {
         this.isEditable = true;
         if (!this.richtextComponentRef) {
             throw new Error('undefined richtextComponentRef');
@@ -175,21 +175,22 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         }
         let richtext = richtextInstance.value;
         // 增加 debounceTime 等待 DOM 渲染完成后再去取文本宽高
-        const valueChange$ = richtextInstance.onChange.pipe(debounceTime(10)).subscribe((event) => {
+        const valueChange$ = richtextInstance.onChange.pipe(debounceTime(0)).subscribe((event) => {
             if (richtext === event.value) {
                 return;
             }
             richtext = event.value;
             // 更新富文本、更新宽高
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
-            const newElement = { ...this.node?.data, value: richtext, width, height } as MindmapElement;
-            setElement(newElement);
+            const newElement = { value: richtext, width, height } as MindmapElement;
+            valueChange(newElement);
         });
-        // 增加 debounceTime 等待 DOM 渲染完成后再去取文本宽高
         const composition$ = richtextInstance.composition.subscribe((event) => {
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
-            const newElement = { ...this.node?.data, width, height } as MindmapElement;
-            setElement(newElement);
+            if (event.isComposing && (width !== this.node.data.width || height !== this.node.data.height)) {
+                const newElement: Partial<MindmapElement> = { width, height };
+                valueChange(newElement);
+            }
         });
         const mousedown$ = fromEvent<MouseEvent>(document, 'mousedown').subscribe((event: MouseEvent) => {
             const point = toPoint(event.x, event.y, this.host);

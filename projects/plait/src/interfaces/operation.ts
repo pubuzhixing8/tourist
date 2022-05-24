@@ -21,8 +21,15 @@ export type SetSelectionOperation = {
     newProperties: Selection | null
 };
 
+export type SetNodeOperation = {
+  type: 'set_node'
+  path: Path
+  properties: Partial<PlaitNode>
+  newProperties: Partial<PlaitNode>
+}
 
-export type PlaitOperation = InsertNodeOperation | SetViewportOperation | SetSelectionOperation;
+
+export type PlaitOperation = InsertNodeOperation | SetViewportOperation | SetSelectionOperation | SetNodeOperation;
 
 
 const isSetViewportOperation = (value: any): value is SetViewportOperation => {

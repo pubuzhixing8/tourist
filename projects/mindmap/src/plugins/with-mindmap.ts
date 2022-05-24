@@ -5,16 +5,17 @@ import { PlaitPlugin } from "plait/interfaces/plugin";
 import { PlaitMindmapComponent } from "../mindmap.component";
 import { IS_TEXT_EDITABLE } from "plait/utils/weak-maps";
 import { toPoint } from "plait/utils/dom";
-import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_ELEMENT, MINDMAP_TO_COMPONENT } from "../utils/weak-maps";
+import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_ELEMENT, MINDMAP_NODE_TO_COMPONENT, MINDMAP_TO_COMPONENT } from "../utils/weak-maps";
 import { hitMindmapNode } from "../utils/graph";
 import { PlaitElement } from "plait/interfaces/element";
 import { MindmapNode } from "../interfaces/node";
 import { SimpleChanges } from "@angular/core";
 import { Transforms } from "plait/transfroms";
 import { Path } from "plait/interfaces/path";
+import { MindmapElement } from "../interfaces/element";
 
 export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
-    const { drawElement, mousedown, mousemove, mouseup, keydown, redrawElement } = board;
+    const { drawElement, dblclick, mousedown, mousemove, mouseup, keydown, redrawElement } = board;
 
     board.drawElement = (context: PlaitElementContext) => {
         const { element, selection, viewContainerRef, host } = context.elementInstance;
@@ -69,8 +70,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
                     if (HAS_SELECTED_MINDMAP_ELEMENT.has(node.data)) {
-                        const path = findPath(node).concat(node.children.length);
-                        const index = board.children.indexOf(plaitMindmap);
+                        const path = findPath(board, node).concat(node.children.length);
                         const newElement = {
                             id: 'c909a4ed-c9ba-4812-b353-93bf18027f33',
                             value: {
@@ -80,14 +80,44 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                             width: 48,
                             height: 22
                         };
-                        Transforms.insertNode(board, newElement, [index].concat(...path));
+                        Transforms.insertNode(board, newElement, path);
                     }
                 });
             }
         }
     }
 
+    board.dblclick = (event: MouseEvent) => {
+        if (IS_TEXT_EDITABLE.get(board)) {
+            return;
+        }
+
+        const point = toPoint(event.x, event.y, board.host);
+
+        board.children.forEach((value: PlaitElement) => {
+            if (isPlaitMindmap(value)) {
+                const mindmapComponent = MINDMAP_TO_COMPONENT.get(value);
+                const root = mindmapComponent?.root;
+                (root as any).eachNode((node: MindmapNode) => {
+                    if (hitMindmapNode(point, node)) {
+                        const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
+                        if (nodeComponent) {
+                            IS_TEXT_EDITABLE.set(board, true);
+                            nodeComponent.startEditText((element: Partial<MindmapElement>) => {
+                                const path = findPath(board, nodeComponent.node);
+                                Transforms.setNode(board, element, path);
+                            }, () => {
+                                IS_TEXT_EDITABLE.set(board, false);
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     board.redrawElement = (context: PlaitElementContext, changes: SimpleChanges) => {
+        console.log('redraw');
         const { element, selection } = context.elementInstance;
         const elementChange = changes['element'];
         if (isPlaitMindmap(element)) {
@@ -111,13 +141,17 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
     return board;
 }
 
-export function findPath(node: MindmapNode): Path {
+export function findPath(board: PlaitBoard, node: MindmapNode): Path {
     const path = [];
     let _node = node;
-    while(_node.parent) {
+    while (_node.parent) {
         const index = _node.parent.children.indexOf(_node);
         path.push(index);
         _node = _node.parent;
+    }
+    if (isPlaitMindmap(_node.data)) {
+        const index = board.children.indexOf(_node.data);
+        path.push(index);
     }
     return path.reverse();
 }

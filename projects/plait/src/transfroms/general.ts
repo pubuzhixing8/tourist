@@ -25,6 +25,34 @@ const applyToDraft = (board: PlaitBoard, selection: Selection | null, viewport: 
             parent.children.splice(index, 0, node)
             break;
         }
+        case 'set_node': {
+            const { path, properties, newProperties } = op
+
+            if (path.length === 0) {
+                throw new Error(`Cannot set properties on the root node!`)
+            }
+
+            const node = PlaitNode.get(board, path);
+
+            for (const key in newProperties) {
+                const value = newProperties[key]
+
+                if (value == null) {
+                    delete node[key]
+                } else {
+                    node[key] = value
+                }
+            }
+
+            // properties that were previously defined, but are now missing, must be deleted
+            for (const key in properties) {
+                if (!newProperties.hasOwnProperty(key)) {
+                    delete node[key]
+                }
+            }
+
+            break
+        }
         case 'set_viewport': {
             const { newProperties } = op;
             if (newProperties == null) {
