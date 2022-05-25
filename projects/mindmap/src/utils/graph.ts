@@ -1,8 +1,8 @@
-import { MindmapNode } from "../interfaces/node";
-import { Options } from "roughjs/bin/core";
-import { Point } from "roughjs/bin/geometry";
-import { RoughSVG } from "roughjs/bin/svg";
-import { MAX_RADIUS } from "../constants";
+import { MindmapNode } from '../interfaces/node';
+import { Options } from 'roughjs/bin/core';
+import { Point } from 'roughjs/bin/geometry';
+import { RoughSVG } from 'roughjs/bin/svg';
+import { MAX_RADIUS } from '../constants';
 
 export interface RectangleClient {
     x: number;
@@ -41,7 +41,10 @@ export function drawRoundRectangle(rs: RoughSVG, x1: number, y1: number, x2: num
     const point6 = [x1 + radius, y2];
     const point7 = [x1, y2 - radius];
     const point8 = [x1, y1 + radius];
-    return rs.path(`M${point2[0]} ${point2[1]} A ${radius} ${radius}, 0, 0, 1, ${point3[0]} ${point3[1]} L ${point4[0]} ${point4[1]} A ${radius} ${radius}, 0, 0, 1, ${point5[0]} ${point5[1]} L ${point6[0]} ${point6[1]} A ${radius} ${radius}, 0, 0, 1, ${point7[0]} ${point7[1]} L ${point8[0]} ${point8[1]} A ${radius} ${radius}, 0, 0, 1, ${point1[0]} ${point1[1]} Z`, options);
+    return rs.path(
+        `M${point2[0]} ${point2[1]} A ${radius} ${radius}, 0, 0, 1, ${point3[0]} ${point3[1]} L ${point4[0]} ${point4[1]} A ${radius} ${radius}, 0, 0, 1, ${point5[0]} ${point5[1]} L ${point6[0]} ${point6[1]} A ${radius} ${radius}, 0, 0, 1, ${point7[0]} ${point7[1]} L ${point8[0]} ${point8[1]} A ${radius} ${radius}, 0, 0, 1, ${point1[0]} ${point1[1]} Z`,
+        options
+    );
 }
 
 export function getRectangleByNode(node: MindmapNode) {
@@ -50,7 +53,10 @@ export function getRectangleByNode(node: MindmapNode) {
     const width = Math.round(node.width - node.hgap * 2);
     const height = Math.round(node.height - node.vgap * 2);
     return {
-        x, y, width, height
+        x,
+        y,
+        width,
+        height
     };
 }
 

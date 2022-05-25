@@ -1,6 +1,6 @@
-import { BaseEditor, Editor, Node, Path, Point, Range, Text } from "slate";
-import { DOMRange, DOMPoint, DOMStaticRange, DOMSelection, isDOMSelection, WITH_ZERO_WIDTH_CHAR } from "../utils/dom";
-import { EDITOR_TO_ELEMENT, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from "../utils/weak-maps";
+import { BaseEditor, Editor, Node, Path, Point, Range, Text } from 'slate';
+import { DOMRange, DOMPoint, DOMStaticRange, DOMSelection, isDOMSelection, WITH_ZERO_WIDTH_CHAR } from '../utils/dom';
+import { EDITOR_TO_ELEMENT, EDITOR_TO_WINDOW, ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from '../utils/weak-maps';
 
 export interface RichtextEditor extends BaseEditor {
     keydown: (event: KeyboardEvent) => void;
@@ -43,9 +43,7 @@ export const RichtextEditor = {
         return domPoint;
     },
     toDOMNode(editor: Editor, node: Node): HTMLElement {
-        const domNode = Editor.isEditor(node)
-            ? EDITOR_TO_ELEMENT.get(editor)
-            : NODE_TO_ELEMENT.get(node);
+        const domNode = Editor.isEditor(node) ? EDITOR_TO_ELEMENT.get(editor) : NODE_TO_ELEMENT.get(node);
         if (!domNode) {
             throw new Error('');
         }
@@ -97,7 +95,7 @@ export function toSlatePoint(editor: Editor, domPoint: DOMPoint, withNormalize: 
             offset = offset - 1;
         }
         if (index !== undefined) {
-            return { path: [0, index], offset }
+            return { path: [0, index], offset };
         }
     }
     throw new Error(`Cannot resolve a Slate point from DOM point: ${domPoint}`);

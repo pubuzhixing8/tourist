@@ -12,22 +12,16 @@ import { RichtextPageComponent } from './richtext-page/richtext-page.component';
 import { PlaitWhiteBoardComponent } from './white-board/white-board.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    PlaitElementComponent,
-    PlaitWhiteBoardComponent,
-    StyleCardComponent,
-    RichtextPageComponent,
-    BasicMindmapComponent
-  ],
-  imports: [
-    BrowserModule,
-    RichtextModule,
-    AppRoutingModule,
-    MindmapModule,
-    PlaitModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        PlaitElementComponent,
+        PlaitWhiteBoardComponent,
+        StyleCardComponent,
+        RichtextPageComponent,
+        BasicMindmapComponent
+    ],
+    imports: [BrowserModule, RichtextModule, AppRoutingModule, MindmapModule, PlaitModule],
+    providers: [],
+    bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

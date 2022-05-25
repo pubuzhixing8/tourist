@@ -1,8 +1,8 @@
-import { Point } from "roughjs/bin/geometry";
-import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
-import { Key } from "../utils/key";
+import { Point } from 'roughjs/bin/geometry';
+import { ACTIVE_RECTANGLE_DISTANCE } from '../constants';
+import { Key } from '../utils/key';
 // import { toRectangle, toSelection, toSelectionByPoint } from "../utils/position";
-import { EdgeMode } from "./attributes";
+import { EdgeMode } from './attributes';
 import { Selection } from './selection';
 import { Element as SlateElement } from 'slate';
 
@@ -50,4 +50,3 @@ export enum ElementType {
 //         return false;
 //     }
 // }
-

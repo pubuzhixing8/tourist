@@ -1,13 +1,12 @@
-import { Point } from "roughjs/bin/geometry";
-import { DISTANCE_THRESHOLD } from "../constants";
-import { EdgeMode } from "../interfaces/attributes";
-import { Element } from "../interfaces/element";
-import { Selection } from "../interfaces/selection";
-import { distanceBetweenPointAndSegment } from "../utils/math";
-import { BaseDetector } from "./base";
+import { Point } from 'roughjs/bin/geometry';
+import { DISTANCE_THRESHOLD } from '../constants';
+import { EdgeMode } from '../interfaces/attributes';
+import { Element } from '../interfaces/element';
+import { Selection } from '../interfaces/selection';
+import { distanceBetweenPointAndSegment } from '../utils/math';
+import { BaseDetector } from './base';
 import { pointsOnBezierCurves } from 'points-on-curve';
 import { curveToBezier } from 'points-on-curve/lib/curve-to-bezier.js';
-
 
 export const lineDetector: BaseDetector = {
     contian: (selection: Selection, element: Element) => {
@@ -32,7 +31,7 @@ export function pointsDetection(origin: Point, target: Point[], distance: number
     return target.some((value, index) => {
         if (index === 0) {
             return false;
-        } 
+        }
         const start = target[index - 1];
         const end = value;
         return distanceBetweenPointAndSegment(origin[0], origin[1], start[0], start[1], end[0], end[1]) < distance;

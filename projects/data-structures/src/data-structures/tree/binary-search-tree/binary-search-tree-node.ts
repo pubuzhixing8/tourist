@@ -1,5 +1,5 @@
-import Comparator from "../../../utils/comparator/Comparator";
-import { BinaryTreeNode } from "../binary-tree-node";
+import Comparator from '../../../utils/comparator/Comparator';
+import { BinaryTreeNode } from '../binary-tree-node';
 
 export class BinarySearchTreeNode extends BinaryTreeNode {
     compareFunction: any;

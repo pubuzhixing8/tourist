@@ -6,18 +6,8 @@ import { MindmapNodeComponent } from './components/node/node.component';
 import { PlaitMindmapComponent } from './mindmap.component';
 
 @NgModule({
-  declarations: [
-    PlaitMindmapComponent,
-    MindmapNodeComponent
-  ],
-  imports: [
-    RichtextModule,
-    PlaitModule,
-    BrowserModule
-  ],
-  exports: [
-    PlaitMindmapComponent,
-    MindmapNodeComponent
-  ]
+    declarations: [PlaitMindmapComponent, MindmapNodeComponent],
+    imports: [RichtextModule, PlaitModule, BrowserModule],
+    exports: [PlaitMindmapComponent, MindmapNodeComponent]
 })
-export class MindmapModule { }
+export class MindmapModule {}

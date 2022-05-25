@@ -1,13 +1,13 @@
-import { Point } from "roughjs/bin/geometry";
-import { roughDrawer } from "../engine";
-import { ElementType, Element } from "../interfaces/element";
-import { addElement, Paper } from "../interfaces/paper";
-import { PointerType } from "../interfaces/pointer";
-import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from "../utils/common";
-import { generateKey } from "../utils/key";
-import { toPoint } from "../utils/position";
-import { getRoughSVG } from "../utils/rough";
-import { transform } from "../utils/viewport";
+import { Point } from 'roughjs/bin/geometry';
+import { roughDrawer } from '../engine';
+import { ElementType, Element } from '../interfaces/element';
+import { addElement, Paper } from '../interfaces/paper';
+import { PointerType } from '../interfaces/pointer';
+import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from '../utils/common';
+import { generateKey } from '../utils/key';
+import { toPoint } from '../utils/position';
+import { getRoughSVG } from '../utils/rough';
+import { transform } from '../utils/viewport';
 
 export function circlePaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
@@ -20,12 +20,12 @@ export function circlePaper<T extends Paper>(paper: T) {
     paper.keydown = (event: KeyboardEvent) => {
         shiftKey = event.shiftKey;
         keydown(event);
-    }
+    };
 
     paper.keyup = (event: KeyboardEvent) => {
         shiftKey = event.shiftKey;
         keyup(event);
-    }
+    };
 
     paper.mousedown = (event: MouseEvent) => {
         if (paper.pointer === PointerType.circle) {
@@ -33,7 +33,7 @@ export function circlePaper<T extends Paper>(paper: T) {
             return;
         }
         mousedown(event);
-    }
+    };
 
     paper.mousemove = (event: MouseEvent) => {
         const attributes = getAttributes(paper);
@@ -56,7 +56,7 @@ export function circlePaper<T extends Paper>(paper: T) {
             return;
         }
         mousemove(event);
-    }
+    };
 
     paper.mouseup = (event: MouseEvent) => {
         const attributes = getAttributes(paper);
@@ -77,7 +77,7 @@ export function circlePaper<T extends Paper>(paper: T) {
         start = null;
         end = null;
         paper.dragging = false;
-    }
+    };
 
     return paper;
 }

@@ -1,5 +1,5 @@
-import { RectangleClient } from "../interfaces/graph";
-import { Point } from "../interfaces/point";
+import { RectangleClient } from '../interfaces/graph';
+import { Point } from '../interfaces/point';
 
 export function toRectangleClient(points: [Point, Point]): RectangleClient {
     const xArray = points.map(ele => ele[0]);

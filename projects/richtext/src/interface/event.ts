@@ -1,4 +1,4 @@
-import { Operation, Element } from "slate";
+import { Operation, Element } from 'slate';
 
 export type BeforeInputEvent = Event & {
     inputType: string;

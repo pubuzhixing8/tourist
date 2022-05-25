@@ -12,15 +12,7 @@ import DOMText = globalThis.Text;
 import DOMRange = globalThis.Range;
 import DOMSelection = globalThis.Selection;
 import DOMStaticRange = globalThis.StaticRange;
-export {
-    DOMNode,
-    DOMComment,
-    DOMElement,
-    DOMText,
-    DOMRange,
-    DOMSelection,
-    DOMStaticRange
-};
+export { DOMNode, DOMComment, DOMElement, DOMText, DOMRange, DOMSelection, DOMStaticRange };
 
 export type DOMPoint = [Node, number];
 
@@ -36,18 +28,16 @@ declare global {
  * Check if a value is a DOM selection.
  */
 export const isDOMSelection = (value: any): value is DOMSelection => {
-    const window = value && value.anchorNode && getDefaultView(value.anchorNode)
-    return !!window && value instanceof window.Selection
-}
+    const window = value && value.anchorNode && getDefaultView(value.anchorNode);
+    return !!window && value instanceof window.Selection;
+};
 
 /**
  * Returns the host window of a DOM node
  */
 export const getDefaultView = (value: any): Window => {
-    return (
-        (value && value.ownerDocument && value.ownerDocument.defaultView) || window
-    );
-}
+    return (value && value.ownerDocument && value.ownerDocument.defaultView) || window;
+};
 
 export const ZERO_WIDTH_CHAR = '\uFEFF';
 

@@ -1,10 +1,9 @@
-
-import { BaseCursorStatus } from "../interfaces/cursor";
-import { PlaitBoard } from "../interfaces/board";
-import { Point } from "../interfaces/point";
-import { toPoint } from "src/app/utils/position";
-import { toRectangleClient } from "src/app/utils/shape";
-import { Transforms } from "plait/transfroms";
+import { BaseCursorStatus } from '../interfaces/cursor';
+import { PlaitBoard } from '../interfaces/board';
+import { Point } from '../interfaces/point';
+import { toPoint } from 'src/app/utils/position';
+import { toRectangleClient } from 'src/app/utils/shape';
+import { Transforms } from 'plait/transfroms';
 
 export function withSelection<T extends PlaitBoard>(board: T) {
     const { mousedown, mousemove, mouseup } = board;
@@ -17,7 +16,7 @@ export function withSelection<T extends PlaitBoard>(board: T) {
             start = toPoint(event.x, event.y, board.host);
         }
         mousedown(event);
-    }
+    };
 
     board.mousemove = (event: MouseEvent) => {
         const movedTarget = toPoint(event.x, event.y, board.host);
@@ -28,18 +27,17 @@ export function withSelection<T extends PlaitBoard>(board: T) {
             }
         }
         mousemove(event);
-    }
+    };
 
     board.mouseup = (event: MouseEvent) => {
         if (start && end) {
-
         } else if (start) {
             Transforms.setSelection(board, { anchor: start, focus: start });
         }
         start = null;
         end = null;
         mouseup(event);
-    }
+    };
 
     return board;
 }

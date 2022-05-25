@@ -1,7 +1,7 @@
-import { InsertNodeOperation, SetNodeOperation } from "../interfaces/operation";
-import { PlaitBoard } from "../interfaces/board";
-import { PlaitNode } from "../interfaces/node";
-import { Path } from "../interfaces/path";
+import { InsertNodeOperation, SetNodeOperation } from '../interfaces/operation';
+import { PlaitBoard } from '../interfaces/board';
+import { PlaitNode } from '../interfaces/node';
+import { Path } from '../interfaces/path';
 
 export function insertNode(board: PlaitBoard, node: PlaitNode, path: Path) {
     const operation: InsertNodeOperation = { type: 'insert_node', node, path };
@@ -32,4 +32,4 @@ export interface NodeTransforms {
 export const NodeTransforms: NodeTransforms = {
     insertNode,
     setNode
-}
+};

@@ -1,11 +1,11 @@
-import Comparator from "../../utils/comparator/Comparator";
+import Comparator from '../../utils/comparator/Comparator';
 
 export class BinaryTreeNode {
     left: BinaryTreeNode | null = null;
     right: BinaryTreeNode | null = null;
     parent: BinaryTreeNode | null = null;
     value: any = null;
-    nodeComparator!: Comparator
+    nodeComparator!: Comparator;
     constructor(value: any = null) {
         this.value = value;
         this.nodeComparator = new Comparator();
@@ -35,7 +35,7 @@ export class BinaryTreeNode {
         }
 
         this.left = node;
-        
+
         if (this.left) {
             this.left.parent = this;
         }
@@ -47,7 +47,7 @@ export class BinaryTreeNode {
         }
 
         this.right = node;
-        
+
         if (this.right) {
             this.right.parent = this;
         }
@@ -71,7 +71,7 @@ export class BinaryTreeNode {
         return false;
     }
 
-    replaceChild(nodeToReplace: BinaryTreeNode | null, replacementNode: BinaryTreeNode | null) { 
+    replaceChild(nodeToReplace: BinaryTreeNode | null, replacementNode: BinaryTreeNode | null) {
         if (!nodeToReplace || !replacementNode) {
             return false;
         }

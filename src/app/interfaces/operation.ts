@@ -1,8 +1,8 @@
-import { Point } from "roughjs/bin/geometry";
-import { Key } from "../utils/key";
-import { Element } from "./element";
-import { Viewport } from "./paper";
-import { Selection } from "./selection";
+import { Point } from 'roughjs/bin/geometry';
+import { Key } from '../utils/key';
+import { Element } from './element';
+import { Viewport } from './paper';
+import { Selection } from './selection';
 
 export interface Operation {
     type: 'add' | 'remove' | 'set_selection' | 'set_element' | 'set_viewport';
@@ -13,7 +13,7 @@ export interface AddOperation extends Operation {
     data: Element;
 }
 
-export const Operation =  {
+export const Operation = {
     isAddOperation(value: Operation): value is AddOperation {
         return value.type === 'add';
     },
@@ -41,7 +41,7 @@ export const Operation =  {
         }
         return value;
     }
-}
+};
 
 export interface RemoveOperation extends Operation {
     type: 'remove';

@@ -2,16 +2,10 @@
  * Extendable Custom Types Interface
  */
 
- type ExtendableTypes =
- "Viewport"
- | 'SetViewportOperation'
- | 'SetSelectionOperation'
+type ExtendableTypes = 'Viewport' | 'SetViewportOperation' | 'SetSelectionOperation';
 
 export interface CustomTypes {
- [key: string]: unknown
+    [key: string]: unknown;
 }
 
-export type ExtendedType<
- K extends ExtendableTypes,
- B
-> = unknown extends CustomTypes[K] ? B : CustomTypes[K]
+export type ExtendedType<K extends ExtendableTypes, B> = unknown extends CustomTypes[K] ? B : CustomTypes[K];

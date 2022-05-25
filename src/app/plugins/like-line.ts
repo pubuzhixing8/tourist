@@ -1,14 +1,14 @@
-import { Point } from "roughjs/bin/geometry";
-import { roughDrawer } from "../engine";
-import { EdgeMode } from "../interfaces/attributes";
-import { ElementType, Element } from "../interfaces/element";
-import { addElement, Paper } from "../interfaces/paper";
-import { PointerType } from "../interfaces/pointer";
-import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from "../utils/common";
-import { generateKey } from "../utils/key";
-import { toPoint } from "../utils/position";
-import { getRoughSVG } from "../utils/rough";
-import { transform } from "../utils/viewport";
+import { Point } from 'roughjs/bin/geometry';
+import { roughDrawer } from '../engine';
+import { EdgeMode } from '../interfaces/attributes';
+import { ElementType, Element } from '../interfaces/element';
+import { addElement, Paper } from '../interfaces/paper';
+import { PointerType } from '../interfaces/pointer';
+import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from '../utils/common';
+import { generateKey } from '../utils/key';
+import { toPoint } from '../utils/position';
+import { getRoughSVG } from '../utils/rough';
+import { transform } from '../utils/viewport';
 
 export function likeLinePaper<T extends Paper>(paper: T) {
     let start: Point | null = null;
@@ -30,7 +30,7 @@ export function likeLinePaper<T extends Paper>(paper: T) {
             return;
         }
         mousedown(event);
-    }
+    };
 
     paper.mousemove = (event: MouseEvent) => {
         const attributes = getAttributes(paper);
@@ -42,11 +42,17 @@ export function likeLinePaper<T extends Paper>(paper: T) {
             hostSVGG = destroyHostSVGG(hostSVGG);
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.line) {
-                const lineElement = transform(paper, createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const lineElement = transform(
+                    paper,
+                    createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode)
+                );
                 g = roughDrawer.draw(roughSVG, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const arrowElement = transform(paper, createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const arrowElement = transform(
+                    paper,
+                    createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode)
+                );
                 g = roughDrawer.draw(roughSVG, arrowElement);
             }
             appendHostSVGG(paper, g);
@@ -58,11 +64,17 @@ export function likeLinePaper<T extends Paper>(paper: T) {
             hostSVGG = destroyHostSVGG(hostSVGG);
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.line) {
-                const lineElement = transform(paper, createLikeLine(ElementType.line, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const lineElement = transform(
+                    paper,
+                    createLikeLine(ElementType.line, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode)
+                );
                 g = roughDrawer.draw(roughSVG, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const element = transform(paper, createLikeLine(ElementType.arrow, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const element = transform(
+                    paper,
+                    createLikeLine(ElementType.arrow, [...clickPoints, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode)
+                );
                 g = roughDrawer.draw(roughSVG, element);
             }
             appendHostSVGG(paper, g);
@@ -70,18 +82,24 @@ export function likeLinePaper<T extends Paper>(paper: T) {
             return;
         }
         mousemove(event);
-    }
+    };
 
     paper.mouseup = (event: MouseEvent) => {
         mouseup(event);
         const attributes = getAttributes(paper);
         if (dragMode && start && end) {
             if (paper.pointer === PointerType.line) {
-                const lineElement = transform(paper, createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const lineElement = transform(
+                    paper,
+                    createLikeLine(ElementType.line, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode)
+                );
                 addElement(paper, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const arrowElement = transform(paper, createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const arrowElement = transform(
+                    paper,
+                    createLikeLine(ElementType.arrow, [start, end], attributes.stroke, attributes.strokeWidth, attributes.edgeMode)
+                );
                 addElement(paper, arrowElement);
             }
             hostSVGG = destroyHostSVGG(hostSVGG);
@@ -96,17 +114,35 @@ export function likeLinePaper<T extends Paper>(paper: T) {
         start = null;
         end = null;
         paper.dragging = false;
-    }
+    };
 
     paper.dblclick = (event: MouseEvent) => {
         const attributes = getAttributes(paper);
         if (clickMode && clickPoints.length > 3) {
             if (paper.pointer === PointerType.line) {
-                const lineElement = transform(paper, createLikeLine(ElementType.line, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const lineElement = transform(
+                    paper,
+                    createLikeLine(
+                        ElementType.line,
+                        clickPoints.slice(0, clickPoints.length - 1),
+                        attributes.stroke,
+                        attributes.strokeWidth,
+                        attributes.edgeMode
+                    )
+                );
                 addElement(paper, lineElement);
             }
             if (paper.pointer === PointerType.arrow) {
-                const element = transform(paper, createLikeLine(ElementType.arrow, clickPoints.slice(0, clickPoints.length - 1), attributes.stroke, attributes.strokeWidth, attributes.edgeMode));
+                const element = transform(
+                    paper,
+                    createLikeLine(
+                        ElementType.arrow,
+                        clickPoints.slice(0, clickPoints.length - 1),
+                        attributes.stroke,
+                        attributes.strokeWidth,
+                        attributes.edgeMode
+                    )
+                );
                 addElement(paper, element);
             }
             hostSVGG = destroyHostSVGG(hostSVGG);
@@ -114,7 +150,7 @@ export function likeLinePaper<T extends Paper>(paper: T) {
             clickPoints = [];
         }
         dblclick(event);
-    }
+    };
 
     return paper;
 }

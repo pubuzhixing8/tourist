@@ -1,9 +1,21 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ComponentFactoryResolver, ElementRef, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from "@angular/core";
-import { Element } from "../interfaces/element";
-import { ELEMENT_TO_COMPONENTS, HOSTSVGG_TO_ELEMENT } from "../utils/weak-maps";
-import { PlaitBaseElement } from "../base/element-base";
-import { Subject } from "rxjs";
-import { roughDrawer } from "../engine";
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ComponentFactoryResolver,
+    ElementRef,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Renderer2,
+    SimpleChanges,
+    ViewContainerRef
+} from '@angular/core';
+import { Element } from '../interfaces/element';
+import { ELEMENT_TO_COMPONENTS, HOSTSVGG_TO_ELEMENT } from '../utils/weak-maps';
+import { PlaitBaseElement } from '../base/element-base';
+import { Subject } from 'rxjs';
+import { roughDrawer } from '../engine';
 
 @Component({
     selector: 'white-board-element',
@@ -13,10 +25,12 @@ import { roughDrawer } from "../engine";
 export class PlaitElementComponent extends PlaitBaseElement implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     destroy$: Subject<any> = new Subject();
 
-    constructor(public elementRef: ElementRef,
+    constructor(
+        public elementRef: ElementRef,
         public componentFactoryResolver: ComponentFactoryResolver,
         public viewContainerRef: ViewContainerRef,
-        public renderer2: Renderer2) {
+        public renderer2: Renderer2
+    ) {
         super(elementRef, componentFactoryResolver, viewContainerRef, renderer2);
     }
 
@@ -32,7 +46,7 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
         }
         if (this.rootSVG) {
             const root = this.rootSVG;
-            this.hostSVGG.forEach((g) => {
+            this.hostSVGG.forEach(g => {
                 root.appendChild(g);
                 HOSTSVGG_TO_ELEMENT.set(g, this.element as Element);
             });
@@ -40,8 +54,7 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
         this.transform();
     }
 
-    ngAfterViewInit(): void {
-    }
+    ngAfterViewInit(): void {}
 
     // hidden() {
     //     if (this.svgGElement) {
@@ -63,7 +76,7 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
         const elementChange = changes['element'];
         if (elementChange) {
             ELEMENT_TO_COMPONENTS.set(this.element as Element, this);
-            this.hostSVGG.forEach((g) => {
+            this.hostSVGG.forEach(g => {
                 HOSTSVGG_TO_ELEMENT.set(g, this.element as Element);
             });
         }
@@ -86,7 +99,7 @@ export class PlaitElementComponent extends PlaitBaseElement implements OnInit, A
         this.destroy$.next();
         this.destroy$.complete();
         if (this.roughSVG && this.element && this.hostSVGG) {
-            this.hostSVGG.forEach((g) => {
+            this.hostSVGG.forEach(g => {
                 HOSTSVGG_TO_ELEMENT.delete(g);
             });
             roughDrawer.destroy(this.roughSVG, this.element, this.hostSVGG);

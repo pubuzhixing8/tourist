@@ -1,6 +1,6 @@
-import { Point } from "roughjs/bin/geometry";
-import { ACTIVE_RECTANGLE_DISTANCE } from "../constants";
-import { RectanglePosition } from "../utils/position";
+import { Point } from 'roughjs/bin/geometry';
+import { ACTIVE_RECTANGLE_DISTANCE } from '../constants';
+import { RectanglePosition } from '../utils/position';
 
 // export interface Rectangle {
 //     x: number;

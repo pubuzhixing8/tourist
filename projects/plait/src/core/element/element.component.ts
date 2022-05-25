@@ -1,9 +1,19 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from "@angular/core";
-import { PlaitElement } from "../../interfaces/element";
-import { PlaitBoard } from "../../interfaces/board";
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Renderer2,
+    SimpleChanges,
+    ViewContainerRef
+} from '@angular/core';
+import { PlaitElement } from '../../interfaces/element';
+import { PlaitBoard } from '../../interfaces/board';
 import { Selection } from '../../interfaces/selection';
-import { createG } from "../../utils/dom";
-import { Viewport } from "../../interfaces/viewport";
+import { createG } from '../../utils/dom';
+import { Viewport } from '../../interfaces/viewport';
 
 @Component({
     selector: 'plait-element',
@@ -16,7 +26,7 @@ export class PlaitElementComponent implements OnInit, OnChanges, OnDestroy {
     groupG!: SVGGElement;
 
     @Input() index!: number;
-    
+
     @Input() element!: PlaitElement;
 
     @Input() board!: PlaitBoard;
@@ -27,8 +37,7 @@ export class PlaitElementComponent implements OnInit, OnChanges, OnDestroy {
 
     @Input() host!: SVGElement;
 
-
-    constructor(public renderer2: Renderer2, public viewContainerRef: ViewContainerRef) { }
+    constructor(public renderer2: Renderer2, public viewContainerRef: ViewContainerRef) {}
 
     ngOnInit(): void {
         this.initialize();
@@ -51,10 +60,10 @@ export class PlaitElementComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     drawElement() {
-       const gArray = this.board.drawElement({ elementInstance: this });
-       gArray.forEach((g) => {
-        this.groupG.appendChild(g);
-       })
+        const gArray = this.board.drawElement({ elementInstance: this });
+        gArray.forEach(g => {
+            this.groupG.appendChild(g);
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {

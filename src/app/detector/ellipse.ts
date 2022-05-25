@@ -1,9 +1,9 @@
-import { Point } from "roughjs/bin/geometry";
-import { DISTANCE_THRESHOLD } from "../constants";
-import { Element } from "../interfaces/element";
-import { Selection } from "../interfaces/selection";
-import { toEllipseClient, toRectangleClient } from "../utils/shape";
-import { BaseDetector } from "./base";
+import { Point } from 'roughjs/bin/geometry';
+import { DISTANCE_THRESHOLD } from '../constants';
+import { Element } from '../interfaces/element';
+import { Selection } from '../interfaces/selection';
+import { toEllipseClient, toRectangleClient } from '../utils/shape';
+import { BaseDetector } from './base';
 
 export const ellipseDetector: BaseDetector = {
     contian: (selection: Selection, element: Element) => {

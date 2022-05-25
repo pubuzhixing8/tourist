@@ -52,9 +52,12 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
     pointerType = PointerType;
 
     value = {
-        type: 'p', children: [{
-            text: 'richtext'
-        }]
+        type: 'p',
+        children: [
+            {
+                text: 'richtext'
+            }
+        ]
     };
 
     get zoomRatio() {
@@ -65,8 +68,7 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
         }
     }
 
-    constructor(private renderer2: Renderer2) {
-    }
+    constructor(private renderer2: Renderer2) {}
 
     ngOnInit(): void {
         this.container = this.SVG?.nativeElement;
@@ -115,11 +117,10 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
             if (paper.operations.some(op => Operation.isSetViewportOperation(op))) {
                 this.updateViewport();
             }
-        }
+        };
     }
 
-    ngAfterViewInit(): void {
-    }
+    ngAfterViewInit(): void {}
 
     updateViewport() {
         const viewBox = getViewBox(this.paper as Paper);
@@ -130,71 +131,85 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
         this.updateViewport();
         // mousedown、mousemove、mouseup
         let context: PenContext = { points: [], isDrawing: false, isReadying: false, rc };
-        fromEvent<MouseEvent>(this.container as SVGElement, 'mousedown').pipe(
-            tap((event) => {
-                paper.mousedown(event);
-            })
-        ).subscribe({
-            next: (event: MouseEvent) => {
-            }
-        });
-        fromEvent<MouseEvent>(this.container as SVGElement, 'mousemove').pipe(
-            tap((event) => {
-                paper.mousemove(event);
-            })
-        ).subscribe((event: MouseEvent) => {
-        });
-        fromEvent<MouseEvent>(document, 'mouseup').pipe(
-            tap((event) => {
-                paper.mouseup(event);
-            })
-        ).subscribe((event: MouseEvent) => {
-        });
-        fromEvent<KeyboardEvent>(document, 'keydown').pipe(
-            filter((event: KeyboardEvent) => {
-                if (event.target instanceof HTMLElement) {
-                    const richtext = event.target.closest<HTMLElement>(`.plait-richtext-container`);
-                    if (richtext) {
-                        const editor = ELEMENT_TO_NODE.get(richtext);
-                        if (editor && Editor.isEditor(editor)) {
-                            const isFocused = IS_FOCUSED.get(editor);
-                            if (isFocused) {
-                                return false;
+        fromEvent<MouseEvent>(this.container as SVGElement, 'mousedown')
+            .pipe(
+                tap(event => {
+                    paper.mousedown(event);
+                })
+            )
+            .subscribe({
+                next: (event: MouseEvent) => {}
+            });
+        fromEvent<MouseEvent>(this.container as SVGElement, 'mousemove')
+            .pipe(
+                tap(event => {
+                    paper.mousemove(event);
+                })
+            )
+            .subscribe((event: MouseEvent) => {});
+        fromEvent<MouseEvent>(document, 'mouseup')
+            .pipe(
+                tap(event => {
+                    paper.mouseup(event);
+                })
+            )
+            .subscribe((event: MouseEvent) => {});
+        fromEvent<KeyboardEvent>(document, 'keydown')
+            .pipe(
+                filter((event: KeyboardEvent) => {
+                    if (event.target instanceof HTMLElement) {
+                        const richtext = event.target.closest<HTMLElement>(`.plait-richtext-container`);
+                        if (richtext) {
+                            const editor = ELEMENT_TO_NODE.get(richtext);
+                            if (editor && Editor.isEditor(editor)) {
+                                const isFocused = IS_FOCUSED.get(editor);
+                                if (isFocused) {
+                                    return false;
+                                }
                             }
                         }
                     }
+                    return true;
+                })
+            )
+            .subscribe((event: KeyboardEvent) => {
+                this.paper?.keydown(event);
+                if (isHotkey('mod+a', event)) {
+                    const rect = this.container.getBoundingClientRect();
+                    const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
+                    setSelection(paper, selection);
+                    paper.pointer = PointerType.pointer;
+                    event.stopPropagation();
+                    event.preventDefault();
                 }
-                return true;
-            })
-        ).subscribe((event: KeyboardEvent) => {
-            this.paper?.keydown(event);
-            if (isHotkey('mod+a', event)) {
-                const rect = this.container.getBoundingClientRect();
-                const selection: Selection = { anchor: [0, 0], focus: [rect.width, rect.height] };
-                setSelection(paper, selection);
-                paper.pointer = PointerType.pointer;
-                event.stopPropagation();
+                if (Hotkeys.isUndo(event)) {
+                    paper.undo();
+                }
+                if (Hotkeys.isRedo(event)) {
+                    paper.redo();
+                }
+            });
+        fromEvent<KeyboardEvent>(document, 'keyup')
+            .pipe()
+            .subscribe((event: KeyboardEvent) => {
+                this.paper?.keyup(event);
+            });
+        fromEvent<MouseEvent>(this.container as SVGElement, 'dblclick')
+            .pipe()
+            .subscribe((event: MouseEvent) => {
+                this.paper?.dblclick(event);
+            });
+        fromEvent<WheelEvent>(this.container, 'wheel')
+            .pipe()
+            .subscribe((event: WheelEvent) => {
                 event.preventDefault();
-            }
-            if (Hotkeys.isUndo(event)) {
-                paper.undo();
-            }
-            if (Hotkeys.isRedo(event)) {
-                paper.redo();
-            }
-        });
-        fromEvent<KeyboardEvent>(document, 'keyup').pipe(
-        ).subscribe((event: KeyboardEvent) => {
-            this.paper?.keyup(event);
-        });
-        fromEvent<MouseEvent>(this.container as SVGElement, 'dblclick').pipe().subscribe((event: MouseEvent) => {
-            this.paper?.dblclick(event);
-        });
-        fromEvent<WheelEvent>(this.container, 'wheel').pipe().subscribe((event: WheelEvent) => {
-            event.preventDefault();
-            const viewport = this.paper?.viewport as Viewport;
-            setViewport(this.paper as Paper, { ...viewport, offsetX: viewport?.offsetX - event.deltaX, offsetY: viewport?.offsetY - event.deltaY });
-        });
+                const viewport = this.paper?.viewport as Viewport;
+                setViewport(this.paper as Paper, {
+                    ...viewport,
+                    offsetX: viewport?.offsetX - event.deltaX,
+                    offsetY: viewport?.offsetY - event.deltaY
+                });
+            });
 
         window.onresize = () => {
             const { width, height } = this.container.getBoundingClientRect();
@@ -205,9 +220,9 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
             const newWidth = baseWidth - scaleWidth;
             const newHeight = baseHeight - scaleHeight;
             const viewBox = this.container.getAttribute('viewBox') as string;
-            const values = viewBox.split(',')
+            const values = viewBox.split(',');
             this.renderer2.setAttribute(this.container, 'viewBox', `${values[0].trim()}, ${values[1].trim()}, ${newWidth}, ${newHeight}`);
-        }
+        };
     }
 
     attributesChange(attributes: Attributes) {
@@ -241,16 +256,14 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
     }
 
     startDraw() {
-        console.log('---start draw---')
+        console.log('---start draw---');
     }
 
     endDraw() {
-        console.log('---end draw---')
+        console.log('---end draw---');
     }
 
-    drawing(context: PenContext) {
-
-    }
+    drawing(context: PenContext) {}
 
     usePointer(event: MouseEvent, pointer: PointerType) {
         event.preventDefault();
@@ -270,7 +283,7 @@ export class PlaitWhiteBoardComponent implements OnInit, AfterViewInit {
 
     trackBy = (index: number, node: Element) => {
         return node.key;
-    }
+    };
 }
 
 export interface PenContext {
@@ -279,7 +292,7 @@ export interface PenContext {
     points: Point[];
     rc: RoughSVG;
     svg?: SVGGElement;
-};
+}
 
 export interface PenElement {
     points: Point[];
@@ -288,12 +301,12 @@ export interface PenElement {
 }
 
 export interface Page {
-    selection: Selection,
-    elements: PenElement[],
+    selection: Selection;
+    elements: PenElement[];
 }
 
 export const Page = {
     setSelection(page: Page, selection: Selection) {
         page.selection = selection;
     }
-}
+};

@@ -1,5 +1,5 @@
-import { Point } from "roughjs/bin/geometry";
-import { rotate } from "./math";
+import { Point } from 'roughjs/bin/geometry';
+import { rotate } from './math';
 
 export interface RectangleClient {
     x: number;
@@ -29,10 +29,12 @@ export function toEllipseClient(points: [Point, Point]): EllipseClient {
     const [start, end] = points;
     const width = Math.abs(end[0] - start[0]);
     let height = Math.abs(end[1] - start[1]);
-    const center: Point = [end[0] > start[0] ? end[0] - width / 2 : end[0] + width / 2, end[1] > start[1] ? end[1] - height / 2 : end[1] + height / 2];
+    const center: Point = [
+        end[0] > start[0] ? end[0] - width / 2 : end[0] + width / 2,
+        end[1] > start[1] ? end[1] - height / 2 : end[1] + height / 2
+    ];
     return { center, width, height };
 }
-
 
 const degree = 20;
 const rotateLine = 20;
@@ -44,7 +46,10 @@ export function arrowPoints(start: Point, end: Point) {
     const realRotateLine = line > rotateLine * 2 ? rotateLine : line / 2;
     const rotateWidth = (realRotateLine / line) * width;
     const rotateHeight = (realRotateLine / line) * height;
-    const rotatePoint = [end[0] > start[0] ? end[0] - rotateWidth : end[0] + rotateWidth, end[1] > start[1] ? end[1] - rotateHeight : end[1] + rotateHeight];
+    const rotatePoint = [
+        end[0] > start[0] ? end[0] - rotateWidth : end[0] + rotateWidth,
+        end[1] > start[1] ? end[1] - rotateHeight : end[1] + rotateHeight
+    ];
     const pointRight = rotate(rotatePoint[0], rotatePoint[1], end[0], end[1], (degree * Math.PI) / 180) as Point;
     const pointLeft = rotate(rotatePoint[0], rotatePoint[1], end[0], end[1], (-degree * Math.PI) / 180) as Point;
     return { pointLeft, pointRight };

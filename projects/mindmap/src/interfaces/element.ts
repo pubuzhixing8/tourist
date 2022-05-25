@@ -1,11 +1,11 @@
-import { PlaitBoard } from "plait/interfaces/board";
-import { Element } from "slate";
+import { PlaitBoard } from 'plait/interfaces/board';
+import { Element } from 'slate';
 
 export interface MindmapElement {
-    id: string,
-    value: Element,
-    children: MindmapElement[],
-    isRoot?: boolean,
-    width: number,
-    height: number
+    id: string;
+    value: Element;
+    children: MindmapElement[];
+    isRoot?: boolean;
+    width: number;
+    height: number;
 }

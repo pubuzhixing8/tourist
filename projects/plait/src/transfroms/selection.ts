@@ -1,5 +1,5 @@
-import { SetSelectionOperation } from "../interfaces/operation";
-import { PlaitBoard } from "../interfaces/board";
+import { SetSelectionOperation } from '../interfaces/operation';
+import { PlaitBoard } from '../interfaces/board';
 import { Selection } from '../interfaces/selection';
 
 export function setSelection(board: PlaitBoard, selection: Selection | null) {
@@ -13,4 +13,4 @@ export interface SelectionTransforms {
 
 export const SelectionTransforms: SelectionTransforms = {
     setSelection
-}
+};

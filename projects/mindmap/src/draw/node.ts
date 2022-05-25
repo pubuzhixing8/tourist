@@ -1,4 +1,4 @@
-import { RoughSVG } from "roughjs/bin/svg";
+import { RoughSVG } from 'roughjs/bin/svg';
 import { MindmapNode } from '../interfaces/node';
 import { drawRoundRectangle, getRectangleByNode } from '../utils/graph';
 

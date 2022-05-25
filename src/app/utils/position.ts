@@ -1,4 +1,4 @@
-import { Point } from "roughjs/bin/geometry";
+import { Point } from 'roughjs/bin/geometry';
 // import { Rectangle } from "../interfaces/rectangle";
 import { Selection } from '../interfaces/selection';
 
@@ -22,8 +22,8 @@ export const RectanglePositionToCursor = {
     [`${RectanglePosition.rightBottom}`]: 'nwse-resize',
     [`${RectanglePosition.leftBottom}`]: 'nesw-resize',
     [`${RectanglePosition.bottom}`]: 'ns-resize',
-    [`${RectanglePosition.left}`]: 'ew-resize',
-}
+    [`${RectanglePosition.left}`]: 'ew-resize'
+};
 
 export function toPoint(x: number, y: number, container: SVGElement): Point {
     const rect = container.getBoundingClientRect();
@@ -41,7 +41,7 @@ export function toRectangle(points: Point[]) {
     const xMax = Math.max(...xArray);
     const yMin = Math.min(...yArray);
     const yMax = Math.max(...yArray);
-    const rect = { x: xMin, y: yMin, width: xMax - xMin , height: yMax - yMin };
+    const rect = { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
     if (rect.width === 0) {
         rect.width = 1;
     }

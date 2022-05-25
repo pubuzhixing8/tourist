@@ -1,16 +1,16 @@
-import { PlaitBoard } from "./board";
-import { Path } from "./path";
+import { PlaitBoard } from './board';
+import { Path } from './path';
 
 export interface PlaitNode {
     [key: string]: any;
-    children?: PlaitNode[]
+    children?: PlaitNode[];
 }
 
 export type Ancestor = PlaitBoard | PlaitNode;
 
 export interface PlaitNodeInterface {
-    parent: (board: PlaitBoard, path: Path) => Ancestor,
-    get: (board: PlaitBoard, path: Path) => PlaitNode
+    parent: (board: PlaitBoard, path: Path) => Ancestor;
+    get: (board: PlaitBoard, path: Path) => PlaitNode;
 }
 
 export const PlaitNode: PlaitNodeInterface = {
@@ -23,17 +23,15 @@ export const PlaitNode: PlaitNodeInterface = {
         let node: PlaitBoard | PlaitNode = board;
 
         for (let i = 0; i < path.length; i++) {
-            const p = path[i]
+            const p = path[i];
 
             if (!node || !node.children || !node.children[p]) {
-                throw new Error(
-                    `Cannot find a descendant at path [${path}]`
-                );
+                throw new Error(`Cannot find a descendant at path [${path}]`);
             }
 
             node = node.children[p];
         }
 
         return node;
-    },
-}
+    }
+};

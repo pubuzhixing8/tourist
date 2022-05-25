@@ -1,6 +1,6 @@
-import { SetViewportOperation } from "../interfaces/operation";
-import { PlaitBoard } from "../interfaces/board";
-import { Viewport } from "../interfaces/viewport";
+import { SetViewportOperation } from '../interfaces/operation';
+import { PlaitBoard } from '../interfaces/board';
+import { Viewport } from '../interfaces/viewport';
 
 export function setViewport(board: PlaitBoard, viewport: Viewport) {
     const operation: SetViewportOperation = { type: 'set_viewport', properties: board.viewport, newProperties: viewport };
@@ -13,4 +13,4 @@ export interface ViewportTransforms {
 
 export const ViewportTransforms: ViewportTransforms = {
     setViewport
-}
+};

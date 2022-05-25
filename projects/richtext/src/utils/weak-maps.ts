@@ -1,4 +1,4 @@
-import { Editor, Node } from "slate";
+import { Editor, Node } from 'slate';
 
 /**
  * Weak maps for storing editor-related state.

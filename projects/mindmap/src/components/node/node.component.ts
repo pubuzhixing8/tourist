@@ -1,23 +1,36 @@
-import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ComponentRef, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewContainerRef } from "@angular/core";
-import { drawNode } from "../../draw/node";
-import { RoughSVG } from "roughjs/bin/svg";
-import { MindmapNode } from "../../interfaces/node";
-import { drawLine } from "../../draw/line";
-import { drawRoundRectangle, getRectangleByNode, hitMindmapNode } from "../../utils/graph";
-import { MINDMAP_NODE_KEY, PRIMARY_COLOR } from "../../constants";
-import { HAS_SELECTED_MINDMAP_ELEMENT, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from "../../utils/weak-maps";
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ComponentFactoryResolver,
+    ComponentRef,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewContainerRef
+} from '@angular/core';
+import { drawNode } from '../../draw/node';
+import { RoughSVG } from 'roughjs/bin/svg';
+import { MindmapNode } from '../../interfaces/node';
+import { drawLine } from '../../draw/line';
+import { drawRoundRectangle, getRectangleByNode, hitMindmapNode } from '../../utils/graph';
+import { MINDMAP_NODE_KEY, PRIMARY_COLOR } from '../../constants';
+import { HAS_SELECTED_MINDMAP_ELEMENT, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from '../../utils/weak-maps';
 import { Selection } from 'plait/interfaces/selection';
-import { PlaitRichtextComponent, setFullSelectionAndFocus } from "richtext";
-import { debounceTime } from "rxjs/operators";
-import { drawMindmapNodeRichtext, updateMindmapNodeRichtextLocation } from "../../draw/richtext";
-import { createG, toPoint } from "plait/utils/dom";
-import { MindmapElement } from "../../interfaces/element";
-import { fromEvent } from "rxjs";
-import { HOST_TO_ROUGH_SVG } from "plait/utils/weak-maps";
+import { PlaitRichtextComponent, setFullSelectionAndFocus } from 'richtext';
+import { debounceTime } from 'rxjs/operators';
+import { drawMindmapNodeRichtext, updateMindmapNodeRichtextLocation } from '../../draw/richtext';
+import { createG, toPoint } from 'plait/utils/dom';
+import { MindmapElement } from '../../interfaces/element';
+import { fromEvent } from 'rxjs';
+import { HOST_TO_ROUGH_SVG } from 'plait/utils/weak-maps';
 
 @Component({
     selector: 'plait-mindmap-node',
-    template: '<plait-mindmap-node *ngFor="let childNode of node?.children;trackBy: trackBy" [host]="host" [mindmapGGroup]="mindmapGGroup" [node]="childNode" [parent]="node" [selection]="selection"></plait-mindmap-node>',
+    template:
+        '<plait-mindmap-node *ngFor="let childNode of node?.children;trackBy: trackBy" [host]="host" [mindmapGGroup]="mindmapGGroup" [node]="childNode" [parent]="node" [selection]="selection"></plait-mindmap-node>',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
@@ -49,11 +62,10 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
 
     richtextComponentRef?: ComponentRef<PlaitRichtextComponent>;
 
-    constructor(private componentFactoryResolver: ComponentFactoryResolver, private viewContainerRef: ViewContainerRef) {
-    }
+    constructor(private componentFactoryResolver: ComponentFactoryResolver, private viewContainerRef: ViewContainerRef) {}
 
     ngOnInit(): void {
-        this.gGroup = createG()
+        this.gGroup = createG();
         this.gGroup.setAttribute(MINDMAP_NODE_KEY, 'true');
         this.mindmapGGroup.prepend(this.gGroup);
         this.roughSVG = HOST_TO_ROUGH_SVG.get(this.host) as RoughSVG;
@@ -103,11 +115,27 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         const selected = HAS_SELECTED_MINDMAP_ELEMENT.get(this.node.data);
         if (selected || this.isEditable) {
             const { x, y, width, height } = getRectangleByNode(this.node as MindmapNode);
-            const selectedStrokeG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: PRIMARY_COLOR, strokeWidth: 2, fill: '' }, true);
+            const selectedStrokeG = drawRoundRectangle(
+                this.roughSVG as RoughSVG,
+                x - 2,
+                y - 2,
+                x + width + 2,
+                y + height + 2,
+                { stroke: PRIMARY_COLOR, strokeWidth: 2, fill: '' },
+                true
+            );
             this.gGroup.appendChild(selectedStrokeG);
             this.selectedMarks.push(selectedStrokeG);
             if (this.richtextComponentRef?.instance.readonly === true) {
-                const selectedBackgroundG = drawRoundRectangle(this.roughSVG as RoughSVG, x - 2, y - 2, x + width + 2, y + height + 2, { stroke: PRIMARY_COLOR, fill: PRIMARY_COLOR, fillStyle: 'solid' }, true);
+                const selectedBackgroundG = drawRoundRectangle(
+                    this.roughSVG as RoughSVG,
+                    x - 2,
+                    y - 2,
+                    x + width + 2,
+                    y + height + 2,
+                    { stroke: PRIMARY_COLOR, fill: PRIMARY_COLOR, fillStyle: 'solid' },
+                    true
+                );
                 selectedBackgroundG.style.opacity = '0.15';
                 // 影响双击事件
                 selectedBackgroundG.style.pointerEvents = 'none';
@@ -118,12 +146,16 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     destroySelectedState() {
-        this.selectedMarks.forEach((g) => g.remove());
+        this.selectedMarks.forEach(g => g.remove());
         this.selectedMarks = [];
     }
 
     drawRichtext() {
-        const { richTextG, richtextComponentRef } = drawMindmapNodeRichtext(this.node as MindmapNode, this.componentFactoryResolver, this.viewContainerRef);
+        const { richTextG, richtextComponentRef } = drawMindmapNodeRichtext(
+            this.node as MindmapNode,
+            this.componentFactoryResolver,
+            this.viewContainerRef
+        );
         this.richtextComponentRef = richtextComponentRef;
         this.richtextG = richTextG;
         this.gGroup.append(richTextG);
@@ -175,7 +207,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         }
         let richtext = richtextInstance.value;
         // 增加 debounceTime 等待 DOM 渲染完成后再去取文本宽高
-        const valueChange$ = richtextInstance.onChange.pipe(debounceTime(0)).subscribe((event) => {
+        const valueChange$ = richtextInstance.onChange.pipe(debounceTime(0)).subscribe(event => {
             if (richtext === event.value) {
                 return;
             }
@@ -185,7 +217,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             const newElement = { value: richtext, width, height } as MindmapElement;
             valueChange(newElement);
         });
-        const composition$ = richtextInstance.composition.subscribe((event) => {
+        const composition$ = richtextInstance.composition.subscribe(event => {
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
             if (event.isComposing && (width !== this.node.data.width || height !== this.node.data.height)) {
                 const newElement: Partial<MindmapElement> = { width, height };
@@ -218,12 +250,12 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             this.isEditable = false;
             // callback
             exitCallback();
-        }
+        };
     }
 
     trackBy = (index: number, node: MindmapNode) => {
         return index;
-    }
+    };
 
     ngOnDestroy(): void {
         this.destroyRichtext();

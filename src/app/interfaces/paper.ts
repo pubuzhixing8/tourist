@@ -33,22 +33,19 @@ export function createPaper(config: PaperConfig): Paper {
         selectedMap: new WeakMap(),
         dragging: false,
         viewport: config.viewport,
-        onChange: () => {
-
-        },
+        onChange: () => {},
         apply: (operation: Operation) => {
             if (Operation.isAddOperation(operation)) {
                 paper.elements.push(operation.data);
             } else if (Operation.isRemoveOperation(operation)) {
-                const index = paper.elements.findIndex((element) => element.key === operation.data.key);
+                const index = paper.elements.findIndex(element => element.key === operation.data.key);
                 paper.elements.splice(index, 1);
             } else if (Operation.isSetSelectionOperation(operation)) {
                 paper.selection = operation.data;
             } else if (Operation.isSetViewportOperation(operation)) {
                 paper.viewport = operation.data;
-            }
-            else if (Operation.isSetElementOperation(operation)) {
-                const index = paper.elements.findIndex((element) => element.key === operation.data.key);
+            } else if (Operation.isSetElementOperation(operation)) {
+                const index = paper.elements.findIndex(element => element.key === operation.data.key);
                 const newElement = { ...paper.elements[index] } as any;
                 const newProperties = operation.newProperties as any;
                 for (const key in newProperties) {
@@ -73,17 +70,17 @@ export function createPaper(config: PaperConfig): Paper {
                 paper.operations = [];
             });
         },
-        mousedown: (event) => { },
-        mouseup: (event) => { },
-        mousemove: (event) => { },
-        keydown: (event) => {
+        mousedown: event => {},
+        mouseup: event => {},
+        mousemove: event => {},
+        keydown: event => {
             if (Hotkeys.isDeleteBackward(event) && paper.pointer === PointerType.pointer) {
-                const deleteElements = paper.elements.filter((ele) => paper.selectedMap.get(ele));
-                deleteElements.forEach((ele) => removeElement(paper, ele));
+                const deleteElements = paper.elements.filter(ele => paper.selectedMap.get(ele));
+                deleteElements.forEach(ele => removeElement(paper, ele));
             }
         },
-        keyup: (event) => { },
-        dblclick: (event) => { }
+        keyup: event => {},
+        dblclick: event => {}
     };
     return paper;
 }
@@ -130,4 +127,4 @@ export type Viewport = {
 
 export type PaperConfig = {
     viewport: Viewport;
-}
+};

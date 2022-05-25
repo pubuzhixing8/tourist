@@ -1,10 +1,10 @@
-import { SimpleChanges } from "@angular/core";
-import { CursorStatus } from "./cursor";
-import { PlaitElement } from "./element";
-import { PlaitElementContext } from "./element-context";
-import { PlaitOperation } from "./operation";
+import { SimpleChanges } from '@angular/core';
+import { CursorStatus } from './cursor';
+import { PlaitElement } from './element';
+import { PlaitElementContext } from './element-context';
+import { PlaitOperation } from './operation';
 import { Selection } from './selection';
-import { Viewport } from "./viewport";
+import { Viewport } from './viewport';
 
 export interface PlaitBoard {
     host: SVGElement;
@@ -25,4 +25,3 @@ export interface PlaitBoard {
     redrawElement: (context: PlaitElementContext, changes: SimpleChanges) => SVGGElement[];
     destroyElement: () => void;
 }
-

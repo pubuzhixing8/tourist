@@ -1,4 +1,4 @@
-import { Point } from "roughjs/bin/geometry";
+import { Point } from 'roughjs/bin/geometry';
 
 export const NS = 'http://www.w3.org/2000/svg';
 
@@ -8,6 +8,6 @@ export function toPoint(x: number, y: number, container: SVGElement): Point {
 }
 
 export function createG() {
-    const newG = document.createElementNS(NS, "g");
+    const newG = document.createElementNS(NS, 'g');
     return newG;
 }

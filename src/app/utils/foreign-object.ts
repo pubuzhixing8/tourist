@@ -10,21 +10,20 @@ import { Point } from 'roughjs/bin/geometry';
 
 const NS = 'http://www.w3.org/2000/svg';
 
-
 export function createForeignObject(x: number, y: number, width: number, height: number) {
-    var newForeignObject = document.createElementNS(NS, "foreignObject");
-    newForeignObject.setAttribute("x", `${x}`);
-    newForeignObject.setAttribute("y", `${y}`);
-    newForeignObject.setAttribute("width", `${width}`);
-    newForeignObject.setAttribute("height", `${height}`);
+    var newForeignObject = document.createElementNS(NS, 'foreignObject');
+    newForeignObject.setAttribute('x', `${x}`);
+    newForeignObject.setAttribute('y', `${y}`);
+    newForeignObject.setAttribute('width', `${width}`);
+    newForeignObject.setAttribute('height', `${height}`);
     return newForeignObject;
 }
 
 export function updateForeignObject(g: SVGGElement, width: number, height: number) {
     const foreignObject = g.querySelector('foreignObject');
     if (foreignObject) {
-        foreignObject.setAttribute("width", `${width}`);
-        foreignObject.setAttribute("height", `${height}`);
+        foreignObject.setAttribute('width', `${width}`);
+        foreignObject.setAttribute('height', `${height}`);
     }
 }
 
@@ -42,7 +41,7 @@ export function startEditRichtext(paper: Paper, element: Element, g: SVGGElement
             }, 0);
         }
         let richtext = element.richtext;
-        const valueChange$ = richTextRef.instance.onChange.subscribe((event) => {
+        const valueChange$ = richTextRef.instance.onChange.subscribe(event => {
             richtext = event.value;
         });
         richTextRef.instance.blur.pipe(take(1)).subscribe(() => {
@@ -75,21 +74,29 @@ export function endEditRichtext(paper: Paper, g: SVGGElement) {
 }
 
 export function createG() {
-    const newG = document.createElementNS(NS, "g");
+    const newG = document.createElementNS(NS, 'g');
     return newG;
 }
 
-export function createRichtext(element: SlateElement, componentFactoryResolver: ComponentFactoryResolver, viewContainerRef: ViewContainerRef, edit: boolean) {
+export function createRichtext(
+    element: SlateElement,
+    componentFactoryResolver: ComponentFactoryResolver,
+    viewContainerRef: ViewContainerRef,
+    edit: boolean
+) {
     const componentFactory = componentFactoryResolver.resolveComponentFactory(PlaitRichtextComponent);
-    const componentRef = viewContainerRef.createComponent<PlaitRichtextComponent>(
-        componentFactory
-    );
+    const componentRef = viewContainerRef.createComponent<PlaitRichtextComponent>(componentFactory);
     componentRef.instance.value = element;
     componentRef.instance.readonly = edit ? false : true;
     return componentRef;
 }
 
-export function renderRichtext(element: Element, componentFactoryResolver: ComponentFactoryResolver, viewContainerRef: ViewContainerRef, edit = false) {
+export function renderRichtext(
+    element: Element,
+    componentFactoryResolver: ComponentFactoryResolver,
+    viewContainerRef: ViewContainerRef,
+    edit = false
+) {
     const g = createG();
     const width = element.points[1][0] - element.points[0][0];
     const height = element.points[1][1] - element.points[0][1];
@@ -104,4 +111,3 @@ export function updateEditStatus(richtextComponentRef: ComponentRef<PlaitRichtex
     richtextComponentRef.instance.readonly = edit ? false : true;
     richtextComponentRef.changeDetectorRef.markForCheck();
 }
-

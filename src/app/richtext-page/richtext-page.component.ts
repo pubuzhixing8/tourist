@@ -7,13 +7,9 @@ import { OnChangeEvent } from 'richtext/interface/event';
 })
 export class RichtextPageComponent implements OnInit {
     value = {
-        children: [
-            { text: '富文本' }
-        ]
+        children: [{ text: '富文本' }]
     };
-    ngOnInit(): void {
-
-    }
+    ngOnInit(): void {}
 
     onChange(event: OnChangeEvent) {
         console.log(event);

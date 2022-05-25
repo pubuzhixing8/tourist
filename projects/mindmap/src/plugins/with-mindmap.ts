@@ -1,18 +1,18 @@
-import { isPlaitMindmap, PlaitMindmap } from "../interfaces/mindmap";
-import { PlaitBoard } from "plait/interfaces/board";
-import { PlaitElementContext } from "plait/interfaces/element-context";
-import { PlaitPlugin } from "plait/interfaces/plugin";
-import { PlaitMindmapComponent } from "../mindmap.component";
-import { IS_TEXT_EDITABLE } from "plait/utils/weak-maps";
-import { toPoint } from "plait/utils/dom";
-import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_ELEMENT, MINDMAP_NODE_TO_COMPONENT, MINDMAP_TO_COMPONENT } from "../utils/weak-maps";
-import { hitMindmapNode } from "../utils/graph";
-import { PlaitElement } from "plait/interfaces/element";
-import { MindmapNode } from "../interfaces/node";
-import { SimpleChanges } from "@angular/core";
-import { Transforms } from "plait/transfroms";
-import { Path } from "plait/interfaces/path";
-import { MindmapElement } from "../interfaces/element";
+import { isPlaitMindmap, PlaitMindmap } from '../interfaces/mindmap';
+import { PlaitBoard } from 'plait/interfaces/board';
+import { PlaitElementContext } from 'plait/interfaces/element-context';
+import { PlaitPlugin } from 'plait/interfaces/plugin';
+import { PlaitMindmapComponent } from '../mindmap.component';
+import { IS_TEXT_EDITABLE } from 'plait/utils/weak-maps';
+import { toPoint } from 'plait/utils/dom';
+import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_ELEMENT, MINDMAP_NODE_TO_COMPONENT, MINDMAP_TO_COMPONENT } from '../utils/weak-maps';
+import { hitMindmapNode } from '../utils/graph';
+import { PlaitElement } from 'plait/interfaces/element';
+import { MindmapNode } from '../interfaces/node';
+import { SimpleChanges } from '@angular/core';
+import { Transforms } from 'plait/transfroms';
+import { Path } from 'plait/interfaces/path';
+import { MindmapElement } from '../interfaces/element';
 
 export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
     const { drawElement, dblclick, mousedown, mousemove, mouseup, keydown, redrawElement } = board;
@@ -28,7 +28,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
             return [mindmapInstance.mindmapGGroup];
         }
         return drawElement(context);
-    }
+    };
 
     board.mouseup = (event: MouseEvent) => {
         if (IS_TEXT_EDITABLE.get(board)) {
@@ -43,7 +43,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 (root as any).eachNode((node: MindmapNode) => {
                     if (hitMindmapNode(point, node)) {
                         HAS_SELECTED_MINDMAP_ELEMENT.set(node.data, true);
-                        selectedMindmap = value
+                        selectedMindmap = value;
                     } else {
                         HAS_SELECTED_MINDMAP_ELEMENT.has(node.data) && HAS_SELECTED_MINDMAP_ELEMENT.delete(node.data);
                     }
@@ -56,7 +56,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
             }
         });
         mouseup(event);
-    }
+    };
 
     board.keydown = (event: KeyboardEvent) => {
         if (IS_TEXT_EDITABLE.get(board)) {
@@ -85,7 +85,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 });
             }
         }
-    }
+    };
 
     board.dblclick = (event: MouseEvent) => {
         if (IS_TEXT_EDITABLE.get(board)) {
@@ -103,18 +103,21 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                         const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
                         if (nodeComponent) {
                             IS_TEXT_EDITABLE.set(board, true);
-                            nodeComponent.startEditText((element: Partial<MindmapElement>) => {
-                                const path = findPath(board, nodeComponent.node);
-                                Transforms.setNode(board, element, path);
-                            }, () => {
-                                IS_TEXT_EDITABLE.set(board, false);
-                            });
+                            nodeComponent.startEditText(
+                                (element: Partial<MindmapElement>) => {
+                                    const path = findPath(board, nodeComponent.node);
+                                    Transforms.setNode(board, element, path);
+                                },
+                                () => {
+                                    IS_TEXT_EDITABLE.set(board, false);
+                                }
+                            );
                         }
                     }
                 });
             }
         });
-    }
+    };
 
     board.redrawElement = (context: PlaitElementContext, changes: SimpleChanges) => {
         console.log('redraw');
@@ -136,10 +139,10 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
             return [mindmapInstance.mindmapGGroup];
         }
         return drawElement(context);
-    }
+    };
 
     return board;
-}
+};
 
 export function findPath(board: PlaitBoard, node: MindmapNode): Path {
     const path = [];

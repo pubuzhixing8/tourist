@@ -1,5 +1,5 @@
-import { BOARD_TO_ON_CHANGE } from "../utils/weak-maps";
-import { PlaitBoard } from "../interfaces/board";
+import { BOARD_TO_ON_CHANGE } from '../utils/weak-maps';
+import { PlaitBoard } from '../interfaces/board';
 
 export function withBoard(board: PlaitBoard) {
     const { onChange, mouseup } = board;
@@ -12,7 +12,7 @@ export function withBoard(board: PlaitBoard) {
         }
 
         onChange();
-    }
+    };
 
     return board;
 }

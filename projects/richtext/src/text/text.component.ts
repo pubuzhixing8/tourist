@@ -1,7 +1,17 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges } from "@angular/core";
-import { WITH_ZERO_WIDTH_CHAR, ZERO_WIDTH_CHAR } from "../utils/dom";
-import { Text, Element } from "slate";
-import { ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from "../utils/weak-maps";
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    Input,
+    OnChanges,
+    OnInit,
+    Renderer2,
+    SimpleChanges
+} from '@angular/core';
+import { WITH_ZERO_WIDTH_CHAR, ZERO_WIDTH_CHAR } from '../utils/dom';
+import { Text, Element } from 'slate';
+import { ELEMENT_TO_NODE, NODE_TO_ELEMENT, NODE_TO_INDEX } from '../utils/weak-maps';
 
 @Component({
     selector: 'plait-text, span[plaitTextNode]',
@@ -44,7 +54,7 @@ export class PlaitTextComponent implements OnInit, AfterViewInit, OnChanges {
         return false;
     }
 
-    constructor(private elementRef: ElementRef<HTMLElement>, public renderer2: Renderer2) { }
+    constructor(private elementRef: ElementRef<HTMLElement>, public renderer2: Renderer2) {}
 
     ngOnInit(): void {
         this.updateWeakMap();

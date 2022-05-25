@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { Paper } from "../../interfaces/paper";
-import { Attributes } from "../../interfaces/attributes";
-import { PointerType } from "../../interfaces/pointer";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Paper } from '../../interfaces/paper';
+import { Attributes } from '../../interfaces/attributes';
+import { PointerType } from '../../interfaces/pointer';
 
 @Component({
     selector: 'style-card',
@@ -21,29 +21,35 @@ export class StyleCardComponent implements OnInit {
 
     colorList = ['#000000', '#343a40', '#495057', '#c92a2a', '#862e9c', '#e67700'];
 
-    strokeWidthList = [{
-        name: '细',
-        value: 1
-    }, {
-        name: '粗',
-        value: 2
-    }, {
-        name: '特粗',
-        value: 3
-    }];
+    strokeWidthList = [
+        {
+            name: '细',
+            value: 1
+        },
+        {
+            name: '粗',
+            value: 2
+        },
+        {
+            name: '特粗',
+            value: 3
+        }
+    ];
 
-    edgeModeList = [{
-        name: '尖锐',
-        value: 'sharp'
-    }, {
-        name: '圆润',
-        value: 'round'
-    }];
+    edgeModeList = [
+        {
+            name: '尖锐',
+            value: 'sharp'
+        },
+        {
+            name: '圆润',
+            value: 'round'
+        }
+    ];
 
-    constructor() { }
+    constructor() {}
 
-    ngOnInit(): void {
-    }
+    ngOnInit(): void {}
 
     colorSelect(event: MouseEvent, stroke: string) {
         event.preventDefault();

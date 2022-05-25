@@ -1,6 +1,6 @@
-import { Editor } from "slate";
-import { EDITOR_TO_ON_CHANGE } from "../utils/weak-maps";
-import { RichtextEditor } from "./richtext-editor";
+import { Editor } from 'slate';
+import { EDITOR_TO_ON_CHANGE } from '../utils/weak-maps';
+import { RichtextEditor } from './richtext-editor';
 
 export const withRichtext = <T extends Editor>(editor: T) => {
     const e = editor as T & RichtextEditor;
@@ -14,13 +14,13 @@ export const withRichtext = <T extends Editor>(editor: T) => {
         }
 
         onChange();
-    }
+    };
 
     e.insertBreak = () => {
         editor.insertText('\n');
-    }
+    };
 
-    e.keydown = (event: KeyboardEvent) => {}
+    e.keydown = (event: KeyboardEvent) => {};
 
     return e;
-}
+};

@@ -1,8 +1,8 @@
-import { RoughSVG } from "roughjs/bin/svg";
-import { PlaitBoard } from "../interfaces/board";
+import { RoughSVG } from 'roughjs/bin/svg';
+import { PlaitBoard } from '../interfaces/board';
 
 // record richtext type status
-export const FLUSHING: WeakMap<PlaitBoard, boolean> = new WeakMap()
+export const FLUSHING: WeakMap<PlaitBoard, boolean> = new WeakMap();
 
 export const IS_TEXT_EDITABLE = new WeakMap<PlaitBoard, boolean>();
 

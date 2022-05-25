@@ -1,5 +1,5 @@
-import { Paper } from "../interfaces/paper";
-import { PAPER_TO_ATTRIBUTES } from "./weak-maps";
+import { Paper } from '../interfaces/paper';
+import { PAPER_TO_ATTRIBUTES } from './weak-maps';
 
 export function getAttributes(paper: Paper) {
     const fun = PAPER_TO_ATTRIBUTES.get(paper);
@@ -11,7 +11,7 @@ export function getAttributes(paper: Paper) {
 
 export function appendHostSVGG(paper: Paper, hostSVGG: SVGGElement[] | SVGGElement) {
     if (Array.isArray(hostSVGG)) {
-        hostSVGG.forEach((dom) => {
+        hostSVGG.forEach(dom => {
             paper.container?.appendChild(dom);
             dom.setAttribute('transform', `translate(${paper.viewport.offsetX} ${paper.viewport.offsetY})`);
         });
@@ -30,7 +30,7 @@ export function arrayHostSVGG(hostSVGG: SVGGElement[] | SVGGElement) {
 }
 
 export function destroyHostSVGG(hostSVGG: SVGGElement[]) {
-    hostSVGG.forEach((g) => g.remove());
+    hostSVGG.forEach(g => g.remove());
     hostSVGG = [];
     return hostSVGG;
 }

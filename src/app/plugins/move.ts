@@ -1,11 +1,11 @@
-import { Point } from "roughjs/bin/geometry";
-import { RoughSVG } from "roughjs/bin/svg";
-import { Attributes } from "../interfaces/attributes";
-import { Element, ElementType } from "../interfaces/element";
-import { Paper, setElement } from "../interfaces/paper"
-import { PointerType } from "../interfaces/pointer";
-import { toPoint } from "../utils/position";
-import { ELEMENT_TO_COMPONENTS } from "../utils/weak-maps";
+import { Point } from 'roughjs/bin/geometry';
+import { RoughSVG } from 'roughjs/bin/svg';
+import { Attributes } from '../interfaces/attributes';
+import { Element, ElementType } from '../interfaces/element';
+import { Paper, setElement } from '../interfaces/paper';
+import { PointerType } from '../interfaces/pointer';
+import { toPoint } from '../utils/position';
+import { ELEMENT_TO_COMPONENTS } from '../utils/weak-maps';
 import { Selection } from '../interfaces/selection';
 
 export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: Attributes) {
@@ -19,10 +19,11 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
     paper.mousedown = (event: MouseEvent) => {
         if (paper.pointer === PointerType.pointer) {
             const point = toPoint(event.x, event.y, paper.container as SVGElement);
-            const activeElement = paper.elements.find((ele) => Element.isIntersected(ele, { anchor: point , focus: point }));
+            const activeElement = paper.elements.find(ele => Element.isIntersected(ele, { anchor: point, focus: point }));
             const isActive = activeElement && Selection.intersectElement(paper.selection, activeElement);
             const isHoveredLine = activeElement && Element.isHoveredElement(activeElement, point);
-            if (activeElement && isActive && isHoveredLine && activeElement.type === ElementType.rectangle) { // resize
+            if (activeElement && isActive && isHoveredLine && activeElement.type === ElementType.rectangle) {
+                // resize
                 return;
             }
             if (isActive || isHoveredLine) {
@@ -32,7 +33,7 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
             return;
         }
         mousedown(event);
-    }
+    };
 
     paper.mousemove = (event: MouseEvent) => {
         if (start && dragElement) {
@@ -48,13 +49,19 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
             if (dragElement.type === ElementType.rectangle) {
                 const start = dragElement.points[0];
                 const end = dragElement.points[1];
-                domElement = rc.rectangle(start[0] + offsetX, start[1] + offsetY, end[0] - start[0], end[1] - start[1], { stroke: dragElement.color, strokeWidth: dragElement.strokeWidth });
+                domElement = rc.rectangle(start[0] + offsetX, start[1] + offsetY, end[0] - start[0], end[1] - start[1], {
+                    stroke: dragElement.color,
+                    strokeWidth: dragElement.strokeWidth
+                });
                 paper.container?.appendChild(domElement);
             }
             if (dragElement.type === ElementType.curve) {
-                domElement = rc.curve(dragElement.points.map((point) => {
-                    return [point[0] + offsetX, point[1] + offsetY];
-                }), { stroke: attributes.color, strokeWidth: attributes.strokeWidth });
+                domElement = rc.curve(
+                    dragElement.points.map(point => {
+                        return [point[0] + offsetX, point[1] + offsetY];
+                    }),
+                    { stroke: attributes.color, strokeWidth: attributes.strokeWidth }
+                );
                 paper.container?.appendChild(domElement);
             }
             const elementComponent = ELEMENT_TO_COMPONENTS.get(dragElement);
@@ -64,7 +71,7 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
             return;
         }
         mousemove(event);
-    }
+    };
 
     paper.mouseup = (event: MouseEvent) => {
         mouseup(event);
@@ -72,10 +79,10 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
             const offsetX = end[0] - start[0];
             const offsetY = end[1] - start[1];
             setElement(paper, dragElement, {
-                points: dragElement.points.map((point) => {
+                points: dragElement.points.map(point => {
                     return [point[0] + offsetX, point[1] + offsetY];
                 })
-            })
+            });
             const elementComponent = ELEMENT_TO_COMPONENTS.get(dragElement);
             if (elementComponent) {
                 elementComponent.show();
@@ -87,7 +94,7 @@ export function movePaper<T extends Paper>(paper: T, rc: RoughSVG, attributes: A
         end = null;
         paper.dragging = false;
         dragElement = undefined;
-    }
+    };
 
     return paper;
 }

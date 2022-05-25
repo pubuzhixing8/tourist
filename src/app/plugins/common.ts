@@ -1,14 +1,14 @@
-import { Point } from "roughjs/bin/geometry";
-import { roughDrawer } from "../engine";
-import { EdgeMode } from "../interfaces/attributes";
-import { ElementType, Element } from "../interfaces/element";
-import { addElement, Paper } from "../interfaces/paper";
-import { PointerType } from "../interfaces/pointer";
-import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from "../utils/common";
-import { generateKey } from "../utils/key";
-import { toPoint } from "../utils/position";
-import { getRoughSVG } from "../utils/rough";
-import { transform } from "../utils/viewport";
+import { Point } from 'roughjs/bin/geometry';
+import { roughDrawer } from '../engine';
+import { EdgeMode } from '../interfaces/attributes';
+import { ElementType, Element } from '../interfaces/element';
+import { addElement, Paper } from '../interfaces/paper';
+import { PointerType } from '../interfaces/pointer';
+import { appendHostSVGG, arrayHostSVGG, destroyHostSVGG, getAttributes } from '../utils/common';
+import { generateKey } from '../utils/key';
+import { toPoint } from '../utils/position';
+import { getRoughSVG } from '../utils/rough';
+import { transform } from '../utils/viewport';
 
 const DRAW_SKIP_SAWTOOTH = 3;
 
@@ -26,7 +26,7 @@ export function commonPaper<T extends Paper>(paper: T) {
             return;
         }
         mousedown(event);
-    }
+    };
 
     paper.mousemove = (event: MouseEvent) => {
         const attributes = getAttributes(paper);
@@ -38,7 +38,10 @@ export function commonPaper<T extends Paper>(paper: T) {
             dragPoints.push(end);
             let g: SVGGElement[] | SVGGElement = [];
             if (paper.pointer === PointerType.rectangle) {
-                const tempElement = transform(paper, createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode));
+                const tempElement = transform(
+                    paper,
+                    createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode)
+                );
                 g = roughDrawer.draw(getRoughSVG(paper), tempElement);
             }
             if (paper.pointer === PointerType.draw) {
@@ -58,14 +61,20 @@ export function commonPaper<T extends Paper>(paper: T) {
             return;
         }
         mousemove(event);
-    }
+    };
 
     paper.mouseup = (event: MouseEvent) => {
         const attributes = getAttributes(paper);
         mouseup(event);
         if (isDragging && start && end) {
             if (paper.pointer === PointerType.rectangle) {
-                addElement(paper, transform(paper, createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode)));
+                addElement(
+                    paper,
+                    transform(
+                        paper,
+                        createRectangle(start, end, attributes.stroke, attributes.strokeWidth, attributes.edgeMode as EdgeMode)
+                    )
+                );
             }
             if (paper.pointer === PointerType.draw) {
                 let points = [start, ...dragPoints];
@@ -86,7 +95,7 @@ export function commonPaper<T extends Paper>(paper: T) {
         end = null;
         dragPoints = [];
         paper.dragging = false;
-    }
+    };
 
     return paper;
 }

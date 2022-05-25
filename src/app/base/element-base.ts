@@ -1,8 +1,8 @@
-import { ComponentFactoryResolver, Directive, ElementRef, Input, Renderer2, ViewContainerRef } from "@angular/core";
-import { RoughSVG } from "roughjs/bin/svg";
-import { Element } from "../interfaces/element";
-import { Selection } from "../interfaces/selection";
-import { Paper, Viewport } from "../interfaces/paper";
+import { ComponentFactoryResolver, Directive, ElementRef, Input, Renderer2, ViewContainerRef } from '@angular/core';
+import { RoughSVG } from 'roughjs/bin/svg';
+import { Element } from '../interfaces/element';
+import { Selection } from '../interfaces/selection';
+import { Paper, Viewport } from '../interfaces/paper';
 
 @Directive()
 export class PlaitBaseElement {
@@ -29,9 +29,12 @@ export class PlaitBaseElement {
 
     hostSVGG: SVGGElement[];
 
-    constructor(public elementRef: ElementRef,
+    constructor(
+        public elementRef: ElementRef,
         public componentFactoryResolver: ComponentFactoryResolver,
-        public viewContainerRef: ViewContainerRef, public renderer2: Renderer2) {
+        public viewContainerRef: ViewContainerRef,
+        public renderer2: Renderer2
+    ) {
         this.hostSVGG = [];
     }
 
@@ -39,7 +42,7 @@ export class PlaitBaseElement {
         if (this.viewport) {
             const offsetX = this.viewport.offsetX;
             const offsetY = this.viewport.offsetY;
-            this.hostSVGG.forEach((g) => {
+            this.hostSVGG.forEach(g => {
                 this.renderer2.setAttribute(g, 'transform', `translate(${offsetX} ${offsetY})`);
             });
         }
