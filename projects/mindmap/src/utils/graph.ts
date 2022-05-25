@@ -3,6 +3,7 @@ import { Options } from 'roughjs/bin/core';
 import { Point } from 'roughjs/bin/geometry';
 import { RoughSVG } from 'roughjs/bin/svg';
 import { MAX_RADIUS } from '../constants';
+import { PlaitBoard } from 'plait/interfaces/board';
 
 export interface RectangleClient {
     x: number;
@@ -60,7 +61,9 @@ export function getRectangleByNode(node: MindmapNode) {
     };
 }
 
-export function hitMindmapNode(point: Point, node: MindmapNode) {
-    const { x, y, width, height } = getRectangleByNode(node);
+export function hitMindmapNode(baord: PlaitBoard, point: Point, node: MindmapNode) {
+    const { x: baseX, y: baseY, width, height } = getRectangleByNode(node);
+    const x = baseX + baord.viewport.offsetX;
+    const y = baseY + baord.viewport.offsetY;
     return point[0] >= x && point[0] <= x + width && point[1] >= y && point[1] <= y + height;
 }

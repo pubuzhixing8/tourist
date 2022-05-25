@@ -26,11 +26,21 @@ import { createG, toPoint } from 'plait/utils/dom';
 import { MindmapElement } from '../../interfaces/element';
 import { fromEvent } from 'rxjs';
 import { HOST_TO_ROUGH_SVG } from 'plait/utils/weak-maps';
+import { PlaitBoard } from 'plait/interfaces/board';
 
 @Component({
     selector: 'plait-mindmap-node',
-    template:
-        '<plait-mindmap-node *ngFor="let childNode of node?.children;trackBy: trackBy" [host]="host" [mindmapGGroup]="mindmapGGroup" [node]="childNode" [parent]="node" [selection]="selection"></plait-mindmap-node>',
+    template: `
+        <plait-mindmap-node
+            *ngFor="let childNode of node?.children; trackBy: trackBy"
+            [host]="host"
+            [mindmapGGroup]="mindmapGGroup"
+            [node]="childNode"
+            [parent]="node"
+            [selection]="selection"
+            [board]="board"
+        ></plait-mindmap-node>
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
@@ -51,6 +61,8 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     @Input() selection: Selection | null = null;
 
     @Input() host!: SVGElement;
+
+    @Input() board!: PlaitBoard;
 
     selectedMarks: SVGGElement[] = [];
 
@@ -226,7 +238,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         });
         const mousedown$ = fromEvent<MouseEvent>(document, 'mousedown').subscribe((event: MouseEvent) => {
             const point = toPoint(event.x, event.y, this.host);
-            if (!hitMindmapNode(point, this.node as MindmapNode)) {
+            if (!hitMindmapNode(this.board, point, this.node as MindmapNode)) {
                 event.preventDefault();
                 exitHandle();
             }

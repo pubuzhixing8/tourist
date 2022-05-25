@@ -25,6 +25,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
             mindmapInstance.value = element;
             mindmapInstance.selection = selection;
             mindmapInstance.host = host;
+            mindmapInstance.board = board;
             return [mindmapInstance.mindmapGGroup];
         }
         return drawElement(context);
@@ -41,7 +42,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const mindmapComponent = MINDMAP_TO_COMPONENT.get(value);
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
-                    if (hitMindmapNode(point, node)) {
+                    if (hitMindmapNode(board, point, node)) {
                         HAS_SELECTED_MINDMAP_ELEMENT.set(node.data, true);
                         selectedMindmap = value;
                     } else {
@@ -99,7 +100,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const mindmapComponent = MINDMAP_TO_COMPONENT.get(value);
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
-                    if (hitMindmapNode(point, node)) {
+                    if (hitMindmapNode(board, point, node)) {
                         const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
                         if (nodeComponent) {
                             IS_TEXT_EDITABLE.set(board, true);

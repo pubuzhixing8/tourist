@@ -6,6 +6,7 @@ import { Selection } from 'plait/interfaces/selection';
 import { PlaitMindmap } from './interfaces/mindmap';
 import { createG } from 'plait/utils/dom';
 import { MINDMAP_TO_COMPONENT } from './utils/weak-maps';
+import { PlaitBoard } from 'plait/interfaces/board';
 
 declare const require: any;
 const MindmapLayouts = require('mindmap-layouts');
@@ -13,7 +14,13 @@ const MindmapLayouts = require('mindmap-layouts');
 @Component({
     selector: 'plait-mindmap',
     template: `
-        <plait-mindmap-node [mindmapGGroup]="mindmapGGroup" [host]="host" [node]="root" [selection]="selection"></plait-mindmap-node>
+        <plait-mindmap-node
+            [mindmapGGroup]="mindmapGGroup"
+            [host]="host"
+            [node]="root"
+            [selection]="selection"
+            [board]="board"
+        ></plait-mindmap-node>
     `,
     styles: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,16 +39,15 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
 
     @Input() host!: SVGElement;
 
+    @Input() board!: PlaitBoard;
+
     constructor(private cdr: ChangeDetectorRef) {
         this.mindmapGGroup = createG();
         this.mindmapGGroup.setAttribute(MINDMAP_KEY, 'true');
     }
 
     ngOnInit(): void {
-        const options = this.getOptions();
-        const layout = new MindmapLayouts.RightLogical(this.value, options); // root is tree node like above
-        this.root = layout.doLayout(); // you have x, y, centX, centY, actualHeight, actualWidth, etc.
-        MINDMAP_TO_COMPONENT.set(this.value, this);
+        this.updateMindmap(false);
     }
 
     getOptions() {
@@ -73,15 +79,15 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
         };
     }
 
-    updateMindmap() {
-        if (!this.value) {
-            throw new Error('');
-        }
+    updateMindmap(doCheck = true) {
         MINDMAP_TO_COMPONENT.set(this.value, this);
         const options = this.getOptions();
-        const layout = new MindmapLayouts.RightLogical(this.value, options); // root is tree node like above
-        this.root = layout.doLayout(); // you have x, y, centX, centY, actualHeight, actualWidth, etc.
-        this.cdr.detectChanges();
+        const layout = new MindmapLayouts.RightLogical(this.value, options);
+        this.root = layout.doLayout();
+        this.updateMindmapLocation();
+        if (doCheck) {
+            this.cdr.detectChanges();
+        }
     }
 
     doCheck() {
@@ -91,5 +97,15 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.mindmapGGroup.remove();
         MINDMAP_TO_COMPONENT.delete(this.value);
+    }
+
+    updateMindmapLocation() {
+        const { x, y, vgap, hgap } = this.root;
+        const offsetX = x + hgap;
+        const offsetY = y + vgap;
+        (this.root as any).eachNode((node: MindmapNode) => {
+            node.x = node.x - offsetX + this.value.points[0][0];
+            node.y = node.y - offsetY + this.value.points[0][1];
+        });
     }
 }
