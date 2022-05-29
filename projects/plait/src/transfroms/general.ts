@@ -25,6 +25,19 @@ const applyToDraft = (board: PlaitBoard, selection: Selection | null, viewport: 
             parent.children.splice(index, 0, node);
             break;
         }
+        case 'remove_node' : {
+            const { path } = op;
+            const parent = PlaitNode.parent(board, path);
+            const index = path[path.length - 1];
+
+            if (!parent.children || index > parent.children.length) {
+                throw new Error(
+                    `Cannot apply an "insert_node" operation at path [${path}] because the destination is past the end of the node.`
+                );
+            }
+            parent.children.splice(index, 1);
+            break;
+        }
         case 'set_node': {
             const { path, properties, newProperties } = op;
 

@@ -1,4 +1,4 @@
-import { InsertNodeOperation, SetNodeOperation } from '../interfaces/operation';
+import { InsertNodeOperation, RemoveNodeOperation, SetNodeOperation } from '../interfaces/operation';
 import { PlaitBoard } from '../interfaces/board';
 import { PlaitNode } from '../interfaces/node';
 import { Path } from '../interfaces/path';
@@ -24,12 +24,19 @@ export function setNode(board: PlaitBoard, props: Partial<PlaitNode>, path: Path
     board.apply(operation);
 }
 
+export function removeNode(board: PlaitBoard, path: Path) {
+    const operation: RemoveNodeOperation = { type: 'remove_node', path };
+    board.apply(operation);
+}
+
 export interface NodeTransforms {
     insertNode: (board: PlaitBoard, node: PlaitNode, path: Path) => void;
     setNode: (board: PlaitBoard, node: Partial<PlaitNode>, path: Path) => void;
+    removeNode: (board: PlaitBoard, path: Path) => void;
 }
 
 export const NodeTransforms: NodeTransforms = {
     insertNode,
-    setNode
+    setNode,
+    removeNode
 };
