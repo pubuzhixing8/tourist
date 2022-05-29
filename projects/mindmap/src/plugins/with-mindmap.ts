@@ -5,14 +5,15 @@ import { PlaitPlugin } from 'plait/interfaces/plugin';
 import { PlaitMindmapComponent } from '../mindmap.component';
 import { IS_TEXT_EDITABLE } from 'plait/utils/weak-maps';
 import { toPoint } from 'plait/utils/dom';
-import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_ELEMENT, MINDMAP_NODE_TO_COMPONENT, MINDMAP_TO_COMPONENT } from '../utils/weak-maps';
+import { HAS_SELECTED_MINDMAP, HAS_SELECTED_MINDMAP_ELEMENT, MINDMAP_ELEMENT_TO_COMPONENT, MINDMAP_TO_COMPONENT } from '../utils/weak-maps';
 import { hitMindmapNode } from '../utils/graph';
 import { PlaitElement } from 'plait/interfaces/element';
 import { MindmapNode } from '../interfaces/node';
 import { SimpleChanges } from '@angular/core';
 import { Transforms } from 'plait/transfroms';
 import { Path } from 'plait/interfaces/path';
-import { MindmapElement } from '../interfaces/element';
+import hotkeys from 'plait/utils/hotkeys';
+import { idCreator } from 'plait/utils/id-creator';
 
 export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
     const { drawElement, dblclick, mousedown, mousemove, mouseup, keydown, redrawElement } = board;
@@ -63,7 +64,43 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
         if (IS_TEXT_EDITABLE.get(board)) {
             return;
         }
-        if (event.key === 'Tab') {
+        if (event.key === 'Tab' || event.key === 'Enter') {
+            event.preventDefault();
+            const plaitMindmap = HAS_SELECTED_MINDMAP.get(board);
+            if (plaitMindmap) {
+                const mindmapComponent = MINDMAP_TO_COMPONENT.get(plaitMindmap);
+                const root = mindmapComponent?.root;
+                (root as any).eachNode((node: MindmapNode) => {
+                    const element = node.data;
+                    if (HAS_SELECTED_MINDMAP_ELEMENT.has(element)) {
+                        let path = [];
+                        if (event.key === 'Tab') {
+                            path = findPath(board, node).concat(node.children.length);
+                        } else {
+                            path = Path.next(findPath(board, node));
+                        }
+                        const newElement = {
+                            id: idCreator(),
+                            value: {
+                                children: [{ text: '' }]
+                            },
+                            children: [],
+                            width: 5,
+                            height: 22
+                        };
+                        setTimeout(() => {
+                            HAS_SELECTED_MINDMAP_ELEMENT.has(element) && HAS_SELECTED_MINDMAP_ELEMENT.delete(element);
+                            const nodeComponent = MINDMAP_ELEMENT_TO_COMPONENT.get(newElement);
+                            if (nodeComponent) {
+                                nodeComponent.startEditText();
+                            }
+                        }, 0);
+                        Transforms.insertNode(board, newElement, path);
+                    }
+                });
+            }
+        }
+        if (hotkeys.isDeleteBackward(event)) {
             event.preventDefault();
             const plaitMindmap = HAS_SELECTED_MINDMAP.get(board);
             if (plaitMindmap) {
@@ -71,17 +108,8 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
                     if (HAS_SELECTED_MINDMAP_ELEMENT.has(node.data)) {
-                        const path = findPath(board, node).concat(node.children.length);
-                        const newElement = {
-                            id: 'c909a4ed-c9ba-4812-b353-93bf18027f33',
-                            value: {
-                                children: [{ text: '新节点' }]
-                            },
-                            children: [],
-                            width: 48,
-                            height: 22
-                        };
-                        Transforms.insertNode(board, newElement, path);
+                        const path = findPath(board, node);
+                        Transforms.removeNode(board, path);
                     }
                 });
             }
@@ -101,18 +129,9 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
                     if (hitMindmapNode(board, point, node)) {
-                        const nodeComponent = MINDMAP_NODE_TO_COMPONENT.get(node);
+                        const nodeComponent = MINDMAP_ELEMENT_TO_COMPONENT.get(node.data);
                         if (nodeComponent) {
-                            IS_TEXT_EDITABLE.set(board, true);
-                            nodeComponent.startEditText(
-                                (element: Partial<MindmapElement>) => {
-                                    const path = findPath(board, nodeComponent.node);
-                                    Transforms.setNode(board, element, path);
-                                },
-                                () => {
-                                    IS_TEXT_EDITABLE.set(board, false);
-                                }
-                            );
+                            nodeComponent.startEditText();
                         }
                     }
                 });

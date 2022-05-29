@@ -17,7 +17,7 @@ import { MindmapNode } from '../../interfaces/node';
 import { drawLine } from '../../draw/line';
 import { drawRoundRectangle, getRectangleByNode, hitMindmapNode } from '../../utils/graph';
 import { MINDMAP_NODE_KEY, PRIMARY_COLOR } from '../../constants';
-import { HAS_SELECTED_MINDMAP_ELEMENT, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_NODE_TO_COMPONENT } from '../../utils/weak-maps';
+import { HAS_SELECTED_MINDMAP_ELEMENT, ELEMENT_GROUP_TO_COMPONENT, MINDMAP_ELEMENT_TO_COMPONENT } from '../../utils/weak-maps';
 import { Selection } from 'plait/interfaces/selection';
 import { PlaitRichtextComponent, setFullSelectionAndFocus } from 'richtext';
 import { debounceTime } from 'rxjs/operators';
@@ -25,8 +25,10 @@ import { drawMindmapNodeRichtext, updateMindmapNodeRichtextLocation } from '../.
 import { createG, toPoint } from 'plait/utils/dom';
 import { MindmapElement } from '../../interfaces/element';
 import { fromEvent } from 'rxjs';
-import { HOST_TO_ROUGH_SVG } from 'plait/utils/weak-maps';
+import { HOST_TO_ROUGH_SVG, IS_TEXT_EDITABLE } from 'plait/utils/weak-maps';
 import { PlaitBoard } from 'plait/interfaces/board';
+import { findPath } from '../../plugins/with-mindmap';
+import { Transforms } from 'plait/transfroms';
 
 @Component({
     selector: 'plait-mindmap-node',
@@ -86,7 +88,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         this.drawRichtext();
         this.initialized = true;
         ELEMENT_GROUP_TO_COMPONENT.set(this.gGroup, this);
-        MINDMAP_NODE_TO_COMPONENT.set(this.node as MindmapNode, this);
+        MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.data, this);
     }
 
     drawNode() {
@@ -198,13 +200,14 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
                 this.drawLine();
                 this.updateRichtextLocation();
                 this.drawSelectedState();
-                MINDMAP_NODE_TO_COMPONENT.set(this.node as MindmapNode, this);
+                MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.data, this);
             }
         }
     }
 
-    startEditText(valueChange: (element: Partial<MindmapElement>) => void, exitCallback: () => void) {
+    startEditText() {
         this.isEditable = true;
+        IS_TEXT_EDITABLE.set(this.board, true);
         if (!this.richtextComponentRef) {
             throw new Error('undefined richtextComponentRef');
         }
@@ -224,16 +227,21 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
                 return;
             }
             richtext = event.value;
+
             // 更新富文本、更新宽高
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
             const newElement = { value: richtext, width, height } as MindmapElement;
-            valueChange(newElement);
+
+            const path = findPath(this.board, this.node);
+            Transforms.setNode(this.board, newElement, path);
         });
         const composition$ = richtextInstance.composition.subscribe(event => {
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
             if (event.isComposing && (width !== this.node.data.width || height !== this.node.data.height)) {
                 const newElement: Partial<MindmapElement> = { width, height };
-                valueChange(newElement);
+
+                const path = findPath(this.board, this.node);
+                Transforms.setNode(this.board, newElement, path);
             }
         });
         const mousedown$ = fromEvent<MouseEvent>(document, 'mousedown').subscribe((event: MouseEvent) => {
@@ -260,19 +268,18 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
             richtextInstance.readonly = true;
             this.richtextComponentRef?.changeDetectorRef.markForCheck();
             this.isEditable = false;
-            // callback
-            exitCallback();
+            IS_TEXT_EDITABLE.set(this.board, false);
         };
     }
 
     trackBy = (index: number, node: MindmapNode) => {
-        return index;
+        return node.data.id;
     };
 
     ngOnDestroy(): void {
         this.destroyRichtext();
         this.gGroup.remove();
         ELEMENT_GROUP_TO_COMPONENT.delete(this.gGroup);
-        MINDMAP_NODE_TO_COMPONENT.delete(this.node as MindmapNode);
+        MINDMAP_ELEMENT_TO_COMPONENT.delete(this.node.data);
     }
 }
