@@ -4,12 +4,12 @@ import { PlaitElement } from 'plait/interfaces/element';
 import { mockMindmapData } from '../mock/mindmap-data';
 
 @Component({
-    selector: 'basic-mindmap',
+    selector: 'basic-board',
     template: `
         <plait-board [plugins]="plugins" [value]="value"></plait-board>
     `
 })
-export class BasicMindmapComponent implements OnInit {
+export class BasicBoardComponent implements OnInit {
     plugins = [withMindmap];
 
     value: PlaitElement[] = [mockMindmapData];
