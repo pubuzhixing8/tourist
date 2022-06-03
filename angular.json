@@ -278,6 +278,46 @@
           }
         }
       }
+    },
+    "tiny-tree-layouts": {
+      "projectType": "library",
+      "root": "projects/tiny-tree-layouts",
+      "sourceRoot": "projects/tiny-tree-layouts/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/tiny-tree-layouts/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/tiny-tree-layouts/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/tiny-tree-layouts/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/tiny-tree-layouts/src/test.ts",
+            "tsConfig": "projects/tiny-tree-layouts/tsconfig.spec.json",
+            "karmaConfig": "projects/tiny-tree-layouts/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/tiny-tree-layouts/**/*.ts",
+              "projects/tiny-tree-layouts/**/*.html"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "tourist"

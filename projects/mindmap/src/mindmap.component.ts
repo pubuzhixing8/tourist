@@ -85,6 +85,7 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
         const layout = new MindmapLayouts.RightLogical(this.value, options);
         this.root = layout.doLayout();
         this.updateMindmapLocation();
+        this.normalizeMindmap();
         if (doCheck) {
             this.cdr.detectChanges();
         }
@@ -108,4 +109,53 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
             node.y = node.y - offsetY + this.value.points[0][1];
         });
     }
+
+    normalizeMindmap() {
+        const bb: BoundingBox = { left: Number.MAX_VALUE, top: Number.MAX_VALUE, width: 0, height: 0 };
+        let lastNode: MindmapNode | null = null;
+        let lastOffsetY = 0;
+        dfs(this.root, node => {
+            if (!lastNode) {
+                bb.left = Math.min(bb.left, node.x);
+                bb.top = Math.min(bb.top, node.y);
+                bb.width = Math.max(bb.width, node.x + node.width);
+                bb.height = Math.max(bb.height, node.y + node.height);
+                lastNode = node;
+                return;
+            }
+            if (node.y + 1 >= bb.height || (lastNode && node.children.includes(lastNode))) {
+                // right
+            } else {
+                // fail
+                // console.log('fail', Node.string(node.data.value));
+                const offsetY = bb.height - node.y;
+                lastOffsetY = lastOffsetY + offsetY;
+            }
+            bb.left = Math.min(bb.left, node.x);
+            bb.top = Math.min(bb.top, node.y);
+            bb.width = Math.max(bb.width, node.x + node.width);
+            bb.height = Math.max(bb.height, node.y + node.height);
+            lastNode = node;
+            if (lastOffsetY > 0) {
+                if (node === this.root) {
+                    return;
+                }
+                node.y = node.y + lastOffsetY;
+            }
+        });
+    }
+}
+
+function dfs(node: MindmapNode, callback: (node: MindmapNode) => void) {
+    node.children.forEach(_node => {
+        dfs(_node, callback);
+    });
+    callback(node);
+}
+
+export interface BoundingBox {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
 }
