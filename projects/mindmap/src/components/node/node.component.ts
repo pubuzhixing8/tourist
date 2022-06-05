@@ -1,7 +1,6 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    ComponentFactoryResolver,
     ComponentRef,
     Input,
     OnChanges,
@@ -76,7 +75,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
 
     richtextComponentRef?: ComponentRef<PlaitRichtextComponent>;
 
-    constructor(private componentFactoryResolver: ComponentFactoryResolver, private viewContainerRef: ViewContainerRef) {}
+    constructor(private viewContainerRef: ViewContainerRef) {}
 
     ngOnInit(): void {
         this.gGroup = createG();
@@ -84,11 +83,11 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         this.mindmapGGroup.prepend(this.gGroup);
         this.roughSVG = HOST_TO_ROUGH_SVG.get(this.host) as RoughSVG;
         this.drawNode();
-        this.drawLine();
+        // this.drawLine();
         this.drawRichtext();
         this.initialized = true;
         ELEMENT_GROUP_TO_COMPONENT.set(this.gGroup, this);
-        MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.data, this);
+        // MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.data, this);
     }
 
     drawNode() {
@@ -167,7 +166,6 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     drawRichtext() {
         const { richTextG, richtextComponentRef } = drawMindmapNodeRichtext(
             this.node as MindmapNode,
-            this.componentFactoryResolver,
             this.viewContainerRef
         );
         this.richtextComponentRef = richtextComponentRef;
@@ -273,7 +271,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     trackBy = (index: number, node: MindmapNode) => {
-        return node.data.id;
+        return node;
     };
 
     ngOnDestroy(): void {

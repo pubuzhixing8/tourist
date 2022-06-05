@@ -27,8 +27,10 @@
         "projects/richtext/src/*"
       ],
       "tiny-tree-layouts": [
-        "dist/tiny-tree-layouts/tiny-tree-layouts",
-        "dist/tiny-tree-layouts"
+        "projects/tiny-tree-layouts/public-api"
+      ],
+      "tiny-tree-layouts/*": [
+        "projects/tiny-tree-layouts/src/*"
       ]
     },
     "outDir": "./dist/out-tsc",

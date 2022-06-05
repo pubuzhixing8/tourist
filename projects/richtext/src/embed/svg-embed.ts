@@ -1,4 +1,4 @@
-import { ComponentFactoryResolver, ComponentRef, ViewContainerRef } from '@angular/core';
+import { ComponentRef, ViewContainerRef } from '@angular/core';
 import { createG, NS } from 'plait/utils/dom';
 import { PlaitRichtextComponent } from 'richtext';
 import { Element as SlateElement } from 'slate';
@@ -24,12 +24,10 @@ export function updateForeignObject(g: SVGGElement, width: number, height: numbe
 
 export function createRichtext(
     element: SlateElement,
-    componentFactoryResolver: ComponentFactoryResolver,
     viewContainerRef: ViewContainerRef,
     edit: boolean
 ) {
-    const componentFactory = componentFactoryResolver.resolveComponentFactory(PlaitRichtextComponent);
-    const componentRef = viewContainerRef.createComponent<PlaitRichtextComponent>(componentFactory);
+    const componentRef = viewContainerRef.createComponent(PlaitRichtextComponent);
     componentRef.instance.value = element;
     componentRef.instance.readonly = edit ? false : true;
     return componentRef;
@@ -41,7 +39,6 @@ export function drawRichtext(
     width: number,
     height: number,
     value: SlateElement,
-    componentFactoryResolver: ComponentFactoryResolver,
     viewContainerRef: ViewContainerRef,
     classList: string[] = [],
     edit = false
@@ -49,7 +46,7 @@ export function drawRichtext(
     const richTextG = createG();
     const foreignObject = createForeignObject(x, y, width, height);
     richTextG.append(foreignObject);
-    const richtextComponentRef = createRichtext(value, componentFactoryResolver, viewContainerRef, edit);
+    const richtextComponentRef = createRichtext(value, viewContainerRef, edit);
     foreignObject.append(richtextComponentRef.instance.editable);
     classList.forEach(name => {
         richtextComponentRef.instance.editable.classList.add(name);
