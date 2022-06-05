@@ -2,6 +2,8 @@
  * Public API Surface of tiny-tree-layouts
  */
 
-export * from './lib/tiny-tree-layouts.service';
-export * from './lib/tiny-tree-layouts.component';
-export * from './lib/tiny-tree-layouts.module';
+export * from './layout';
+export * from './bounding-box';
+export * from './tree';
+export * from './tree';
+export * from './nod-layerd-tidy-tree-layout';
