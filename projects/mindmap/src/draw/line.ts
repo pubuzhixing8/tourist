@@ -29,14 +29,14 @@ export function drawLine(roughSVG: RoughSVG, node: MindmapNode, child: MindmapNo
         endX = Math.round(endNode.x + endNode.width / 2);
         endY = Math.round(endNode.y + endNode.vgap);
     }
-    // if (beginNode.data.isRoot) {
-    //     beginX = Math.round(beginNode.x + beginNode.width / 2);
-    //     beginY = Math.round(beginNode.y + beginNode.height / 2);
-    // }
-    // if (endNode.data.isRoot) {
-    //     endX = Math.round(endNode.x + endNode.width / 2);
-    //     endY = Math.round(endNode.y + endNode.height / 2);
-    // }
+    if (beginNode.origin.isRoot) {
+        beginX = Math.round(beginNode.x + beginNode.width / 2);
+        beginY = Math.round(beginNode.y + beginNode.height / 2);
+    }
+    if (endNode.origin.isRoot) {
+        endX = Math.round(endNode.x + endNode.width / 2);
+        endY = Math.round(endNode.y + endNode.height / 2);
+    }
     if (isHorizontal) {
         const curve: Point[] = [
             [beginX / scale, beginY / scale],

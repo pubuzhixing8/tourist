@@ -1,12 +1,12 @@
-import { BoundingBox } from './bounding-box';
-import { layout } from './non-layerd-tidy-tree-layout';
-import { Tree } from './tree';
+import { layout } from './algorithms/non-layerd-tidy-tree-layout';
+import { layout as mindLayout } from './algorithms/non-overlapping-tree-layout';
+import { Tree } from './algorithms/tree';
+import { LayoutOptions, OriginNode } from './types';
+import { Node } from './hierarchy/node';
+import { wrap } from './hierarchy/wrap';
 
 export class Layout {
-    boundingBox: BoundingBox;
-    constructor(boundingBox: BoundingBox) {
-        this.boundingBox = boundingBox;
-    }
+    constructor() {}
 
     /**
      * Layout treeData.
@@ -14,91 +14,54 @@ export class Layout {
      *
      * See getSize() for more explanation.
      */
-    layout(treeData: any) {
-        const tree = this.convert(treeData);
-        layout(tree);
-        const { boundingBox, result } = this.assignLayout(tree, treeData);
-
-        return { result, boundingBox };
+    static layout(treeData: OriginNode, options: LayoutOptions) {
+        const isHorizontal = true;
+        const root = new Node(treeData, options);
+        Layout.convert(root, isHorizontal);
+        const tree = wrap(root, isHorizontal);
+        mindLayout(tree);
+        Layout.convertBack(tree, root, isHorizontal);
+        return root;
     }
 
-    /**
-     * Returns Tree to layout, with bounding boxes added to each node.
-     */
-    convert(treeData: any, y = 0): Tree {
-        // if (treeData === null) return null;
+    // /**
+    //  * Returns Tree to layout, with bounding boxes added to each node.
+    //  */
+    // static convert(treeData: any, y = 0, options: LayoutOptions): Tree {
+    //     // if (treeData === null) return null;
 
-        const { width, height } = this.boundingBox.addBoundingBox(treeData.width, treeData.height);
-        let children = [];
-        if (treeData.children && treeData.children.length) {
-            for (let i = 0; i < treeData.children.length; i++) {
-                children[i] = this.convert(treeData.children[i], y + height);
-            }
+    //     const { width, height } = this.boundingBox.addBoundingBox(treeData.width, treeData.height);
+    //     let children = [];
+    //     if (treeData.children && treeData.children.length) {
+    //         for (let i = 0; i < treeData.children.length; i++) {
+    //             children[i] = this.convert(treeData.children[i], y + height);
+    //         }
+    //     }
+
+    //     return new Tree(width, height, y, children, treeData);
+    // }
+
+    static convert(node: Node, isHorizontal: boolean, d = 0) {
+        if (isHorizontal) {
+            node.x = d;
+            d += node.width;
+        } else {
+            node.y = d;
+            d += node.height;
         }
-
-        return new Tree(width, height, y, children, treeData);
+        node.children.forEach(child => {
+            Layout.convert(child, isHorizontal, d);
+        });
     }
 
-    /**
-     * Assign layout tree x, y coordinates back to treeData,
-     * with bounding boxes removed.
-     */
-    assignCoordinates(tree: Tree, treeData: any) {
-        const { x, y } = this.boundingBox.removeBoundingBox(tree.x, tree.y);
-        treeData.x = x;
-        treeData.y = y;
-        for (let i = 0; i < tree.c.length; i++) {
-            this.assignCoordinates(tree.c[i], treeData.children[i]);
+    static convertBack(tree: Tree, root: Node, isHorizontal: Boolean) {
+        if (isHorizontal) {
+            root.y = tree.x;
+        } else {
+            root.x = tree.x;
         }
-    }
-
-    /**
-     * Return the bounding box that encompasses all the nodes.
-     * The result has a structure of
-     * { left: number, right: number, top: number, bottom: nubmer}.
-     * This is not the same bounding box concept as the `BoundingBox` class
-     * used to construct `Layout` class.
-     */
-    getSize(treeData: any, box: any = null) {
-        const { x, y, width, height } = treeData;
-        if (box === null) {
-            box = { left: x, right: x + width, top: y, bottom: y + height };
-        }
-        box.left = Math.min(box.left, x);
-        box.right = Math.max(box.right, x + width);
-        box.top = Math.min(box.top, y);
-        box.bottom = Math.max(box.bottom, y + height);
-
-        if (treeData.children) {
-            for (const child of treeData.children) {
-                this.getSize(child, box);
-            }
-        }
-
-        return box;
-    }
-
-    /**
-     * This function does assignCoordinates and getSize in one pass.
-     */
-    assignLayout(tree: Tree, treeData: any, box: any = null) {
-        const { x, y } = this.boundingBox.removeBoundingBox(tree.x, tree.y);
-        treeData.x = x;
-        treeData.y = y;
-
-        const { width, height } = treeData;
-        if (box === null) {
-            box = { left: x, right: x + width, top: y, bottom: y + height };
-        }
-        box.left = Math.min(box.left, x);
-        box.right = Math.max(box.right, x + width);
-        box.top = Math.min(box.top, y);
-        box.bottom = Math.max(box.bottom, y + height);
-
-        for (let i = 0; i < tree.c.length; i++) {
-            this.assignLayout(tree.c[i], treeData.children[i], box);
-        }
-
-        return { result: treeData, boundingBox: box };
+        tree.c.forEach((child, i) => {
+            Layout.convertBack(child, root.children[i], isHorizontal);
+        });
     }
 }

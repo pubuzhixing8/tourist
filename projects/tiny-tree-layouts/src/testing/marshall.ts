@@ -1,4 +1,4 @@
-import { Tree } from '../tree';
+import { Tree } from '../algorithms/tree';
 import { TreeNode } from './tree-node';
 
 export const Marshall = {
@@ -8,7 +8,7 @@ export const Marshall = {
             children[i] = this.convert(treeNode.children[i]);
         }
 
-        return new Tree(treeNode.width, treeNode.height, treeNode.y, children);
+        return new Tree(treeNode.width, treeNode.height, treeNode.y, children, treeNode);
     },
 
     convertBack(converted: Tree, root: TreeNode) {

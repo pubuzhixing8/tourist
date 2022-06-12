@@ -4,6 +4,6 @@
 
 export * from './layout';
 export * from './bounding-box';
-export * from './tree';
-export * from './tree';
-export * from './non-layerd-tidy-tree-layout';
+export * from './algorithms/tree';
+export * from './algorithms/tree';
+export * from './algorithms/non-layerd-tidy-tree-layout';

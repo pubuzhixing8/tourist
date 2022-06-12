@@ -44,10 +44,10 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
                     if (hitMindmapNode(board, point, node)) {
-                        HAS_SELECTED_MINDMAP_ELEMENT.set(node.data, true);
+                        HAS_SELECTED_MINDMAP_ELEMENT.set(node.origin, true);
                         selectedMindmap = value;
                     } else {
-                        HAS_SELECTED_MINDMAP_ELEMENT.has(node.data) && HAS_SELECTED_MINDMAP_ELEMENT.delete(node.data);
+                        HAS_SELECTED_MINDMAP_ELEMENT.has(node.origin) && HAS_SELECTED_MINDMAP_ELEMENT.delete(node.origin);
                     }
                 });
             }
@@ -71,7 +71,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const mindmapComponent = MINDMAP_TO_COMPONENT.get(plaitMindmap);
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
-                    const element = node.data;
+                    const element = node.origin;
                     if (HAS_SELECTED_MINDMAP_ELEMENT.has(element)) {
                         let path = [];
                         if (event.key === 'Tab') {
@@ -107,7 +107,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const mindmapComponent = MINDMAP_TO_COMPONENT.get(plaitMindmap);
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
-                    if (HAS_SELECTED_MINDMAP_ELEMENT.has(node.data)) {
+                    if (HAS_SELECTED_MINDMAP_ELEMENT.has(node.origin)) {
                         const path = findPath(board, node);
                         Transforms.removeNode(board, path);
                     }
@@ -129,7 +129,7 @@ export const withMindmap: PlaitPlugin = (board: PlaitBoard) => {
                 const root = mindmapComponent?.root;
                 (root as any).eachNode((node: MindmapNode) => {
                     if (hitMindmapNode(board, point, node)) {
-                        const nodeComponent = MINDMAP_ELEMENT_TO_COMPONENT.get(node.data);
+                        const nodeComponent = MINDMAP_ELEMENT_TO_COMPONENT.get(node.origin);
                         if (nodeComponent) {
                             nodeComponent.startEditText();
                         }
@@ -172,8 +172,8 @@ export function findPath(board: PlaitBoard, node: MindmapNode): Path {
         path.push(index);
         _node = _node.parent;
     }
-    if (isPlaitMindmap(_node.data)) {
-        const index = board.children.indexOf(_node.data);
+    if (isPlaitMindmap(_node.origin)) {
+        const index = board.children.indexOf(_node.origin);
         path.push(index);
     }
     return path.reverse();
