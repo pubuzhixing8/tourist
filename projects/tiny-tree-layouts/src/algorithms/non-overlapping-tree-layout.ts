@@ -19,12 +19,31 @@ function seperate(tree: Tree, i: number) {
     let sr = tree.c[i - 1];
     let cl = tree.c[i];
 
-    while (sr.cs > 0 || cl.cs > 0) {
-        sr = nextRightContour(sr);
-        cl = nextLeftContour(cl);
-    }
+    let extremeRightX = sr.mod + sr.prelim + sr.w;
+    let extremeLeftX = cl.mod + cl.prelim;
+    let modsum = sr.mod;
 
-    const distance = sr.mod + sr.prelim + sr.w - (cl.mod + cl.prelim);
+    while (true) {
+        if (sr.cs > 0) {
+            sr = nextRightContour(sr);
+            let right = modsum + sr.mod + sr.prelim + sr.w;
+            modsum += sr.mod;
+            if (right > extremeRightX) {
+                extremeRightX = right;
+            }
+        }
+        if (cl.cs > 0) {
+            cl = nextLeftContour(cl);
+            let left = cl.mod + cl.prelim;
+            if (left < extremeLeftX) {
+                extremeLeftX = left;
+            }
+        }
+        if (sr.cs === 0 && cl.cs === 0) {
+            break;
+        }
+    }
+    const distance = extremeRightX - extremeLeftX;
     if (distance > 0) {
         moveSubtree(tree, i, distance);
     }
