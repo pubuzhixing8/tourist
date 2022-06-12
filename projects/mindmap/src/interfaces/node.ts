@@ -10,6 +10,6 @@ export interface MindmapNode {
     hgap: number;
     vgap: number;
     children: MindmapNode[];
-    data: MindmapElement;
+    origin: MindmapElement;
     parent: MindmapNode;
 }

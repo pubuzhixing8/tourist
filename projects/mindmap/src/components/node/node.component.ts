@@ -83,7 +83,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         this.mindmapGGroup.prepend(this.gGroup);
         this.roughSVG = HOST_TO_ROUGH_SVG.get(this.host) as RoughSVG;
         this.drawNode();
-        // this.drawLine();
+        this.drawLine();
         this.drawRichtext();
         this.initialized = true;
         ELEMENT_GROUP_TO_COMPONENT.set(this.gGroup, this);
@@ -125,7 +125,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     drawSelectedState() {
         // console.log('drawSelectedState');
         this.destroySelectedState();
-        const selected = HAS_SELECTED_MINDMAP_ELEMENT.get(this.node.data);
+        const selected = HAS_SELECTED_MINDMAP_ELEMENT.get(this.node.origin);
         if (selected || this.isEditable) {
             const { x, y, width, height } = getRectangleByNode(this.node as MindmapNode);
             const selectedStrokeG = drawRoundRectangle(
@@ -198,7 +198,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
                 this.drawLine();
                 this.updateRichtextLocation();
                 this.drawSelectedState();
-                MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.data, this);
+                MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.origin, this);
             }
         }
     }
@@ -235,7 +235,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         });
         const composition$ = richtextInstance.composition.subscribe(event => {
             const { width, height } = richtextInstance.editable.getBoundingClientRect();
-            if (event.isComposing && (width !== this.node.data.width || height !== this.node.data.height)) {
+            if (event.isComposing && (width !== this.node.origin.width || height !== this.node.origin.height)) {
                 const newElement: Partial<MindmapElement> = { width, height };
 
                 const path = findPath(this.board, this.node);
@@ -271,13 +271,13 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     trackBy = (index: number, node: MindmapNode) => {
-        return node;
+        return node.origin.id;
     };
 
     ngOnDestroy(): void {
         this.destroyRichtext();
         this.gGroup.remove();
         ELEMENT_GROUP_TO_COMPONENT.delete(this.gGroup);
-        MINDMAP_ELEMENT_TO_COMPONENT.delete(this.node.data);
+        MINDMAP_ELEMENT_TO_COMPONENT.delete(this.node.origin);
     }
 }

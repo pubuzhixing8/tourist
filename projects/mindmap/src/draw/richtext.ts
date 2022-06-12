@@ -3,7 +3,6 @@ import { drawRichtext, updateForeignObject } from 'richtext';
 import { ViewContainerRef } from '@angular/core';
 import { getRectangleByNode } from '../utils/graph';
 import { PEM } from '../constants';
-import { maxSize } from 'richtext/constant';
 
 export function drawMindmapNodeRichtext(
     node: MindmapNode,
@@ -16,10 +15,10 @@ export function drawMindmapNodeRichtext(
     const textX = (x + PEM * 0.8) / scale;
     const textY = (y + PEM * 0.2) / scale;
     const classList = [];
-    if ((node as any).isRoot) {
+    if (node.origin.isRoot) {
         classList.push('root-node');
     }
-    return drawRichtext(textX, textY, width, height, (node as any).value, viewContainerRef, classList);
+    return drawRichtext(textX, textY, width, height, node.origin.value, viewContainerRef, classList);
 }
 
 export function updateMindmapNodeRichtextLocation(node: MindmapNode, g: SVGGElement, scale = 1) {

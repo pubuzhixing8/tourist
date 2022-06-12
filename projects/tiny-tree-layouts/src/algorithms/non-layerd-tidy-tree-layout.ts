@@ -49,20 +49,20 @@ function distributeExtra(tree: Tree, i: number, si: number, distance: number) {
     }
 }
 
-function moveSubtree(tree: Tree, i: number, distance: number) {
+function moveSubtree(tree: Tree, i: number, si: number, distance: number) {
     // Move subtree by changing mod.
     tree.c[i].mod += distance;
     tree.c[i].msel += distance;
     tree.c[i].mser += distance;
-    // distributeExtra(tree, i, si, distance);
+    distributeExtra(tree, i, si, distance);
 }
 
 function nextLeftContour(tree: Tree) {
-    return tree.cs === 0 ? tree : tree.c[0];
+    return tree.cs === 0 ? tree.tl : tree.c[0];
 }
 
 function nextRightContour(tree: Tree) {
-    return tree.cs === 0 ? tree : tree.c[tree.cs - 1];
+    return tree.cs === 0 ? tree.tr : tree.c[tree.cs - 1];
 }
 
 function setLeftThread(tree: Tree, i: number, cl: Tree, modsumcl: number) {
@@ -89,55 +89,49 @@ function setRightThread(tree: Tree, i: number, sr: any, modsumsr: number) {
     tree.c[i].mser = tree.c[i - 1].mser;
 }
 
-function seperate(tree: Tree, i: number) {
+function seperate(tree: Tree, i: number, ih: IYL) {
     // Right contour node of left siblings and its sum of modifiers.
     let sr = tree.c[i - 1];
-    // let mssr = sr.mod;
+    let mssr = sr.mod;
     // Left contour node of right siblings and its sum of modifiers.
     let cl = tree.c[i];
-    // let mscl = cl.mod;
+    let mscl = cl.mod;
+    while (sr !== null && cl !== null) {
+        if (bottom(sr) > ih.lowY) {
+            ih = ih.next as IYL;
+        }
+        // How far to the left of the right side of sr is the left side of cl.
+        const distance = mssr + sr.prelim + sr.w - (mscl + cl.prelim);
+        if (distance > 0) {
+            mscl += distance;
+            moveSubtree(tree, i, ih.index, distance);
+        }
 
-    while (sr.cs > 0 || cl.cs > 0) {
-        sr = nextRightContour(sr);
-        cl = nextLeftContour(cl);
+        const sy = bottom(sr);
+        const cy = bottom(cl);
+        // Advance highest node(s) and sum(s) of modifiers
+        if (sy <= cy) {
+            sr = nextRightContour(sr);
+            if (sr !== null) {
+                mssr += sr.mod;
+            }
+        }
+        if (sy >= cy) {
+            cl = nextLeftContour(cl);
+            if (cl !== null) {
+                mscl += cl.mod;
+            }
+        }
     }
-
-    const distance = sr.mod + sr.prelim + sr.w - (cl.mod + cl.prelim);
-    if (distance > 0) {
-        // mscl += distance;
-        moveSubtree(tree, i, distance);
-    }
-
-    // while (sr !== null || cl !== null) {
-    //     // if (bottom(sr) > ih.lowY) {
-    //     //     ih = ih.next as IYL;
-    //     // }
-    //     // How far to the left of the right side of sr is the left side of cl.
-    //     // const distance = sr.mod + sr.prelim + sr.w - (cl.mod + cl.prelim);
-    //     // if (distance > 0) {
-    //     //     // mscl += distance;
-    //     //     moveSubtree(tree, i, ih.index, distance);
-    //     // }
-
-    //     const sy = bottom(sr);
-    //     const cy = bottom(cl);
-    //     // Advance highest node(s) and sum(s) of modifiers
-    //     if (sy <= cy) {
-    //         sr = nextRightContour(sr);
-    //     }
-    //     if (sy >= cy) {
-    //         cl = nextLeftContour(cl);
-    //     }
-    // }
 
     // Set threads and update extreme nodes.
     // In the first case, the current subtree must be taller than the left siblings.
-    // if (sr === null && cl !== null) {
-    //     setLeftThread(tree, i, cl, mscl);
-    // } else if (sr !== null && cl === null) {
-    //     // In this case, the left siblings must be taller than the current subtree
-    //     setRightThread(tree, i, sr, mssr);
-    // }
+    if (sr === null && cl !== null) {
+        setLeftThread(tree, i, cl, mscl);
+    } else if (sr !== null && cl === null) {
+        // In this case, the left siblings must be taller than the current subtree
+        setRightThread(tree, i, sr, mssr);
+    }
 }
 
 function positionRoot(tree: Tree) {
@@ -147,9 +141,7 @@ function positionRoot(tree: Tree) {
 }
 
 function firstWalk(tree: Tree) {
-    console.log(tree.origin.value.children[0].text, 'firstWalk');
     if (tree.cs === 0) {
-        console.log('cs === 0: setExtremes');
         setExtremes(tree);
         return;
     }
@@ -159,12 +151,10 @@ function firstWalk(tree: Tree) {
     for (let i = 1; i < tree.cs; i++) {
         firstWalk(tree.c[i]);
         // Store lowest vertical coordinate while extreme nodes still point in current subtree
-        // const minY = bottom(tree.c[i].er as Tree);
-        // console.log(tree.origin.value.children[0].text, 'seperate');
-        seperate(tree, i);
-        // ih = updateIYL(minY, i, ih);
+        const minY = bottom(tree.c[i].er as Tree);
+        seperate(tree, i, ih);
+        ih = updateIYL(minY, i, ih);
     }
-    console.log('positionRoot', tree.origin.value.children[0].text);
     positionRoot(tree);
     setExtremes(tree);
 }

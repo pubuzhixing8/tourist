@@ -49,10 +49,10 @@ export function drawRoundRectangle(rs: RoughSVG, x1: number, y1: number, x2: num
 }
 
 export function getRectangleByNode(node: MindmapNode) {
-    const x = Math.round(node.x);
-    const y = Math.round(node.y);
-    const width = Math.round(node.width);
-    const height = Math.round(node.height);
+    const x = Math.round(node.x + node.hgap);
+    const y = Math.round(node.y + node.vgap);
+    const width = Math.round(node.width - node.hgap * 2);
+    const height = Math.round(node.height - node.vgap * 2);
     return {
         x,
         y,
