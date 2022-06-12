@@ -1,4 +1,4 @@
-import { layout } from "./nod-layerd-tidy-tree-layout";
+import { layout } from "./non-layerd-tidy-tree-layout";
 import { Marshall } from "./testing/marshall";
 import { TreeNode } from "./testing/tree-node";
 

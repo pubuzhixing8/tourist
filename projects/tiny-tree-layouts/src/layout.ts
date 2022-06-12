@@ -1,5 +1,5 @@
 import { BoundingBox } from './bounding-box';
-import { layout } from './nod-layerd-tidy-tree-layout';
+import { layout } from './non-layerd-tidy-tree-layout';
 import { Tree } from './tree';
 
 export class Layout {
@@ -36,7 +36,7 @@ export class Layout {
             }
         }
 
-        return new Tree(width, height, y, children);
+        return new Tree(width, height, y, children, treeData);
     }
 
     /**
