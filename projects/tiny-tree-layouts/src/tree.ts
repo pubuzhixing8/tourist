@@ -15,8 +15,9 @@ export class Tree {
     er: Tree | null;
     msel: number;
     mser: number;
+    origin: any;
 
-    constructor(width: number, height: number, y: number, children: Tree[]) {
+    constructor(width: number, height: number, y: number, children: Tree[], origin: any) {
         this.w = width;
         this.h = height;
         this.y = y;
@@ -35,5 +36,6 @@ export class Tree {
         //sum of modifiers at the extreme nodes
         this.msel = 0;
         this.mser = 0;
+        this.origin = origin;
     }
 }

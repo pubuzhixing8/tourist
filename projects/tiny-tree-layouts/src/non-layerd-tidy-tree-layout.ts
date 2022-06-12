@@ -141,11 +141,12 @@ function positionRoot(tree: Tree) {
 }
 
 function firstWalk(tree: Tree) {
+    console.log(tree.origin.value.children[0].text, 'firstWalk');
     if (tree.cs === 0) {
+        console.log('cs === 0: setExtremes');
         setExtremes(tree);
         return;
     }
-
     firstWalk(tree.c[0]);
     // Create siblings in contour minimal vertical coordinate and index list
     let ih = updateIYL(bottom(tree.c[0].el as Tree), 0, null);
@@ -153,9 +154,11 @@ function firstWalk(tree: Tree) {
         firstWalk(tree.c[i]);
         // Store lowest vertical coordinate while extreme nodes still point in current subtree
         const minY = bottom(tree.c[i].er as Tree);
+        console.log(tree.origin.value.children[0].text, 'seperate');
         seperate(tree, i, ih);
         ih = updateIYL(minY, i, ih);
     }
+    console.log('positionRoot', tree.origin.value.children[0].text);
     positionRoot(tree);
     setExtremes(tree);
 }

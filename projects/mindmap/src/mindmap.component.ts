@@ -85,7 +85,7 @@ export class PlaitMindmapComponent implements OnInit, OnDestroy {
     updateMindmap(doCheck = true) {
         MINDMAP_TO_COMPONENT.set(this.value, this);
         // const options = this.getOptions();
-        const bb = new BoundingBox(10, 20);
+        const bb = new BoundingBox(20, 40);
         const layout = new Layout(bb);
         // const layout = new MindmapLayouts.RightLogical(this.value, options);
         this.root = layout.layout(this.value).result;
