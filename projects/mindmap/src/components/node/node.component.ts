@@ -87,7 +87,7 @@ export class MindmapNodeComponent implements OnInit, OnChanges, OnDestroy {
         this.drawRichtext();
         this.initialized = true;
         ELEMENT_GROUP_TO_COMPONENT.set(this.gGroup, this);
-        // MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.data, this);
+        MINDMAP_ELEMENT_TO_COMPONENT.set(this.node.origin, this);
     }
 
     drawNode() {
