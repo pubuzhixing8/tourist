@@ -9,7 +9,6 @@ export function drawMindmapNodeRichtext(
     viewContainerRef: ViewContainerRef,
     scale = 1
 ) {
-    // const data = node.data;
     const { x, y, width, height } = getRectangleByNode(node);
 
     const textX = (x + PEM * 0.8) / scale;

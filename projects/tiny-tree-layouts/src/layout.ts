@@ -24,23 +24,6 @@ export class Layout {
         return root;
     }
 
-    // /**
-    //  * Returns Tree to layout, with bounding boxes added to each node.
-    //  */
-    // static convert(treeData: any, y = 0, options: LayoutOptions): Tree {
-    //     // if (treeData === null) return null;
-
-    //     const { width, height } = this.boundingBox.addBoundingBox(treeData.width, treeData.height);
-    //     let children = [];
-    //     if (treeData.children && treeData.children.length) {
-    //         for (let i = 0; i < treeData.children.length; i++) {
-    //             children[i] = this.convert(treeData.children[i], y + height);
-    //         }
-    //     }
-
-    //     return new Tree(width, height, y, children, treeData);
-    // }
-
     static convert(node: Node, isHorizontal: boolean, d = 0) {
         if (isHorizontal) {
             node.x = d;
